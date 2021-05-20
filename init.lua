@@ -62,6 +62,7 @@ airutils.selection_box = {
 airutils.groups_right = {snappy=2,choppy=2,oddly_breakable_by_hand=2,not_in_creative_inventory=1}
 airutils.groups = {snappy=2,choppy=2,oddly_breakable_by_hand=2}
 
+-- PAPI node (default left)
 minetest.register_node("airutils:papi",{
 	description = "PAPI",
 	inventory_image = "papi.png",
@@ -108,6 +109,7 @@ minetest.register_node("airutils:papi",{
     end,
 })
 
+-- PAPI right node
 minetest.register_node("airutils:papi_right",{
     description = "PAPI_right_side",
 	tiles = {"airutils_black.png", "airutils_u_black.png", "airutils_white.png",
@@ -140,6 +142,8 @@ minetest.register_node("airutils:papi_right",{
     end,
 })
 
+
+-- PAPI craft
 minetest.register_craft({
 	output = 'airutils:papi',
 	recipe = {
