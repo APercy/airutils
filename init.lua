@@ -140,5 +140,12 @@ minetest.register_node("airutils:papi_right",{
     end,
 })
 
-
+minetest.register_craft({
+	output = 'airutils:papi',
+	recipe = {
+		{'default:glass', 'default:mese_crystal', 'default:glass'},
+		{'default:glass', 'default:steel_ingot' , 'default:glass'},
+		{''             , 'default:steel_ingot' , ''},
+	}
+})
 
