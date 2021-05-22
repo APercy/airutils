@@ -81,4 +81,11 @@ minetest.register_tool("airutils:tug", {
 	sound = {breaks = "default_tool_breaks"},
 })
 
-
+minetest.register_craft({
+	output = "airutils:tug",
+	recipe = {
+		{"", "", "default:steel_ingot"},
+		{"", "default:steel_ingot", ""},
+		{"default:steel_ingot", "default:stick", "default:diamond"},
+	}
+})
