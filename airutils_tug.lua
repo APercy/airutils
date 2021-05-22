@@ -49,7 +49,7 @@ minetest.register_tool("airutils:tug", {
         local pos = player:get_pos()
         local pname = player:get_player_name()
 
-        if areas then
+        --[[if areas then
             if not areas:canInteract(pos, pname) then
 		        local owners = areas:getNodeOwners(pos)
 		        minetest.chat_send_player(pname,
@@ -59,7 +59,19 @@ minetest.register_tool("airutils:tug", {
 	        else
                 airutils.move_target(player, pointed_thing)
             end
-        else
+        end]]--
+        local is_protected = minetest.is_protected
+        if is_protected then
+            if not is_protected(pos, pname) then
+                airutils.move_target(player, pointed_thing)
+            else
+		        minetest.chat_send_player(pname,
+			        S("@1 is protected.",
+				        minetest.pos_to_string(pos)))
+            end
+        end
+
+        if not is_protected then
             airutils.move_target(player, pointed_thing)
         end
 
