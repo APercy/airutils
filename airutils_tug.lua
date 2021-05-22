@@ -1,11 +1,39 @@
-local function try_raycast(pos, look_dir)
-	local raycast = minetest.raycast(pos, look_dir, true, false)
-	local pointed = raycast:next()
-    while pointed do
-	    if pointed and pointed.type == "object" and pointed.ref and not pointed.ref:is_player() then
-            return pointed.ref
-	    end
-        pointed = raycast:next()
+local S = minetest.get_translator("airutils")
+
+function airutils.move_target(player, pointed_thing)
+    local pos = player:get_pos()
+    local yaw = player:get_look_horizontal()
+
+    local object = pointed_thing.ref
+    --minetest.chat_send_all(dump(object))
+    if object then
+        local obj_pos = object:get_pos()
+        local hip = math.sqrt(math.pow(obj_pos.x - pos.x,2)+math.pow(obj_pos.z - pos.z,2)) + 1
+        pos_x = math.sin(yaw) * -hip
+        pos_z = math.cos(yaw) * hip
+        obj_pos.x = pos.x + pos_x
+        obj_pos.z = pos.z + pos_z
+
+        local node = minetest.get_node(obj_pos).name
+        local nodedef = minetest.registered_nodes[node]
+        local is_airlike = nodedef.drawtype == "airlike"
+
+        if player:get_player_control().sneak == true then
+            local rotation = object:get_rotation()
+            rotation.y = yaw + math.rad(180)
+            object:set_rotation(rotation)
+        else
+            if is_airlike then object:set_pos(obj_pos) end
+        end
+        --[[if object:get_attach() then
+            local dir = player:get_look_dir()
+            minetest.chat_send_all('detach')
+            object:set_detach()
+            object:set_rotation(dir)
+        else
+            minetest.chat_send_all('object found')
+            object:set_attach(player, "", {x=0, y=0, z=20})
+        end]]--
     end
 end
 
@@ -18,28 +46,27 @@ minetest.register_tool("airutils:tug", {
 			return
 		end
 
-	    --[[local pos = player:get_pos()
-	    local pname = player:get_player_name()
+        local pos = player:get_pos()
+        local pname = player:get_player_name()
 
-        local look_dir = player:get_look_dir()
-        local object = try_raycast(pos, look_dir)
-        if object then
-            if object:get_attach() then
-                local dir = player:get_look_dir()
-                minetest.chat_send_all('detach')
-                object:set_detach()
-                object:set_rotation(dir)
-            else
-                minetest.chat_send_all('object found')
-                object:set_attach(player, "", {x=0, y=0, z=20})
+        if areas then
+            if not areas:canInteract(pos, pname) then
+		        local owners = areas:getNodeOwners(pos)
+		        minetest.chat_send_player(pname,
+			        S("@1 is protected by @2.",
+				        minetest.pos_to_string(pos),
+				        table.concat(owners, ", ")))
+	        else
+                airutils.move_target(player, pointed_thing)
             end
-        end]]--
-	end,
+        else
+            airutils.move_target(player, pointed_thing)
+        end
 
-    --[[on_secondary_use = function(itemstack, user, pointed_thing)
-        local object = user:get_attach()
-        if object then user:set_detach() end
-    end,]]--
+
+	end,
 
 	sound = {breaks = "default_tool_breaks"},
 })
+
+
