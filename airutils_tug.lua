@@ -20,8 +20,10 @@ function airutils.move_target(player, pointed_thing)
 
         if player:get_player_control().sneak == true then
             local rotation = object:get_rotation()
-            rotation.y = yaw + math.rad(180)
-            object:set_rotation(rotation)
+            if rotation then
+                rotation.y = yaw + math.rad(180)
+                object:set_rotation(rotation)
+            end
         else
             if is_airlike then object:set_pos(obj_pos) end
         end

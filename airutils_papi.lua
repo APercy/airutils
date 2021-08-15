@@ -93,6 +93,24 @@ minetest.register_node("airutils:papi",{
     end,
 })
 
+function airutils.remove_papi(pos)
+	local meta = core.get_meta(pos)
+    local node = minetest.get_node(pos)
+    local dir=node.param2
+    if node.name == "airutils:papi_right" then
+        core.set_node(pos, {name="airutils:papi", param2=dir})
+    	meta:set_string("infotext", "PAPI - left side\rOwned by: "..player_name)
+    end
+
+	meta:set_string("owner", player_name)
+	meta:set_string("dont_destroy", "false")
+
+	if meta:get_string("dont_destroy") == "true" then
+		-- when swapping it
+		return
+	end
+end
+
 -- PAPI right node
 minetest.register_node("airutils:papi_right",{
     description = "PAPI_right_side",
