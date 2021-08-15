@@ -128,7 +128,7 @@ minetest.register_node("airutils:papi_right",{
 	collision_box = airutils.papi_collision_box,
 	can_dig = airutils.canDig,
     _color = "",
-	on_destruct = airutils.remove,
+	on_destruct = airutils.remove_papi,
 	on_rightclick=airutils.togglePapiSide,
     on_punch = function(pos, node, puncher, pointed_thing)
 	    local player_name = puncher:get_player_name()
