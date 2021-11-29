@@ -48,6 +48,9 @@ minetest.register_tool("airutils:tug", {
 			return
 		end
 
+        local is_admin = false
+        is_admin = minetest.check_player_privs(player, {server=true})            
+            
         local pos = player:get_pos()
         local pname = player:get_player_name()
 
@@ -64,7 +67,15 @@ minetest.register_tool("airutils:tug", {
         end]]--
         local is_protected = minetest.is_protected
         if is_protected then
-            if not is_protected(pos, pname) then
+            local owner = nil
+            local object = pointed_thing.ref
+            if object then
+                local ent = object:get_luaentity()
+                if ent then
+                    if ent.owner then owner = ent.owner end
+                end
+            end
+            if not is_protected(pos, pname) or pname == owner or is_admin then
                 airutils.move_target(player, pointed_thing)
             else
 		        minetest.chat_send_player(pname,
