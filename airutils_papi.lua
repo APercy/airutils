@@ -94,6 +94,7 @@ minetest.register_node("airutils:papi",{
 })
 
 function airutils.remove_papi(pos)
+    --[[
 	local meta = core.get_meta(pos)
     local node = minetest.get_node(pos)
     if node and meta then
@@ -110,7 +111,7 @@ function airutils.remove_papi(pos)
 		    -- when swapping it
 		    return
 	    end
-    end
+    end]]--
 end
 
 -- PAPI right node
