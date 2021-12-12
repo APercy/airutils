@@ -4,6 +4,7 @@ airutils = {}
 
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_papi.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_tug.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
 
 function airutils.remove(pos)
 	local meta = core.get_meta(pos)
