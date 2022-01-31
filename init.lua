@@ -20,10 +20,10 @@ function airutils.canDig(pos, player)
 		and player:get_player_name() == meta:get_string("owner")
 end
 
-function airutils.check_node_below(obj)
+function airutils.check_node_below(obj, how_low)
     local pos_below = obj:get_pos()
     if pos_below then
-        pos_below.y = pos_below.y - 2.5
+        pos_below.y = pos_below.y - how_low
         local node_below = minetest.get_node(pos_below).name
         local nodedef = minetest.registered_nodes[node_below]
         local touching_ground = not nodedef or -- unknown nodes are solid
