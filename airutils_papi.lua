@@ -49,8 +49,8 @@ airutils.groups = {snappy=2,choppy=2,oddly_breakable_by_hand=2}
 -- PAPI node (default left)
 minetest.register_node("airutils:papi",{
 	description = "PAPI",
-	inventory_image = "papi.png",
-	wield_image = "papi.png",
+	--inventory_image = "papi.png",
+	--wield_image = "papi.png",
 	tiles = {"airutils_black.png", "airutils_u_black.png", "airutils_white.png",
 	"airutils_metal.png", {name = "airutils_red.png", backface_culling = true},},
 	groups = airutils.groups,
