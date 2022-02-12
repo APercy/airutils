@@ -2,6 +2,24 @@
 
 airutils = {}
 
+airutils.colors ={
+    black='#2b2b2b',
+    blue='#0063b0',
+    brown='#8c5922',
+    cyan='#07B6BC',
+    dark_green='#567a42',
+    dark_grey='#6d6d6d',
+    green='#4ee34c',
+    grey='#9f9f9f',
+    magenta='#ff0098',
+    orange='#ff8b0e',
+    pink='#ff62c6',
+    red='#dc1818',
+    violet='#a437ff',
+    white='#FFFFFF',
+    yellow='#ffe400',
+}
+
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_papi.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_tug.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
@@ -148,3 +166,56 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     -- end lift
     return retval
 end
+
+function airutils.set_paint(self, puncher, itmstck, texture_name)
+    local item_name = ""
+    if itmstck then item_name = itmstck:get_name() end
+
+    if item_name == "automobiles_lib:painter" or item_name == "bike:painter" then
+        --painting with bike painter
+        local meta = itmstck:get_meta()
+	    local colstr = meta:get_string("paint_color")
+        --minetest.chat_send_all(dump(colstr))
+        airutils.paint(self, colstr, texture_name)
+        return true
+    else
+        --painting with dyes
+        local split = string.split(item_name, ":")
+        local color, indx, _
+        if split[1] then _,indx = split[1]:find('dye') end
+        if indx then
+            for clr,_ in pairs(airutils.colors) do
+                local _,x = split[2]:find(clr)
+                if x then color = clr end
+            end
+            --lets paint!!!!
+	        --local color = item_name:sub(indx+1)
+	        local colstr = airutils.colors[color]
+            --minetest.chat_send_all(color ..' '.. dump(colstr))
+	        if colstr then
+                airutils.paint(self, colstr, texture_name)
+		        itmstck:set_count(itmstck:get_count()-1)
+		        puncher:set_wielded_item(itmstck)
+                return true
+	        end
+            -- end painting
+        end
+    end
+    return false
+end
+
+--painting
+function airutils.paint(self, colstr, texture_name)
+    if colstr then
+        self._color = colstr
+        local l_textures = self.initial_properties.textures
+        for _, texture in ipairs(l_textures) do
+            local indx = texture:find(texture_name)
+            if indx then
+                l_textures[_] = texture_name.."^[multiply:".. colstr
+            end
+        end
+	    self.object:set_properties({textures=l_textures})
+    end
+end
+
