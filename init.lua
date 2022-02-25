@@ -115,6 +115,35 @@ function airutils.detect_player_api(player)
     return 0
 end
 
+local function get_nodedef_field(nodename, fieldname)
+    if not minetest.registered_nodes[nodename] then
+        return nil
+    end
+    return minetest.registered_nodes[nodename][fieldname]
+end
+
+--for 
+function airutils.eval_vertical_interception(initial_pos, end_pos)
+    local ret_y = nil
+	local cast = minetest.raycast(initial_pos, end_pos, true, true)
+	local thing = cast:next()
+	while thing do
+		if thing.type == "node" then
+            local pos = thing.intersection_point
+            if pos then
+                local nodename = minetest.get_node(thing.under).name
+                local drawtype = get_nodedef_field(nodename, "drawtype")
+                if drawtype ~= "plantlike" then
+                    ret_y = pos.y
+                    break
+                end
+            end
+        end
+        thing = cast:next()
+    end
+    return ret_y
+end
+
 --lift
 local function pitchroll2pitchyaw(aoa,roll)
 	if roll == 0.0 then return aoa,0 end
@@ -127,7 +156,61 @@ local function pitchroll2pitchyaw(aoa,roll)
 	return pitch,yaw
 end
 
-function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, lift, max_height)
+function lerp(a, b, c)
+	return a + (b - a) * c
+end
+ 
+function quadBezier(t, p0, p1, p2)
+	local l1 = lerp(p0, p1, t)
+	local l2 = lerp(p1, p2, t)
+	local quad = lerp(l1, l2, t)
+	return quad
+end
+
+function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
+    local half_wingspan = wingspan/2
+    local initial_pos = {x=curr_pos.x, y=curr_pos.y, z=curr_pos.z} --lets make my own table to avoid interferences
+    if self._last_ground_effect_eval == nil then self._last_ground_effect_eval = 0 end
+    self._last_ground_effect_eval = self._last_ground_effect_eval + self.dtime --dtime cames from mobkit
+    local ground_distance = wingspan
+    if self._last_ground_effect_eval >= 0.4 then
+        --self._last_ground_effect_eval = 0
+        local ground_y = airutils.eval_vertical_interception(initial_pos, {x=initial_pos.x, y=initial_pos.y - half_wingspan, z=initial_pos.z})
+        if ground_y then
+            ground_distance = curr_pos.y - ground_y
+        end
+    end
+
+    --smooth the curve
+    local distance_factor = ((ground_distance) * 1) / (wingspan)
+    local effect_factor = quadBezier(distance_factor, 0, wingspan, 0)
+    if effect_factor < 0 then effect_factor = 0 end
+    if effect_factor > 0 then
+        effect_factor = math.abs( half_wingspan - effect_factor )
+    end
+    
+    local lift_factor = ((effect_factor) * 1) / (half_wingspan) --agora isso é um percentual
+    local max_extra_lift_percent = 0.5 * lift  --e aqui o maximo extra de sustentação
+    local extra_lift = max_extra_lift_percent * lift_factor
+    
+    return extra_lift
+end
+
+
+-- velocity: velocity table
+-- accel: current acceleration
+-- longit_speed: the vehicle speed
+-- roll: roll angle
+-- curr_pos: current position
+-- lift: lift factor (very simplified)
+-- max_height: the max ceilling for the airplane
+-- wingspan: for ground effect calculation
+function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, lift, max_height, wingspan)
+    wingspan = wingspan or 10
+    local ground_effect_extra_lift = airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
+    --minetest.chat_send_all('lift: '.. lift ..' - extra lift: '.. ground_effect_extra_lift)
+    lift = lift + ground_effect_extra_lift
+
     --lift calculations
     -----------------------------------------------------------
     max_height = max_height or 20000
