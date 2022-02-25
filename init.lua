@@ -169,31 +169,39 @@ end
 
 function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
     local half_wingspan = wingspan/2
-    local initial_pos = {x=curr_pos.x, y=curr_pos.y, z=curr_pos.z} --lets make my own table to avoid interferences
+    local lower_collision = self.initial_properties.collisionbox[2]
+    local initial_pos = {x=curr_pos.x, y=curr_pos.y + lower_collision, z=curr_pos.z} --lets make my own table to avoid interferences
+
+    if self._extra_lift == nil then self._extra_lift = 0 end
     if self._last_ground_effect_eval == nil then self._last_ground_effect_eval = 0 end
+
     self._last_ground_effect_eval = self._last_ground_effect_eval + self.dtime --dtime cames from mobkit
+
     local ground_distance = wingspan
-    if self._last_ground_effect_eval >= 0.4 then
-        --self._last_ground_effect_eval = 0
+    if self._last_ground_effect_eval >= 0.25 then
+        self._last_ground_effect_eval = 0
+        self._last_ground_distance = ground_distance
         local ground_y = airutils.eval_vertical_interception(initial_pos, {x=initial_pos.x, y=initial_pos.y - half_wingspan, z=initial_pos.z})
         if ground_y then
-            ground_distance = curr_pos.y - ground_y
+            ground_distance = initial_pos.y - ground_y
         end
-    end
-
-    --smooth the curve
-    local distance_factor = ((ground_distance) * 1) / (wingspan)
-    local effect_factor = quadBezier(distance_factor, 0, wingspan, 0)
-    if effect_factor < 0 then effect_factor = 0 end
-    if effect_factor > 0 then
-        effect_factor = math.abs( half_wingspan - effect_factor )
+        --minetest.chat_send_all(dump(ground_distance))
+    
+        --smooth the curve
+        local distance_factor = ((ground_distance) * 1) / (wingspan)
+        local effect_factor = quadBezier(distance_factor, 0, wingspan, 0)
+        if effect_factor < 0 then effect_factor = 0 end
+        if effect_factor > 0 then
+            effect_factor = math.abs( half_wingspan - effect_factor )
+        end
+        
+        local lift_factor = ((effect_factor) * 1) / (half_wingspan) --agora isso é um percentual
+        local max_extra_lift_percent = 0.5 * lift  --e aqui o maximo extra de sustentação
+        local extra_lift = max_extra_lift_percent * lift_factor
+        self._extra_lift = extra_lift
     end
     
-    local lift_factor = ((effect_factor) * 1) / (half_wingspan) --agora isso é um percentual
-    local max_extra_lift_percent = 0.5 * lift  --e aqui o maximo extra de sustentação
-    local extra_lift = max_extra_lift_percent * lift_factor
-    
-    return extra_lift
+    return self._extra_lift --return the value stored
 end
 
 
