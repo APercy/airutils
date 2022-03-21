@@ -20,9 +20,13 @@ airutils.colors ={
     yellow='#ffe400',
 }
 
+airutils.fuel = {['biofuel:biofuel'] = 1,['biofuel:bottle_fuel'] = 1,
+                ['biofuel:phial_fuel'] = 0.25, ['biofuel:fuel_can'] = 10}
+
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_papi.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_tug.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lua")
 
 function airutils.remove(pos)
 	local meta = core.get_meta(pos)
