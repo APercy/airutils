@@ -4,6 +4,11 @@ airutils.modname = minetest.get_current_modname()
 local function get_formspec_by_size(self, size)
     local background = default.gui_bg .. default.gui_bg_img .. default.gui_slots
     local default_inventory_formspecs = {
+	    ["3"]="size[8,6]".. background ..
+	    "list[detached:" .. self._inv_id .. ";main;2.5,0;3,1;]" ..
+	    "list[current_player;main;0,2;8,4;]" ..
+	    "listring[]",
+
 	    ["4"]="size[8,6]".. background ..
 	    "list[detached:" .. self._inv_id .. ";main;2,0;4,1;]" ..
 	    "list[current_player;main;0,2;8,4;]" ..
