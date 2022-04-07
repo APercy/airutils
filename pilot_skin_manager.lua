@@ -3,13 +3,11 @@ airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png",}
 
 minetest.register_chatcommand("au_uniform", {
     func = function(name, param)
-        if minetest.check_player_privs(name, {server=true}) then
-            local player = minetest.get_player_by_name(name)
-            if player then
-                airutils.uniform_formspec(name)
-            else
-                minetest.chat_send_player(name, "Something isn't working...")
-            end
+        local player = minetest.get_player_by_name(name)
+        if player then
+            airutils.uniform_formspec(name)
+        else
+            minetest.chat_send_player(name, "Something isn't working...")
         end
     end,
 })
