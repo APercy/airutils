@@ -27,6 +27,8 @@ function airutils.set_player_skin(player, skin)
             if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
                 player:set_attribute(backup, texture) --texture backup
                 --minetest.chat_send_all(dump(player:get_attribute(backup)))
+            else
+                texture = player:get_attribute(backup)
             end
             texture = texture.."^"..skin
             if texture ~= nil and texture ~= "" then
