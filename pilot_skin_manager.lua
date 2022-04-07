@@ -37,7 +37,7 @@ function airutils.set_player_skin(player, skin)
         else
             local old_texture = player:get_attribute(backup)
             if set_skin then
-                if player:get_attribute("set_skin:player_skin") ~= nil then
+                if player:get_attribute("set_skin:player_skin") ~= nil and player:get_attribute("set_skin:player_skin") ~= "" then
                     old_texture = player:get_attribute("set_skin:player_skin")
                 end
             elseif skins then
