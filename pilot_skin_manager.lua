@@ -1,5 +1,5 @@
 
-airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png",}
+airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png","pilot_clothes3.png"}
 
 minetest.register_chatcommand("au_uniform", {
     func = function(name, param)
