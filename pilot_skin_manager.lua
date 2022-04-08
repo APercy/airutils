@@ -1,9 +1,16 @@
 
 airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png","pilot_clothes3.png","pilot_clothes4.png"}
+local skinsdb_mod_path = minetest.get_modpath("skinsdb")
 
 minetest.register_chatcommand("au_uniform", {
     func = function(name, param)
         local player = minetest.get_player_by_name(name)
+        
+        if skinsdb_mod_path then
+            minetest.chat_send_player(name, "This tool is incompatible with skinsdb.")
+            return
+        end
+
         if player then
             airutils.uniform_formspec(name)
         else
@@ -39,10 +46,6 @@ function airutils.set_player_skin(player, skin)
             if set_skin then
                 if player:get_attribute("set_skin:player_skin") ~= nil and player:get_attribute("set_skin:player_skin") ~= "" then
                     old_texture = player:get_attribute("set_skin:player_skin")
-                end
-            elseif skins then
-                if skins.skins[name] ~= nil then
-                    old_texture = skins.skins[name]
                 end
             elseif u_skins then
                 if u_skins.u_skins[name] ~= nil then
