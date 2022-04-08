@@ -5,11 +5,6 @@ local skinsdb_mod_path = minetest.get_modpath("skinsdb")
 minetest.register_chatcommand("au_uniform", {
     func = function(name, param)
         local player = minetest.get_player_by_name(name)
-        
-        if skinsdb_mod_path then
-            minetest.chat_send_player(name, "This tool is incompatible with skinsdb.")
-            return
-        end
 
         if player then
             airutils.uniform_formspec(name)
@@ -31,6 +26,10 @@ function airutils.set_player_skin(player, skin)
     if texture then
         if skin then
             texture = texture[1]
+            if skinsdb_mod_path then
+                texture = "character.png"
+            end
+
             if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
                 player:set_attribute(backup, texture) --texture backup
                 --minetest.chat_send_all(dump(player:get_attribute(backup)))
@@ -39,7 +38,16 @@ function airutils.set_player_skin(player, skin)
             end
             texture = texture.."^"..skin
             if texture ~= nil and texture ~= "" then
-                set_player_textures(player, { texture })
+                if skinsdb_mod_path then
+		            player:set_properties({
+			            visual = "mesh",
+			            visual_size = {x=1, y=1},
+			            mesh = "character.b3d",
+			            textures = {texture},
+		            })
+                else
+                    set_player_textures(player, { texture })
+                end
             end
         else
             local old_texture = player:get_attribute(backup)
@@ -59,8 +67,18 @@ function airutils.set_player_skin(player, skin)
                 end
             end
             --minetest.chat_send_all(dump(old_texture))
-            if old_texture ~= nil and old_texture ~= "" then
-                set_player_textures(player, { old_texture })
+            if skinsdb_mod_path then
+	            player:set_properties({
+		            visual = "mesh",
+		            visual_size = {x=1, y=1},
+		            mesh = "skinsdb_3d_armor_character_5.b3d",
+		            textures = {texture},
+	            })
+                skins.set_player_skin(player, skins.get_player_skin(player))
+            else
+                if old_texture ~= nil and old_texture ~= "" then
+                    set_player_textures(player, { old_texture })
+                end
             end
             player:set_attribute(backup, nil)
         end
