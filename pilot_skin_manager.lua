@@ -26,20 +26,24 @@ function airutils.set_player_skin(player, skin)
     local name = player:get_player_name()
     if texture then
         if skin then
+            --get current texture
             texture = texture[1]
             if skinsdb_mod_path then
-                texture = "character.png"
-                --local skdb_skin = skins.get_player_skin(player)
-                --texture = texture.."^"..skdb_skin._texture
+                local skdb_skin = skins.get_player_skin(player)
+                texture = "[combine:64x32:0,0="..skdb_skin._texture..":0,0="..skin.."]"
+            else
+                --backup current texture
+                if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
+                    player:set_attribute(backup, texture) --texture backup
+                else
+                    texture = player:get_attribute(backup)
+                end
             end
 
-            if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
-                player:set_attribute(backup, texture) --texture backup
-                --minetest.chat_send_all(dump(player:get_attribute(backup)))
-            else
-                texture = player:get_attribute(backup)
-            end
+            --combine the texture
             texture = texture.."^"..skin
+
+            --sets the combined texture
             if texture ~= nil and texture ~= "" then
                 if skinsdb_mod_path then
 		            player:set_properties({
@@ -54,6 +58,7 @@ function airutils.set_player_skin(player, skin)
                 end
             end
         else
+            --remove texture
             local old_texture = player:get_attribute(backup)
             if set_skin then
                 if player:get_attribute("set_skin:player_skin") ~= nil and player:get_attribute("set_skin:player_skin") ~= "" then
