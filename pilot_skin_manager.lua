@@ -29,6 +29,8 @@ function airutils.set_player_skin(player, skin)
             texture = texture[1]
             if skinsdb_mod_path then
                 texture = "character.png"
+                --local skdb_skin = skins.get_player_skin(player)
+                --texture = texture.."^"..skdb_skin._texture
             end
 
             if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
@@ -42,14 +44,14 @@ function airutils.set_player_skin(player, skin)
                 if skinsdb_mod_path then
 		            player:set_properties({
 			            visual = "mesh",
-			            visual_size = {x=1, y=1},
+			            visual_size = {x=0.95, y=1},
 			            mesh = "character.b3d",
 			            textures = {texture},
 		            })
                 else
                     set_player_textures(player, { texture })
+                    player:set_attribute(curr_skin, texture)
                 end
-                player:set_attribute(curr_skin, texture) 
             end
         else
             local old_texture = player:get_attribute(backup)
@@ -79,6 +81,7 @@ function airutils.set_player_skin(player, skin)
                 end
             end
             player:set_attribute(backup, nil)
+            player:set_attribute(curr_skin, nil)
         end
     end
 end
