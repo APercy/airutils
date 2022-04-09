@@ -1,6 +1,8 @@
 
 airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png","pilot_clothes3.png","pilot_clothes4.png"}
 local skinsdb_mod_path = minetest.get_modpath("skinsdb")
+local backup = "airutils:bcp_last_skin"
+local curr_skin = "airutils:skin"
 
 minetest.register_chatcommand("au_uniform", {
     func = function(name, param)
@@ -19,7 +21,6 @@ local set_player_textures =
 	or default.player_set_textures
 
 function airutils.set_player_skin(player, skin)
-    local backup = "airutils:bcp_last_skin"
     local player_proterties = player:get_properties()
     local texture = player_proterties.textures
     local name = player:get_player_name()
@@ -48,6 +49,7 @@ function airutils.set_player_skin(player, skin)
                 else
                     set_player_textures(player, { texture })
                 end
+                player:set_attribute(curr_skin, texture) 
             end
         else
             local old_texture = player:get_attribute(backup)
@@ -113,3 +115,18 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         minetest.close_formspec(name, "airutils:change")
     end
 end)
+
+if not skinsdb_mod_path then -- If not managed by skinsdb
+
+	minetest.register_on_joinplayer(function(player)
+		local skin = player:get_attribute(curr_skin)
+
+		if skin and skin ~= "" and skin ~= nil then
+
+			-- setting player skin on connect has no effect, so delay skin change
+			minetest.after(3, function(player1, skin1)
+                airutils.set_player_skin(player1, skin1)
+			end, player, skin)
+		end
+	end)
+end
