@@ -30,14 +30,14 @@ function airutils.set_player_skin(player, skin)
             texture = texture[1]
             if skinsdb_mod_path then
                 local skdb_skin = skins.get_player_skin(player)
-                texture = "[combine:64x32:0,0="..skdb_skin._texture..":0,0="..skin.."]"
+                texture = "[combine:64x32:0,0="..skdb_skin._texture --..":0,0="..skin
+            end
+
+            --backup current texture
+            if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
+                player:set_attribute(backup, texture) --texture backup
             else
-                --backup current texture
-                if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
-                    player:set_attribute(backup, texture) --texture backup
-                else
-                    texture = player:get_attribute(backup)
-                end
+                texture = player:get_attribute(backup)
             end
 
             --combine the texture
@@ -53,9 +53,9 @@ function airutils.set_player_skin(player, skin)
 			            textures = {texture},
 		            })
                 else
-                    set_player_textures(player, { texture })
-                    player:set_attribute(curr_skin, texture)
+                    set_player_textures(player, {texture})
                 end
+                player:set_attribute(curr_skin, texture)
             end
         else
             --remove texture
@@ -124,17 +124,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
     end
 end)
 
-if not skinsdb_mod_path then -- If not managed by skinsdb
+minetest.register_on_joinplayer(function(player)
+	local skin = player:get_attribute(curr_skin)
 
-	minetest.register_on_joinplayer(function(player)
-		local skin = player:get_attribute(curr_skin)
+	if skin and skin ~= "" and skin ~= nil then
 
-		if skin and skin ~= "" and skin ~= nil then
-
-			-- setting player skin on connect has no effect, so delay skin change
-			minetest.after(3, function(player1, skin1)
-                airutils.set_player_skin(player1, skin1)
-			end, player, skin)
-		end
-	end)
-end
+		-- setting player skin on connect has no effect, so delay skin change
+		minetest.after(3, function(player1, skin1)
+            airutils.set_player_skin(player1, skin1)
+		end, player, skin)
+	end
+end)
