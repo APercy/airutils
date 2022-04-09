@@ -6,12 +6,16 @@ local curr_skin = "airutils:skin"
 
 minetest.register_chatcommand("au_uniform", {
     func = function(name, param)
-        local player = minetest.get_player_by_name(name)
-
-        if player then
-            airutils.uniform_formspec(name)
+        if skinsdb_mod_path and minetest.global_exists("armor") then
+            minetest.chat_send_player(name, "Sorry, but this module doesn't work when SkinsDb and Armor are instaled together.")
         else
-            minetest.chat_send_player(name, "Something isn't working...")
+            local player = minetest.get_player_by_name(name)
+
+            if player then
+                airutils.uniform_formspec(name)
+            else
+                minetest.chat_send_player(name, "Something isn't working...")
+            end
         end
     end,
 })
@@ -52,6 +56,9 @@ function airutils.set_player_skin(player, skin)
 			            mesh = "character.b3d",
 			            textures = {texture},
 		            })
+                    if armor then
+                        armor:update_player_visuals(player)
+                    end
                 else
                     set_player_textures(player, {texture})
                 end
@@ -80,6 +87,9 @@ function airutils.set_player_skin(player, skin)
 		            textures = {texture},
 	            })
                 skins.set_player_skin(player, skins.get_player_skin(player))
+                if armor then
+                    armor:set_player_armor(player)
+                end
             else
                 if old_texture ~= nil and old_texture ~= "" then
                     set_player_textures(player, { old_texture })
