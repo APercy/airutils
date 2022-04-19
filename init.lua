@@ -107,7 +107,7 @@ end
 function airutils.detect_player_api(player)
     local player_proterties = player:get_properties()
     local mesh = "character.b3d"
-    if player_proterties.mesh == mesh then
+    if player_proterties.mesh == mesh or player_proterties.mesh == "max.b3d" then
         local models = player_api.registered_models
         local character = models[mesh]
         if character then
