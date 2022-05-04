@@ -165,11 +165,11 @@ local function pitchroll2pitchyaw(aoa,roll)
 	return pitch,yaw
 end
 
-function lerp(a, b, c)
+local function lerp(a, b, c)
 	return a + (b - a) * c
 end
  
-function quadBezier(t, p0, p1, p2)
+function airutils.quadBezier(t, p0, p1, p2)
 	local l1 = lerp(p0, p1, t)
 	local l2 = lerp(p1, p2, t)
 	local quad = lerp(l1, l2, t)
@@ -198,7 +198,7 @@ function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
     
         --smooth the curve
         local distance_factor = ((ground_distance) * 1) / (wingspan)
-        local effect_factor = quadBezier(distance_factor, 0, wingspan, 0)
+        local effect_factor = airutils.quadBezier(distance_factor, 0, wingspan, 0)
         if effect_factor < 0 then effect_factor = 0 end
         if effect_factor > 0 then
             effect_factor = math.abs( half_wingspan - effect_factor )
@@ -223,6 +223,7 @@ end
 -- max_height: the max ceilling for the airplane
 -- wingspan: for ground effect calculation
 function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, lift, max_height, wingspan)
+    if longit_speed == nil then longit_speed = 0 end
     wingspan = wingspan or 10
     local ground_effect_extra_lift = airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
     --minetest.chat_send_all('lift: '.. lift ..' - extra lift: '.. ground_effect_extra_lift)
