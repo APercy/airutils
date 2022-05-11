@@ -268,6 +268,19 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     return retval
 end
 
+function airutils.get_plane_pitch(velocity, longit_speed, min_speed, angle_of_attack)
+    local v_speed_factor = 0
+    if longit_speed > min_speed then v_speed_factor = (velocity.y * math.rad(1)) end --the pitch for climbing os descenting
+    local min_rotation_speed = min_speed/2
+    local scale_pitch_graph = ((longit_speed-min_rotation_speed)*1)/min_rotation_speed --lets use the min rotation speed for reference to when we will start the control work
+    if scale_pitch_graph > 1 then scale_pitch_graph = 1 end --normalize to 100%
+    local pitch_by_longit_speed = 0
+    if longit_speed > min_rotation_speed then --just start the rotation after the rotation speed
+        pitch_by_longit_speed = airutils.quadBezier(scale_pitch_graph, 0, angle_of_attack, angle_of_attack) --here the magic happens using a bezier curve
+    end
+    return math.rad(pitch_by_longit_speed) + v_speed_factor
+end
+
 function airutils.set_paint(self, puncher, itmstck, texture_name)
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
