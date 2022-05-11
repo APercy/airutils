@@ -292,6 +292,27 @@ function airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_a
     return new_angle_of_attack
 end
 
+function airutils.elevator_auto_correction(self, longit_speed, dtime, max_speed, elevator_angle, elevator_limit, ideal_step)
+    if longit_speed <= 0 then return end
+    local factor = 1
+    
+    if self._elevator_angle > 0 then factor = -1 end
+    local ref_speed = longit_speed
+    if ref_speed > max_speed then ref_speed = max_speed end
+    local speed_scale = (elevator_limit + (elevator_limit/10)) - ((elevator_limit*ref_speed)/max_speed)
+    local divisor = 500
+    speed_scale = speed_scale / divisor
+    local correction = speed_scale * factor * (dtime/ideal_step)
+    
+    local before_correction = elevator_angle
+    local new_elevator_angle = elevator_angle + correction
+
+    if math.sign(before_correction) ~= math.sign(new_elevator_angle) then
+        new_elevator_angle = 0
+    end
+    return new_elevator_angle
+end
+
 function airutils.set_paint(self, puncher, itmstck, texture_name)
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
