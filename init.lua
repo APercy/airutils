@@ -292,7 +292,8 @@ function airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_a
     return new_angle_of_attack
 end
 
-function airutils.elevator_auto_correction(self, longit_speed, dtime, max_speed, elevator_angle, elevator_limit, ideal_step)
+function airutils.elevator_auto_correction(self, longit_speed, dtime, max_speed, elevator_angle, elevator_limit, ideal_step, intensity)
+    intensity = intensity or 500
     if longit_speed <= 0 then return end
     local factor = 1
     
@@ -300,7 +301,7 @@ function airutils.elevator_auto_correction(self, longit_speed, dtime, max_speed,
     local ref_speed = longit_speed
     if ref_speed > max_speed then ref_speed = max_speed end
     local speed_scale = (elevator_limit + (elevator_limit/10)) - ((elevator_limit*ref_speed)/max_speed)
-    local divisor = 500
+    local divisor = intensity
     speed_scale = speed_scale / divisor
     local correction = speed_scale * factor * (dtime/ideal_step)
     
