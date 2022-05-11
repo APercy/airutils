@@ -281,6 +281,17 @@ function airutils.get_plane_pitch(velocity, longit_speed, min_speed, angle_of_at
     return math.rad(pitch_by_longit_speed) + v_speed_factor
 end
 
+function airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_angle, limit, longit_speed, ideal_step, dtime)
+    --coloca em nivel gradualmente
+    local factor = 0
+    if angle_of_attack > max_angle then factor = -1 end
+    if angle_of_attack < min_angle then factor = 1 end
+    local correction = (limit*(longit_speed/5000)) * factor * (dtime/ideal_step)
+    --minetest.chat_send_all("angle: "..angle_of_attack.." - correction: "..correction)
+    local new_angle_of_attack = angle_of_attack + correction
+    return new_angle_of_attack
+end
+
 function airutils.set_paint(self, puncher, itmstck, texture_name)
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
