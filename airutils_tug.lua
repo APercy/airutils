@@ -17,6 +17,7 @@ function airutils.move_target(player, pointed_thing)
         local node = minetest.get_node(obj_pos).name
         local nodedef = minetest.registered_nodes[node]
         local is_airlike = nodedef.drawtype == "airlike"
+        local is_liquid = (nodedef.drawtype == "flowingliquid" or nodedef.drawtype == "liquid")
 
         if player:get_player_control().sneak == true then
             local rotation = object:get_rotation()
@@ -25,7 +26,7 @@ function airutils.move_target(player, pointed_thing)
                 object:set_rotation(rotation)
             end
         else
-            if is_airlike then object:set_pos(obj_pos) end
+            if is_airlike or is_liquid then object:set_pos(obj_pos) end
         end
         --[[if object:get_attach() then
             local dir = player:get_look_dir()
