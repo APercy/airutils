@@ -11,6 +11,10 @@ local min = math.min
 local tan = math.tan
 local pow = math.pow
 
+local sign = function(x)
+	return (x<0) and -1 or 1
+end
+
 function airutils.rot_to_dir(rot) -- keep rot within <-pi/2,pi/2>
 	local dir = minetest.yaw_to_dir(rot.y)
 	dir.y = dir.y+tan(rot.x)*vector.length(dir)
