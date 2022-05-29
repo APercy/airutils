@@ -28,6 +28,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_tug.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 
 if player_api then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "pilot_skin_manager.lua")
@@ -184,7 +185,7 @@ function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
     if self._extra_lift == nil then self._extra_lift = 0 end
     if self._last_ground_effect_eval == nil then self._last_ground_effect_eval = 0 end
 
-    self._last_ground_effect_eval = self._last_ground_effect_eval + self.dtime --dtime cames from mobkit
+    self._last_ground_effect_eval = self._last_ground_effect_eval + self.dtime --dtime cames from airutils
 
     local ground_distance = wingspan
     if self._last_ground_effect_eval >= 0.25 then
@@ -245,12 +246,12 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
         local curr_percent_height = (100 - ((curr_pos.y * 100) / max_height))/100
 
 	    local rotation=self.object:get_rotation()
-	    local vrot = mobkit.dir_to_rot(velocity,rotation)
+	    local vrot = airutils.dir_to_rot(velocity,rotation)
 	    
 	    local hpitch,hyaw = pitchroll2pitchyaw(angle_of_attack,roll)
 
 	    local hrot = {x=vrot.x+hpitch,y=vrot.y-hyaw,z=roll}
-	    local hdir = mobkit.rot_to_dir(hrot) --(hrot)
+	    local hdir = airutils.rot_to_dir(hrot) --(hrot)
 	    local cross = vector.cross(velocity,hdir)
 	    local lift_dir = vector.normalize(vector.cross(cross,hdir))
 
