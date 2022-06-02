@@ -36,7 +36,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lu
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 
-if player_api then
+if player_api and not minetest.settings:get_bool('airutils.disable_uniforms') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "pilot_skin_manager.lua")
 end
 
