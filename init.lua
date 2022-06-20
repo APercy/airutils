@@ -378,3 +378,8 @@ function airutils.getAngleFromPositions(origin, destiny)
     if angle_north < 0 then angle_north = angle_north + 360 end
     return angle_north
 end
+
+function airutils.sit(player)
+    --set_animation(frame_range, frame_speed, frame_blend, frame_loop)
+    player:set_animation({x =  81, y = 160},30, 0, true)
+end
