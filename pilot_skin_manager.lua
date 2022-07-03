@@ -29,6 +29,7 @@ function airutils.set_player_skin(player, skin)
     local texture = player_proterties.textures
     local name = player:get_player_name()
     if texture then
+        local player_meta = player:get_meta()
         if skin then
             --get current texture
             texture = texture[1]
@@ -38,10 +39,11 @@ function airutils.set_player_skin(player, skin)
             end
 
             --backup current texture
-            if player:get_attribute(backup) == nil or player:get_attribute(backup) == "" then
-                player:set_attribute(backup, texture) --texture backup
+            if player_meta.backup == nil or player_meta.backup == "" then
+                --player:set_attribute(backup, texture) --texture backup
+                player_meta:set_string("backup",texture)
             else
-                texture = player:get_attribute(backup)
+                texture = player_meta.backup
             end
 
             --combine the texture
@@ -62,7 +64,8 @@ function airutils.set_player_skin(player, skin)
                 else
                     set_player_textures(player, {texture})
                 end
-                player:set_attribute(curr_skin, texture)
+                player_meta:set_string("curr_skin",texture)
+                --player:set_attribute(curr_skin, texture)
             end
         else
             --remove texture
@@ -95,8 +98,11 @@ function airutils.set_player_skin(player, skin)
                     set_player_textures(player, { old_texture })
                 end
             end
-            player:set_attribute(backup, nil)
-            player:set_attribute(curr_skin, nil)
+            player_meta:set_string("backup","")
+            player_meta:set_string("curr_skin","")
+
+            --player:set_attribute(backup, nil)
+            --player:set_attribute(curr_skin, nil)
         end
     end
 end
