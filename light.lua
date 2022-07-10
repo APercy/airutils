@@ -8,8 +8,8 @@ function airutils.get_xz_from_hipotenuse(orig_x, orig_z, yaw, distance)
 end
 
 minetest.register_node("airutils:light", {
-	drawtype = "glasslike",
-	tile_images = {"airutils_light.png"},
+	drawtype = "airlike",
+	--tile_images = {"airutils_light.png"},
 	inventory_image = minetest.inventorycube("airutils_light.png"),
 	paramtype = "light",
 	walkable = false,
