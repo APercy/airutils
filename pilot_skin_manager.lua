@@ -1,5 +1,6 @@
 
-airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png","pilot_clothes3.png","pilot_clothes4.png","pilot_novaskin_girl.png","pilot_novaskin_girl_steampunk.png"}
+airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png","pilot_clothes3.png","pilot_clothes4.png",
+        "pilot_novaskin_girl.png","pilot_novaskin_girl_steampunk.png","pilot_novaskin_girl_2.png","pilot_novaskin_girl_steampunk_2.png"}
 local skinsdb_mod_path = minetest.get_modpath("skinsdb")
 local backup = "airutils:bcp_last_skin"
 local curr_skin = "airutils:skin"
