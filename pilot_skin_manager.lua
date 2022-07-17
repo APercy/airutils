@@ -25,8 +25,8 @@ local set_player_textures =
 	or default.player_set_textures
 
 function airutils.set_player_skin(player, skin)
-    local player_proterties = player:get_properties()
-    local texture = player_proterties.textures
+    local player_properties = player:get_properties()
+    local texture = player_properties.textures
     local name = player:get_player_name()
     if texture then
         local player_meta = player:get_meta()
@@ -39,11 +39,12 @@ function airutils.set_player_skin(player, skin)
             end
 
             --backup current texture
-            if player_meta.backup == nil or player_meta.backup == "" then
+            local backup = player_meta:get_string("backup")
+            if backup == nil or backup == "" then
                 --player:set_attribute(backup, texture) --texture backup
                 player_meta:set_string("backup",texture)
             else
-                texture = player_meta.backup
+                texture = backup
             end
 
             --combine the texture
@@ -69,7 +70,7 @@ function airutils.set_player_skin(player, skin)
             end
         else
             --remove texture
-            local old_texture = player:get_attribute(backup)
+            local old_texture = player_meta:get_string("backup")
             if set_skin then
                 if player:get_attribute("set_skin:player_skin") ~= nil and player:get_attribute("set_skin:player_skin") ~= "" then
                     old_texture = player:get_attribute("set_skin:player_skin")
@@ -141,10 +142,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 end)
 
 minetest.register_on_joinplayer(function(player)
-	local skin = player:get_attribute(curr_skin)
+    local player_meta = player:get_meta()
+    local skin = player_meta:get_string("curr_skin")
+    --minetest.chat_send_all(">>>"..skin)
 
 	if skin and skin ~= "" and skin ~= nil then
-
 		-- setting player skin on connect has no effect, so delay skin change
 		minetest.after(3, function(player1, skin1)
             airutils.set_player_skin(player1, skin1)
