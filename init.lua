@@ -33,6 +33,7 @@ if not minetest.settings:get_bool('airutils.disable_repair') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
 end
 airutils.get_wind = dofile(minetest.get_modpath("airutils") .. DIR_DELIM ..'/wind.lua')
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_wind.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
