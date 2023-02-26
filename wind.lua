@@ -50,7 +50,7 @@ else
 			local yaw = minetest.dir_to_yaw(airutils.wind.wind)
 			local yaw = yaw+math.random()-0.5
 			airutils.wind.wind = vector.multiply(minetest.yaw_to_dir(yaw),4)
-			airutils.wind.ttime = wind.timer+math.random()*5*60+1*60
+			airutils.wind.ttime = airutils.wind.timer+math.random()*5*60+1*60
 		end
 	end)
 end

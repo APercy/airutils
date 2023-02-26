@@ -237,13 +237,15 @@ end
 -- wingspan: for ground effect calculation
 function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, lift, max_height, wingspan)
     --add wind to the lift calcs
-    local wind = airutils.get_wind(curr_pos, 2.0)
-    local accel_wind = vector.subtract(accel, wind) --why? because I need to fake more speed when against the wind to gain lift
-    local new_velocity = vector.add(vector.multiply(accel_wind, self.dtime),velocity)
+    local wind = airutils.get_wind(curr_pos, 10)
+    local accel_wind = vector.subtract(accel, wind)  --why? because I need to fake more speed when against the wind to gain lift
+    local vel_wind = vector.multiply(accel_wind, self.dtime)
+    local new_velocity = vector.add(velocity, vel_wind)
+    
     --[[local hull_direction = airutils.rot_to_dir(self.object:get_rotation())
     local wind_yaw = minetest.dir_to_yaw(wind)
     local orig_vel = vector.dot(velocity,hull_direction)
-    local new_vel = vector.dot(new_velocity,hull_direction)
+    local new_vel = vector.dot(vel_wind,hull_direction)
     if orig_vel > new_vel then
         orig_vel = core.colorize('#00ff00', orig_vel)
         new_vel = core.colorize('#ff0000', new_vel)
