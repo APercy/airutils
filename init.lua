@@ -237,7 +237,7 @@ end
 -- wingspan: for ground effect calculation
 function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, lift, max_height, wingspan)
     --add wind to the lift calcs
-    local wind = airutils.get_wind(curr_pos, 10)
+    local wind = airutils.get_wind(curr_pos, 5)
     local accel_wind = vector.subtract(accel, wind)  --why? because I need to fake more speed when against the wind to gain lift
     local vel_wind = vector.multiply(accel_wind, self.dtime)
     local new_velocity = vector.add(velocity, vel_wind)
