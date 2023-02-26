@@ -70,10 +70,10 @@ minetest.register_entity("airutils:wind_indicator",{
 	on_step = function(self,dtime,colinfo)
         self.object:set_pos(self._pos)
 
-        local wind = airutils.get_wind(pos, 2.0)
+        local wind = airutils.get_wind(pos, 1.0)
         local wind_yaw = minetest.dir_to_yaw(wind)
         self.object:set_bone_position("ajuste", {x=0,y=42,z=0}, {x=0,y=0,z=90})
-        self.object:set_bone_position("b_a", {x=0,y=0,z=0}, {x=math.deg(wind_yaw),y=0,z=0})
+        self.object:set_bone_position("b_a", {x=0,y=0,z=0}, {x=math.deg(wind_yaw)-90,y=0,z=0})
 
         local false_div = 1 --trying to make it more o minus sensible
         local vel = ((vector.dot(vector.multiply(wind,dtime),wind))/false_div)*100
