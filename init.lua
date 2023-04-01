@@ -410,3 +410,15 @@ function airutils.sit(player)
     player:set_animation({x =  81, y = 160},30, 0, true)
     if emote then emote.start(player:get_player_name(), "sit") end
 end
+
+local function get_norm_angle(angle)
+    local new_angle = angle/360
+    new_angle = (new_angle - math.floor(new_angle))*360
+    if new_angle < -180 then new_angle = new_angle + 360 end
+    if new_angle > 180 then new_angle = new_angle - 360 end
+    return new_angle
+end
+
+function airutils.normalize_rotations(rotations)
+    return {x = get_norm_angle(rotations.x), y = get_norm_angle(rotations.y), z = get_norm_angle(rotations.z)}
+end
