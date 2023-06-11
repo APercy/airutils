@@ -37,6 +37,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_wind.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "init.lua")
 
 if player_api and not minetest.settings:get_bool('airutils.disable_uniforms') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "pilot_skin_manager.lua")
@@ -269,7 +270,9 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     if self._wing_configuration then wing_config = self._wing_configuration end --flaps!
     
     local retval = accel
-    if longit_speed > 1 then
+    local min_speed = 1;
+    if self._min_speed then min_speed = self._min_speed end
+    if longit_speed > min_speed then
         local angle_of_attack = math.rad(self._angle_of_attack + wing_config)
         --local acc = 0.8
         local daoa = deg(angle_of_attack)
@@ -374,8 +377,11 @@ function airutils.set_paint(self, puncher, itmstck, texture_name)
             --minetest.chat_send_all(color ..' '.. dump(colstr))
 	        if colstr then
                 airutils.paint(self, colstr, texture_name)
+                if self._alternate_painting_texture and self._mask_painting_texture then
+                    airutils.paint_with_mask(self, colstr, self._alternate_painting_texture, self._mask_painting_texture)
+                end
 		        itmstck:set_count(itmstck:get_count()-1)
-		        puncher:set_wielded_item(itmstck)
+                if puncher ~= nil then puncher:set_wielded_item(itmstck) end
                 return true
 	        end
             -- end painting
@@ -386,6 +392,7 @@ end
 
 --painting
 function airutils.paint(self, colstr, texture_name)
+    if not self then return end
     if colstr then
         self._color = colstr
         local l_textures = self.initial_properties.textures
@@ -393,6 +400,22 @@ function airutils.paint(self, colstr, texture_name)
             local indx = texture:find(texture_name)
             if indx then
                 l_textures[_] = texture_name.."^[multiply:".. colstr
+            end
+        end
+	    self.object:set_properties({textures=l_textures})
+    end
+end
+
+function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
+    if colstr then
+        self._color = colstr
+        self._det_color = mask_colstr
+        local l_textures = self.initial_properties.textures
+        for _, texture in ipairs(l_textures) do
+            local indx = texture:find(target_texture)
+            if indx then
+                --"("..target_texture.."^[mask:"..mask_texture..")"
+                l_textures[_] = "("..target_texture.."^[multiply:".. colstr..")^("..target_texture.."^[mask:"..mask_texture..")"
             end
         end
 	    self.object:set_properties({textures=l_textures})
