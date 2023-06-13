@@ -1,7 +1,7 @@
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 
 function lib_change_color(self, colstr)
-    airutils.paint(self, colstr, self._painting_texture)
+    airutils.param_paint(self, colstr)
 end
 
 function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
@@ -47,10 +47,11 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._register_parts_method(self)
     end
 
-    airutils.paint(self, self._color, self._painting_texture)
-    if self._alternate_painting_texture and self._mask_painting_texture then
+    airutils.param_paint(self, self._color)
+    --TODO 
+    --[[if self._alternate_painting_texture and self._mask_painting_texture then
         airutils.paint_with_mask(self, self._color, self._alternate_painting_texture, self._mask_painting_texture)
-    end
+    end]]--
 
 	self.object:set_armor_groups({immortal=1})
 
@@ -457,7 +458,7 @@ function airutils.logic(self)
 end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
-	if not puncher or not puncher:is_player() then
+    if not puncher or not puncher:is_player() then
 		return
 	end
 
@@ -491,14 +492,14 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         --repair
         if (item_name == "airutils:repair_tool")
                 and self._engine_running == false  then
-            if self.hp_max < 50 then
+            if self.hp_max < self._max_plane_hp then
                 local inventory_item = "default:steel_ingot"
                 local inv = puncher:get_inventory()
                 if inv:contains_item("main", inventory_item) then
                     local stack = ItemStack(inventory_item .. " 1")
                     inv:remove_item("main", stack)
                     self.hp_max = self.hp_max + 10
-                    if self.hp_max > 50 then self.hp_max = 50 end
+                    if self.hp_max > self._max_plane_hp then self.hp_max = self._max_plane_hp end
                     airutils.setText(self, self.infotext)
                 else
                     minetest.chat_send_player(puncher:get_player_name(), "You need steel ingots in your inventory to perform this repair.")
@@ -509,8 +510,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 
         -- deal with painting or destroying
 	    if itmstck then
-
-		    if airutils.set_paint(self, puncher, itmstck, self._painting_texture) == false then
+		    if airutils.set_param_paint(self, puncher, itmstck) == false then
 			    if not self.driver and toolcaps and toolcaps.damage_groups
                         and toolcaps.damage_groups.fleshy and item_name ~= airutils.fuel then
 				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)

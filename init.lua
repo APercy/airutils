@@ -367,12 +367,12 @@ function airutils.set_paint(self, puncher, itmstck, texture_name)
         local color, indx, _
         if split[1] then _,indx = split[1]:find('dye') end
         if indx then
-            for clr,_ in pairs(airutils.colors) do
+            --[[for clr,_ in pairs(airutils.colors) do
                 local _,x = split[2]:find(clr)
                 if x then color = clr end
-            end
+            end]]--
             --lets paint!!!!
-	        --local color = item_name:sub(indx+1)
+	        local color = (item_name:sub(indx+1)):gsub(":", "")
 	        local colstr = airutils.colors[color]
             --minetest.chat_send_all(color ..' '.. dump(colstr))
 	        if colstr then
@@ -400,22 +400,6 @@ function airutils.paint(self, colstr, texture_name)
             local indx = texture:find(texture_name)
             if indx then
                 l_textures[_] = texture_name.."^[multiply:".. colstr
-            end
-        end
-	    self.object:set_properties({textures=l_textures})
-    end
-end
-
-function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
-    if colstr then
-        self._color = colstr
-        self._det_color = mask_colstr
-        local l_textures = self.initial_properties.textures
-        for _, texture in ipairs(l_textures) do
-            local indx = texture:find(target_texture)
-            if indx then
-                --"("..target_texture.."^[mask:"..mask_texture..")"
-                l_textures[_] = "("..target_texture.."^[multiply:".. colstr..")^("..target_texture.."^[mask:"..mask_texture..")"
             end
         end
 	    self.object:set_properties({textures=l_textures})
