@@ -146,8 +146,8 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
 end
 
 function airutils.set_pitch(self, dir, dtime)
-    local pitch_factor = 12
-    local multiplier = pitch_factor*dtime
+    local pitch_factor = 0.6
+    local multiplier = pitch_factor*(dtime/airutils.ideal_step)
 	if dir == -1 then
         --minetest.chat_send_all("cabrando")
         if self._elevator_angle > 0 then pitch_factor = pitch_factor * 2 end
@@ -244,7 +244,7 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
     if longit_speed > 0 then
         airutils.rudder_auto_correction(self, longit_speed, dtime)
         if airutils.elevator_auto_correction then
-            self._elevator_angle = airutils.elevator_auto_correction(self, longit_speed, self.dtime, airutils.max_speed, self._elevator_angle, airutils.elevator_limit, airutils.ideal_step, 100)
+            self._elevator_angle = airutils.elevator_auto_correction(self, longit_speed, self.dtime, airutils.max_speed, self._elevator_angle, airutils.elevator_limit, airutils.ideal_step, self._elevator_auto_estabilize)
         end
     end
 

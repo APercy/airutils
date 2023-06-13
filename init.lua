@@ -306,7 +306,7 @@ end
 
 function airutils.get_plane_pitch(velocity, longit_speed, min_speed, angle_of_attack)
     local v_speed_factor = 0
-    if longit_speed > min_speed then v_speed_factor = (velocity.y * math.rad(1)) end --the pitch for climbing os descenting
+    if longit_speed > min_speed then v_speed_factor = (velocity.y * math.rad(2)) end --the pitch for climbing or descenting
     local min_rotation_speed = min_speed/2
     local scale_pitch_graph = ((longit_speed-min_rotation_speed)*1)/min_rotation_speed --lets use the min rotation speed for reference to when we will start the control work
     if scale_pitch_graph > 1 then scale_pitch_graph = 1 end --normalize to 100%
@@ -325,6 +325,7 @@ function airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_a
     local correction = (limit*(longit_speed/5000)) * factor * (dtime/ideal_step)
     --minetest.chat_send_all("angle: "..angle_of_attack.." - correction: "..correction)
     local new_angle_of_attack = angle_of_attack + correction
+
     return new_angle_of_attack
 end
 

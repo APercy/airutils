@@ -48,10 +48,6 @@ function airutils.on_activate(self, staticdata, dtime_s)
     end
 
     airutils.param_paint(self, self._color)
-    --TODO 
-    --[[if self._alternate_painting_texture and self._mask_painting_texture then
-        airutils.paint_with_mask(self, self._color, self._alternate_painting_texture, self._mask_painting_texture)
-    end]]--
 
 	self.object:set_armor_groups({immortal=1})
 
@@ -204,27 +200,12 @@ function airutils.logic(self)
         return
     end
 
-    --ajustar angulo de ataque
-    if longit_speed then
-        local percentage = math.abs(((longit_speed * 100)/(self._min_speed + 5))/100)
-        if percentage > 1.5 then percentage = 1.5 end
-        self._angle_of_attack = self._wing_angle_of_attack - ((self._elevator_angle / 20)*percentage)
-        if self._angle_of_attack < -0.5 then
-            self._angle_of_attack = -0.1
-            self._elevator_angle = self._elevator_angle - 0.1
-        end --limiting the negative angle]]--
-        if self._angle_of_attack > 20 then
-            self._angle_of_attack = 20
-            self._elevator_angle = self._elevator_angle + 0.1
-        end --limiting the very high climb angle due to strange behavior]]--
-
-        --set the plane on level
-        if airutils.adjust_attack_angle_by_speed then
-            self._angle_of_attack = airutils.adjust_attack_angle_by_speed(self._angle_of_attack, 1, 6, 40, longit_speed, airutils.ideal_step, self.dtime)
-        end
+    --adjust climb indicator
+    local climb_rate = velocity.y
+    if climb_rate > 5 then climb_rate = 5 end
+    if climb_rate < -5 then
+        climb_rate = -5
     end
-
-    --minetest.chat_send_all(self._angle_of_attack)
 
     -- pitch
     local newpitch = math.rad(0)
@@ -232,15 +213,43 @@ function airutils.logic(self)
         newpitch = airutils.get_plane_pitch(velocity, longit_speed, self._min_speed, self._angle_of_attack)
     end
 
+    --is an stall, force a recover
+    if longit_speed < self._min_speed and climb_rate < -4 and is_flying then
+        self._elevator_angle = 0
+        self._angle_of_attack = -2
+        newpitch = math.rad(self._angle_of_attack)
+    else
+        --ajustar angulo de ataque
+        if longit_speed > (self._min_speed) then
+            local percentage = math.abs(((longit_speed * 100)/(self._min_speed + 5))/100)
+            if percentage > 1.5 then percentage = 1.5 end
+            self._angle_of_attack = self._wing_angle_of_attack - ((self._elevator_angle / 10)*percentage)
+
+            --set the plane on level
+            if airutils.adjust_attack_angle_by_speed then
+                --airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_angle, limit, longit_speed, ideal_step, dtime)
+                self._angle_of_attack = airutils.adjust_attack_angle_by_speed(self._angle_of_attack, self._min_attack_angle, self._max_attack_angle, 40, longit_speed, airutils.ideal_step, self.dtime)
+            end
+
+            if self._angle_of_attack < self._min_attack_angle then
+                self._angle_of_attack = self._min_attack_angle
+                self._elevator_angle = self._elevator_angle - 0.2
+            end --limiting the negative angle]]--
+            --[[if self._angle_of_attack > self._max_attack_angle then
+                self._angle_of_attack = self._max_attack_angle
+                self._elevator_angle = self._elevator_angle + 0.2
+            end --limiting the very high climb angle due to strange behavior]]--]]--
+        end
+    end
+
+    --minetest.chat_send_all(self._angle_of_attack)
 
     -- adjust pitch at ground
-    local tail_lift_min_speed = 4
-    local tail_lift_max_speed = 8
-    if math.abs(longit_speed) > tail_lift_min_speed then
-        if math.abs(longit_speed) < tail_lift_max_speed then
+    if math.abs(longit_speed) > self._tail_lift_min_speed then
+        if math.abs(longit_speed) < self._tail_lift_max_speed then
             --minetest.chat_send_all(math.abs(longit_speed))
-            local speed_range = tail_lift_max_speed - tail_lift_min_speed
-            percentage = 1-((math.abs(longit_speed) - tail_lift_min_speed)/speed_range)
+            local speed_range = self._tail_lift_max_speed - self._tail_lift_min_speed
+            percentage = 1-((math.abs(longit_speed) - self._tail_lift_min_speed)/speed_range)
             if percentage > 1 then percentage = 1 end
             if percentage < 0 then percentage = 0 end
             local angle = self._tail_angle * percentage
@@ -249,7 +258,7 @@ function airutils.logic(self)
             if newpitch > math.rad(self._tail_angle) then newpitch = math.rad(self._tail_angle) end --não queremos arrastar o cauda no chão
         end
     else
-        if math.abs(longit_speed) < tail_lift_min_speed then
+        if math.abs(longit_speed) < self._tail_lift_min_speed then
             newpitch = math.rad(self._tail_angle)
         end
     end
@@ -385,20 +394,6 @@ function airutils.logic(self)
     ------------------------------------------------------
 
     --self.object:get_luaentity() --hack way to fix jitter on climb
-
-    --adjust climb indicator
-    local climb_rate = velocity.y
-    if climb_rate > 5 then climb_rate = 5 end
-    if climb_rate < -5 then
-        climb_rate = -5
-    end
-
-    --is an stall, force a recover
-    if longit_speed < (self._min_speed / 2) and climb_rate < -3.5 and is_flying then
-        self._elevator_angle = 0
-        self._angle_of_attack = -4
-        newpitch = math.rad(self._angle_of_attack)
-    end
 
     --minetest.chat_send_all('rate '.. climb_rate)
     local climb_angle = airutils.get_gauge_angle(climb_rate)
