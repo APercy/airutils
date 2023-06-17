@@ -168,15 +168,10 @@ function airutils.destroy(self)
     end
 
     local pos = self.object:get_pos()
-    if self.fuel_gauge then self.fuel_gauge:remove() end
-    if self.power_gauge then self.power_gauge:remove() end
-    if self.climb_gauge then self.climb_gauge:remove() end
-    if self.speed_gauge then self.speed_gauge:remove() end
-    if self.engine then self.engine:remove() end
-    if self.pilot_seat_base then self.pilot_seat_base:remove() end
-    if self.passenger_seat_base then self.passenger_seat_base:remove() end
 
-    if self.stick then self.stick:remove() end
+    if self._destroy_parts_method then
+        self._destroy_parts_method(self)
+    end
 
     airutils.destroy_inventory(self)
     self.object:remove()

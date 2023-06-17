@@ -395,6 +395,7 @@ function airutils.logic(self)
 
     --self.object:get_luaentity() --hack way to fix jitter on climb
 
+    --GAUGES
     --minetest.chat_send_all('rate '.. climb_rate)
     local climb_angle = airutils.get_gauge_angle(climb_rate)
     --self.climb_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_CLIMBER_POSITION,{x=0,y=0,z=climb_angle})
@@ -404,6 +405,10 @@ function airutils.logic(self)
     local speed_angle = airutils.get_gauge_angle(indicated_speed, -45)
     --self.speed_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_SPEED_POSITION,{x=0,y=0,z=speed_angle})
 
+    --adjust power indicator
+    local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10)
+    --self.power_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_POWER_POSITION,{x=0,y=0,z=power_indicator_angle})
+
     if is_attached then
         if self._show_hud then
             airutils.update_hud(player, climb_angle, speed_angle)
@@ -411,10 +416,6 @@ function airutils.logic(self)
             airutils.remove_hud(player)
         end
     end
-
-    --adjust power indicator
-    local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10)
-    --self.power_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_POWER_POSITION,{x=0,y=0,z=power_indicator_angle})
 
     if is_flying == false then
         -- new yaw
@@ -453,6 +454,10 @@ function airutils.logic(self)
 end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
+    if self.hp_max <= 0 then
+        airutils.destroy(self)
+    end
+
     if not puncher or not puncher:is_player() then
 		return
 	end
@@ -473,7 +478,18 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 	end
     
     local is_attached = false
+    local player_attach = puncher:get_attach()
+    if player_attach then
+        if player_attach ~= self.object then
+            local slot_attach = player_attach:get_attach()
+            if slot_attach == self.object then is_attached = true end
+        else
+            is_attached = true
+        end
+    end
+    
     if puncher:get_attach() == self.object then is_attached = true end
+    --if puncher:get_attach() == self.pilot_seat_base then is_attached = true end
 
     local itmstck=puncher:get_wielded_item()
     local item_name = ""
@@ -526,9 +542,9 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         if self.hp_max <= 0 then
             airutils.destroy(self)
         end
-
+    else
+        if self._custom_punch_when_attached then self._custom_punch_when_attached(self, puncher) end
     end
-    
 end
 
 function airutils.on_rightclick(self, clicker)
