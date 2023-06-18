@@ -360,15 +360,23 @@ function airutils.add_paintable_part(self, entity_ref)
     table.insert(self._paintable_parts, entity_ref:get_luaentity())
 end
 
-function airutils.set_param_paint(self, puncher, itmstck)
+function airutils.set_param_paint(self, puncher, itmstck, mode)
+    mode = mode or 1
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
     
     if item_name == "automobiles_lib:painter" or item_name == "bike:painter" then
         --painting with bike painter
         local meta = itmstck:get_meta()
-	    local colstr = meta:get_string("paint_color")
-        airutils.param_paint(self, colstr)
+	    local colour = meta:get_string("paint_color")
+
+        local colstr = self._color
+        local colstr_2 = self._color_2
+
+        if mode == 1 then colstr = colour end
+        if mode == 2 then colstr_2 = colour end
+
+        airutils.param_paint(self, colstr, colstr_2)
         return true
     else
         --painting with dyes
@@ -382,11 +390,16 @@ function airutils.set_param_paint(self, puncher, itmstck)
             end]]--
             --lets paint!!!!
 	        local color = (item_name:sub(indx+1)):gsub(":", "")
-	        local colstr = airutils.colors[color]
+
+            local colstr = self._color
+            local colstr_2 = self._color_2
+            if mode == 1 then colstr = airutils.colors[color] end
+            if mode == 2 then colstr_2 = airutils.colors[color] end
+
             --minetest.chat_send_all(color ..' '.. dump(colstr))
             --minetest.chat_send_all(dump(airutils.colors))
 	        if colstr then
-                airutils.param_paint(self, colstr)
+                airutils.param_paint(self, colstr, colstr_2)
 		        itmstck:set_count(itmstck:get_count()-1)
                 if puncher ~= nil then puncher:set_wielded_item(itmstck) end
                 return true
@@ -400,12 +413,14 @@ end
 local function _paint(self, l_textures, colstr, paint_list, mask_associations)
     paint_list = paint_list or self._painting_texture
     mask_associations = mask_associations or self._mask_painting_associations
+    
     for _, texture in ipairs(l_textures) do
         for i, texture_name in ipairs(paint_list) do --textures list
             local indx = texture:find(texture_name)
             if indx then
                 l_textures[_] = texture_name.."^[multiply:".. colstr  --paint it normally
                 local mask_texture = mask_associations[texture_name] --check if it demands a maks too
+                --minetest.chat_send_all(texture_name .. " -> " .. dump(mask_texture))
                 if mask_texture then --so it then
                     l_textures[_] = "("..l_textures[_]..")^("..texture_name.."^[mask:"..mask_texture..")" --add the mask
                 end
@@ -416,18 +431,22 @@ local function _paint(self, l_textures, colstr, paint_list, mask_associations)
 end
 
 --painting
-function airutils.param_paint(self, colstr)
+function airutils.param_paint(self, colstr, colstr_2)
+    colstr_2 = colstr_2 or colstr
     if not self then return end
     if colstr then
         self._color = colstr
+        self._color_2 = colstr_2
         local l_textures = self.initial_properties.textures
         l_textures = _paint(self, l_textures, colstr) --paint the main plane
+        l_textures = _paint(self, l_textures, colstr_2, self._painting_texture_2) --paint the main plane
         self.object:set_properties({textures=l_textures})
 
         if self._paintable_parts then --paint individual parts
             for i, part_entity in ipairs(self._paintable_parts) do
                 local p_textures = part_entity.initial_properties.textures
                 p_textures = _paint(part_entity, p_textures, colstr, self._painting_texture, self._mask_painting_associations)
+                p_textures = _paint(part_entity, p_textures, colstr_2, self._painting_texture_2, self._mask_painting_associations)
                 part_entity.object:set_properties({textures=p_textures})
             end
         end

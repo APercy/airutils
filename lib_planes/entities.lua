@@ -11,6 +11,7 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_owner = self.owner,
         stored_hp = self.hp_max,
         stored_color = self._color,
+        stored_color_2 = self._color_2,
         stored_power_lever = self._power_lever,
         stored_driver_name = self.driver_name,
         stored_last_accell = self._last_accell,
@@ -31,6 +32,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self.owner = data.stored_owner
         self.hp_max = data.stored_hp
         self._color = data.stored_color
+        self._color_2 = data.stored_color_2
         self._power_lever = data.stored_power_lever
         self.driver_name = data.stored_driver_name
         self._last_accell = data.stored_last_accell
@@ -47,7 +49,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._register_parts_method(self)
     end
 
-    airutils.param_paint(self, self._color)
+    airutils.param_paint(self, self._color, self._color_2)
 
 	self.object:set_armor_groups({immortal=1})
 
@@ -524,7 +526,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 
         -- deal with painting or destroying
 	    if itmstck then
-		    if airutils.set_param_paint(self, puncher, itmstck) == false then
+		    if airutils.set_param_paint(self, puncher, itmstck, 1) == false then
 			    if not self.driver and toolcaps and toolcaps.damage_groups
                         and toolcaps.damage_groups.fleshy and item_name ~= airutils.fuel then
 				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)
@@ -591,29 +593,40 @@ function airutils.on_rightclick(self, clicker)
     --=========================
     elseif not self.driver_name then
         if self.owner == name or minetest.check_player_privs(clicker, {protection_bypass=true}) then
-            if clicker:get_player_control().aux1 == true then --lets see the inventory
-                airutils.show_vehicle_trunk_formspec(self, clicker, airutils.trunk_slots)
-            else
-                if is_under_water then return end
-                --remove pax to prevent bug
-                if self._passenger then 
-                    local pax_obj = minetest.get_player_by_name(self._passenger)
-                    airutils.dettach_pax(self, pax_obj)
-                end
 
-                --attach player
-                if clicker:get_player_control().sneak == true then
-                    -- flight instructor mode
-                    self._instruction_mode = true
-                    airutils.attach(self, clicker, true)
-                else
-                    -- no driver => clicker is new driver
-                    self._instruction_mode = false
-                    airutils.attach(self, clicker)
-                end
-                self._elevator_angle = 0
-                self._rudder_angle = 0
-                self._command_is_given = false
+            local itmstck=clicker:get_wielded_item()
+            local item_name = ""
+            if itmstck then item_name = itmstck:get_name() end
+
+	        if itmstck then
+		        if airutils.set_param_paint(self, clicker, itmstck, 2) == false then
+
+                    if clicker:get_player_control().aux1 == true then --lets see the inventory
+                        airutils.show_vehicle_trunk_formspec(self, clicker, airutils.trunk_slots)
+                    else
+                        if is_under_water then return end
+                        --remove pax to prevent bug
+                        if self._passenger then 
+                            local pax_obj = minetest.get_player_by_name(self._passenger)
+                            airutils.dettach_pax(self, pax_obj)
+                        end
+
+                        --attach player
+                        if clicker:get_player_control().sneak == true then
+                            -- flight instructor mode
+                            self._instruction_mode = true
+                            airutils.attach(self, clicker, true)
+                        else
+                            -- no driver => clicker is new driver
+                            self._instruction_mode = false
+                            airutils.attach(self, clicker)
+                        end
+                        self._elevator_angle = 0
+                        self._rudder_angle = 0
+                        self._command_is_given = false
+                    end
+
+		        end
             end
         else
             minetest.chat_send_player(name, core.colorize('#ff0000', " >>> You aren't the owner of this machine."))
