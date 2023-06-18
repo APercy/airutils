@@ -276,10 +276,11 @@ function airutils.testImpact(self, velocity, position)
             fade = 0.0,
             pitch = 1.0,
         }, true)
+        
+        airutils.setText(self, self.infotext)
 
         if self.driver_name then
             local player_name = self.driver_name
-            airutils.setText(self, self.infotext)
 
             --minetest.chat_send_all('damage: '.. damage .. ' - hp: ' .. self.hp_max)
             if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
