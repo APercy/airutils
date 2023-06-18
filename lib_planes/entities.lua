@@ -214,9 +214,12 @@ function airutils.logic(self)
     end
 
     --is an stall, force a recover
-    if longit_speed < self._min_speed and climb_rate < -4 and is_flying then
+    if longit_speed < (self._min_speed+0.5) and climb_rate < -1.5 and is_flying then
+        if player and self.driver_name then
+            minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', " >>> STALL"))
+        end
         self._elevator_angle = 0
-        self._angle_of_attack = -2
+        self._angle_of_attack = -1
         newpitch = math.rad(self._angle_of_attack)
     else
         --ajustar angulo de ataque
@@ -455,7 +458,7 @@ end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if self.hp_max <= 0 then
-        airutils.destroy(self)
+        airutils.destroy(self, true)
     end
 
     if not puncher or not puncher:is_player() then

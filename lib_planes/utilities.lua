@@ -147,7 +147,8 @@ function airutils.checkAttach(self, player)
 end
 
 -- destroy the boat
-function airutils.destroy(self)
+function airutils.destroy(self, effects)
+    effects = effects or false
     if self.sound_handle then
         minetest.sound_stop(self.sound_handle)
         self.sound_handle = nil
@@ -168,6 +169,7 @@ function airutils.destroy(self)
     end
 
     local pos = self.object:get_pos()
+    if effects then airutils.add_destruction_effects(pos, 5) end
 
     if self._destroy_parts_method then
         self._destroy_parts_method(self)
@@ -196,6 +198,9 @@ function airutils.destroy(self)
 end
 
 function airutils.testImpact(self, velocity, position)
+    if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
+        airutils.destroy(self, true)
+    end
     local p = position --self.object:get_pos()
     local collision = false
     if self._last_vel == nil then return end
@@ -233,6 +238,32 @@ function airutils.testImpact(self, velocity, position)
 	    end
     end
 
+    --damage by speed
+    if self._speed_not_exceed then
+        if self._last_speed_damage_time == nil then self._last_speed_damage_time = 0 end
+        self._last_speed_damage_time = self._last_speed_damage_time + self.dtime
+        if self._last_speed_damage_time > 2 then self._last_speed_damage_time = 2 end
+        if self._longit_speed > self._speed_not_exceed and self._last_speed_damage_time >= 2 then
+            self._last_speed_damage_time = 0
+            minetest.sound_play("airutils_collision", {
+                --to_player = self.driver_name,
+                object = self.object,
+                max_hear_distance = 15,
+                gain = 1.0,
+                fade = 0.0,
+                pitch = 1.0,
+            }, true)
+            self.hp_max = self.hp_max - 5
+            if self.driver_name then
+                local player_name = self.driver_name
+                airutils.setText(self, self.infotext)
+            end
+            if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
+                airutils.destroy(self, true)
+            end
+        end
+    end
+
     if collision then
         --self.object:set_velocity({x=0,y=0,z=0})
         local damage = impact / 2
@@ -252,7 +283,7 @@ function airutils.testImpact(self, velocity, position)
 
             --minetest.chat_send_all('damage: '.. damage .. ' - hp: ' .. self.hp_max)
             if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
-                airutils.destroy(self)
+                airutils.destroy(self, true)
             end
 
             local player = minetest.get_player_by_name(player_name)
@@ -419,3 +450,53 @@ function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
     end
 end
 
+function airutils.add_destruction_effects(pos, radius)
+    minetest.sound_play("airutils_explode", {
+        pos = pos,
+        max_hear_distance = 100,
+        gain = 2.0,
+        fade = 0.0,
+        pitch = 1.0,
+    }, true)
+	minetest.add_particle({
+		pos = pos,
+		velocity = vector.new(),
+		acceleration = vector.new(),
+		expirationtime = 0.4,
+		size = radius * 10,
+		collisiondetection = false,
+		vertical = false,
+		texture = "airutils_boom.png",
+		glow = 15,
+	})
+	minetest.add_particlespawner({
+		amount = 32,
+		time = 0.5,
+		minpos = vector.subtract(pos, radius / 2),
+		maxpos = vector.add(pos, radius / 2),
+		minvel = {x = -10, y = -10, z = -10},
+		maxvel = {x = 10, y = 10, z = 10},
+		minacc = vector.new(),
+		maxacc = vector.new(),
+		minexptime = 1,
+		maxexptime = 2.5,
+		minsize = radius * 3,
+		maxsize = radius * 5,
+		texture = "airutils_boom.png",
+	})
+	minetest.add_particlespawner({
+		amount = 64,
+		time = 1.0,
+		minpos = vector.subtract(pos, radius / 2),
+		maxpos = vector.add(pos, radius / 2),
+		minvel = {x = -10, y = -10, z = -10},
+		maxvel = {x = 10, y = 10, z = 10},
+		minacc = vector.new(),
+		maxacc = vector.new(),
+		minexptime = 1,
+		maxexptime = 2.5,
+		minsize = radius * 3,
+		maxsize = radius * 5,
+		texture = "airutils_smoke.png",
+	})
+end
