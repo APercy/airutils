@@ -602,7 +602,7 @@ function airutils.on_rightclick(self, clicker)
 		        if airutils.set_param_paint(self, clicker, itmstck, 2) == false then
 
                     if clicker:get_player_control().aux1 == true then --lets see the inventory
-                        airutils.show_vehicle_trunk_formspec(self, clicker, airutils.trunk_slots)
+                        airutils.show_vehicle_trunk_formspec(self, clicker, self._trunk_slots)
                     else
                         if is_under_water then return end
                         --remove pax to prevent bug
