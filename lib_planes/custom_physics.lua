@@ -14,6 +14,49 @@ function airutils.physics(self)
 		self.object:set_velocity(vel)
 	end
 	
+	--buoyancy
+	local surface = nil
+	local surfnodename = nil
+	local spos = airutils.get_stand_pos(self)
+	spos.y = spos.y+0.01
+	-- get surface height
+	local snodepos = airutils.get_node_pos(spos)
+	local surfnode = airutils.nodeatpos(spos)
+	while surfnode and (surfnode.drawtype == 'liquid' or surfnode.drawtype == 'flowingliquid') do
+		surfnodename = surfnode.name
+		surface = snodepos.y +0.5
+		if surface > spos.y+self.height then break end
+		snodepos.y = snodepos.y+1
+		surfnode = airutils.nodeatpos(snodepos)
+	end
+
+    local new_velocity = nil
+	self.isinliquid = surfnodename
+	if surface then				-- standing in liquid
+        self.isinliquid = true
+    end
+
+    local accell = {x=0, y=0, z=0}
+    self.water_drag = 0.1
+    if self.isinliquid then
+        local height = self.height
+		local submergence = min(surface-spos.y,height)/height
+--		local balance = self.buoyancy*self.height
+		local buoyacc = airutils.gravity*(self.buoyancy-submergence)
+		--[[airutils.set_acceleration(self.object,
+			{x=-vel.x*self.water_drag,y=buoyacc-vel.y*abs(vel.y)*0.4,z=-vel.z*self.water_drag})]]--
+        accell = {x=-vel.x*self.water_drag,y=buoyacc-(vel.y*abs(vel.y)*0.4),z=-vel.z*self.water_drag}
+        --local v_accell = {x=0,y=buoyacc-(vel.y*abs(vel.y)*0.4),z=0}
+        --airutils.set_acceleration(self.object,v_accell)
+        new_velocity = vector.add(vel, vector.multiply(accell, self.dtime))
+        
+	else
+        airutils.set_acceleration(self.object,{x=0,y=0,z=0})
+		self.isinliquid = false
+        new_velocity = vector.add(vel, {x=0,y=airutils.gravity * self.dtime,z=0})
+        --self.object:set_velocity(new_velocity)
+	end
+
 	-- bounciness
 	if self.springiness and self.springiness > 0 then
 		local vnew = vector.new(vel)
@@ -39,5 +82,4 @@ function airutils.physics(self)
 	end
 
     self.object:set_acceleration({x=0,y=airutils.gravity,z=0})
-
 end
