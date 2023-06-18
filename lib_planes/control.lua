@@ -146,7 +146,7 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
 end
 
 function airutils.set_pitch(self, dir, dtime)
-    local pitch_factor = 0.6
+    local pitch_factor = self._pitch_intensity or 0.6
     local multiplier = pitch_factor*(dtime/airutils.ideal_step)
 	if dir == -1 then
         --minetest.chat_send_all("cabrando")
@@ -160,7 +160,7 @@ function airutils.set_pitch(self, dir, dtime)
 end
 
 function airutils.set_yaw(self, dir, dtime)
-    local yaw_factor = 25
+    local yaw_factor = self._yaw_intensity or 25
 	if dir == 1 then
 		self._rudder_angle = math.max(self._rudder_angle-(yaw_factor*dtime),-self._rudder_limit)
 	elseif dir == -1 then
