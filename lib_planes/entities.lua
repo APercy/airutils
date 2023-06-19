@@ -603,7 +603,11 @@ function airutils.on_rightclick(self, clicker)
     --  detach pilot
     --=========================
     if name == self.driver_name then
-        airutils.pilot_formspec(name)
+        if not self._custom_pilot_formspec then
+            airutils.pilot_formspec(name)
+        else
+            self._custom_pilot_formspec(name)
+        end
     --=========================
     --  detach passenger
     --=========================
