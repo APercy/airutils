@@ -65,6 +65,8 @@ function airutils.on_activate(self, staticdata, dtime_s)
 	else
 	    self.inv = inv
     end
+
+    airutils.setText(self, self.infotext)
 end
 
 function airutils.on_step(self,dtime,colinfo)
@@ -458,10 +460,34 @@ function airutils.logic(self)
     self._last_vel = self.object:get_velocity()
 end
 
+local function damage_vehicle(self, toolcaps, ttime, damage)
+    for group,_ in pairs( (toolcaps.damage_groups or {}) ) do
+        local tmp = ttime / (toolcaps.full_punch_interval or 1.4)
+
+        if tmp < 0 then
+	        tmp = 0.0
+        elseif tmp > 1 then
+	        tmp = 1.0
+        end
+
+        damage = damage + (toolcaps.damage_groups[group] or 0) * tmp
+        self.hp_max = self.hp_max - damage
+        airutils.setText(self, self.infotext)
+    end
+end
+
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if self.hp_max <= 0 then
         airutils.destroy(self, true)
     end
+    airutils.setText(self, self.infotext)
+
+    -- lets permit destroying on the air
+    local is_flying = not self.colinfo.touching_ground
+    if is_flying and not puncher:is_player() then
+        damage_vehicle(self, toolcaps, ttime, damage)
+    end
+    --end
 
     if not puncher or not puncher:is_player() then
 		return
@@ -531,7 +557,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
                         and toolcaps.damage_groups.fleshy and item_name ~= airutils.fuel then
 				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)
 				    --airutils.make_sound(self,'hit')
-                    self.hp_max = self.hp_max - 10
+                    damage_vehicle(self, toolcaps, ttime, damage)
                     minetest.sound_play(self._collision_sound, {
                         object = self.object,
                         max_hear_distance = 5,
