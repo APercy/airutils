@@ -17,6 +17,7 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_last_accell = self._last_accell,
         stored_engine_running = self._engine_running,
         stored_inv_id = self._inv_id,
+        stored_vehicle_custom_data = self._vehicle_custom_data
     })
 end
 
@@ -38,7 +39,13 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._last_accell = data.stored_last_accell
         self._engine_running = data.stored_engine_running
         self._inv_id = data.stored_inv_id
-        --self.sound_handle = data.stored_sound_handle
+        local custom_data = data.stored_vehicle_custom_data
+        if custom_data then
+            self._vehicle_custom_data = custom_data
+        else
+            -- o macete aqui eh inicializar mesmo que não exista no escopo da entity
+            self._vehicle_custom_data = {} --initialize it
+        end
         --minetest.debug("loaded: ", self._energy)
         if self._engine_running then
             self._last_applied_power = -1 --signal to start
@@ -65,6 +72,8 @@ function airutils.on_activate(self, staticdata, dtime_s)
 	else
 	    self.inv = inv
     end
+
+    if not self._vehicle_custom_data then self._vehicle_custom_data = {} end --initialize when it does not exists
 
     airutils.setText(self, self.infotext)
 end
