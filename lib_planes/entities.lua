@@ -229,7 +229,7 @@ function airutils.logic(self)
     --is an stall, force a recover
     if longit_speed < (self._min_speed+0.5) and climb_rate < -1.5 and is_flying then
         if player and self.driver_name then
-            minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', " >>> STALL"))
+            --minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', " >>> STALL"))
         end
         self._elevator_angle = 0
         self._angle_of_attack = -1
@@ -419,6 +419,7 @@ function airutils.logic(self)
     local indicated_speed = longit_speed * 0.9
     if indicated_speed < 0 then indicated_speed = 0 end
     self._indicated_speed = indicated_speed
+    local speed_angle = supercub.get_gauge_angle(indicated_speed, -45)
 
     --adjust power indicator
     local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10)
@@ -438,6 +439,11 @@ function airutils.logic(self)
         local yaw_turn = self.dtime * math.rad(self._rudder_angle) * turn_rate *
                     airutils.sign(longit_speed) * math.abs(longit_speed/2)
 	    newyaw = yaw + yaw_turn
+    end
+
+    if player then
+        local new_eye_offset = airutils.camera_reposition(player, newpitch, math.rad(self._rudder_angle))
+        player:set_eye_offset(new_eye_offset, {x = 0, y = 1, z = -30})
     end
 
     --apply rotations

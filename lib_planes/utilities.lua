@@ -519,3 +519,23 @@ function airutils.add_destruction_effects(pos, radius)
 		texture = "airutils_smoke.png",
 	})
 end
+
+function airutils.get_xz_from_hipotenuse(orig_x, orig_z, yaw, distance)
+    --cara, o minetest é bizarro, ele considera o eixo no sentido ANTI-HORÁRIO... Então pra equação funcionar, subtrair o angulo de 360 antes
+    yaw = math.rad(360) - yaw
+    local z = (math.cos(yaw)*distance) + orig_z
+    local x = (math.sin(yaw)*distance) + orig_x
+    return x, z
+end
+
+function airutils.camera_reposition(player, pitch, roll)
+    local player_properties = player:get_properties()
+    local new_eye_offset = vector.new()
+    local z, y = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, pitch, player_properties.eye_height)
+    new_eye_offset.z = z
+    new_eye_offset.y = y
+    local x, _ = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, roll, player_properties.eye_height)
+    new_eye_offset.x = x*7
+    return new_eye_offset
+end
+
