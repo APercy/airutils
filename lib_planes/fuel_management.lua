@@ -19,10 +19,10 @@ function airutils.loadFuel(self, player_name)
     if fuel then
         local stack = ItemStack(item_name .. " 1")
 
-        if self._energy < 10 then
+        if self._energy < self._max_fuel then
             inv:remove_item("main", stack)
             self._energy = self._energy + fuel
-            if self._energy > 10 then self._energy = 10 end
+            if self._energy > self._max_fuel then self._energy = self._max_fuel end
 
             local energy_indicator_angle = airutils.get_gauge_angle(self._energy)
             --self.fuel_gauge:set_attach(self.object,'',self._gauge_fuel_position,{x=0,y=0,z=energy_indicator_angle})

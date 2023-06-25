@@ -146,7 +146,6 @@ function airutils.checkAttach(self, player)
     return false
 end
 
--- destroy the boat
 function airutils.destroy(self, effects)
     effects = effects or false
     if self.sound_handle then

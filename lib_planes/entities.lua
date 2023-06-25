@@ -418,8 +418,7 @@ function airutils.logic(self)
 
     local indicated_speed = longit_speed * 0.9
     if indicated_speed < 0 then indicated_speed = 0 end
-    local speed_angle = airutils.get_gauge_angle(indicated_speed, -45)
-    --self.speed_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_SPEED_POSITION,{x=0,y=0,z=speed_angle})
+    self._indicated_speed = indicated_speed
 
     --adjust power indicator
     local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10)
@@ -454,6 +453,11 @@ function airutils.logic(self)
         self.object:set_bone_position("aileron.r", self._aileron_r_pos, {x=-self._rudder_angle - 90,y=0,z=0})
         self.object:set_bone_position("aileron.l", self._aileron_l_pos, {x=self._rudder_angle - 90,y=0,z=0})
     end
+
+    if self._custom_step_additional_function then
+        self._custom_step_additional_function(self)
+    end
+
     --set stick position
     if self.stick then
         self.stick:set_attach(self.object,'',self._stick_pos,{x=self._elevator_angle/2,y=0,z=self._rudder_angle})
@@ -563,7 +567,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 	    if itmstck then
 		    if airutils.set_param_paint(self, puncher, itmstck, 1) == false then
 			    if not self.driver and toolcaps and toolcaps.damage_groups
-                        and toolcaps.damage_groups.fleshy and item_name ~= airutils.fuel then
+                        and toolcaps.groupcaps and toolcaps.groupcaps.choppy and item_name ~= airutils.fuel then
 				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)
 				    --airutils.make_sound(self,'hit')
                     damage_vehicle(self, toolcaps, ttime, damage)
