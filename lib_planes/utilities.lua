@@ -532,8 +532,8 @@ function airutils.camera_reposition(player, pitch, roll)
     local player_properties = player:get_properties()
     local new_eye_offset = vector.new()
     local z, y = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, pitch, player_properties.eye_height)
-    new_eye_offset.z = z
-    new_eye_offset.y = y
+    new_eye_offset.z = z*7
+    new_eye_offset.y = y*1.5
     local x, _ = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, roll, player_properties.eye_height)
     new_eye_offset.x = x*7
     return new_eye_offset
