@@ -442,7 +442,8 @@ function airutils.logic(self)
     end
 
     if player then
-        local new_eye_offset = airutils.camera_reposition(player, newpitch, math.rad(self._rudder_angle))
+        --minetest.chat_send_all(dump(newroll))
+        local new_eye_offset = airutils.camera_reposition(player, newpitch, newroll)
         player:set_eye_offset(new_eye_offset, {x = 0, y = 1, z = -30})
     end
 

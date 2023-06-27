@@ -317,7 +317,7 @@ function airutils.testImpact(self, velocity, position)
                 fade = 0.0,
                 pitch = 1.0,
             }, true)
-            self.hp_max = self.hp_max - 5
+            self.hp_max = self.hp_max - self._damage_by_wind_speed
             if self.driver_name then
                 local player_name = self.driver_name
                 airutils.setText(self, self.infotext)
@@ -585,6 +585,18 @@ function airutils.add_destruction_effects(pos, radius)
 	})
 end
 
+function airutils.start_engine(self)
+    if self._engine_running then
+	    self._engine_running = false
+        self._autopilot = false
+        self._power_lever = 0 --zero power
+        self._last_applied_power = 0 --zero engine
+    elseif self._engine_running == false and self._energy > 0 then
+	    self._engine_running = true
+        self._last_applied_power = -1 --send signal to start
+    end
+end
+
 function airutils.get_xz_from_hipotenuse(orig_x, orig_z, yaw, distance)
     --cara, o minetest é bizarro, ele considera o eixo no sentido ANTI-HORÁRIO... Então pra equação funcionar, subtrair o angulo de 360 antes
     yaw = math.rad(360) - yaw
@@ -594,13 +606,16 @@ function airutils.get_xz_from_hipotenuse(orig_x, orig_z, yaw, distance)
 end
 
 function airutils.camera_reposition(player, pitch, roll)
+    if roll < -0.4 then roll = -0.4 end
+    if roll > 0.4 then roll = 0.4 end
+
     local player_properties = player:get_properties()
     local new_eye_offset = vector.new()
     local z, y = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, pitch, player_properties.eye_height)
     new_eye_offset.z = z*7
     new_eye_offset.y = y*1.5
     local x, _ = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, roll, player_properties.eye_height)
-    new_eye_offset.x = x*7
+    new_eye_offset.x = -x*15
     return new_eye_offset
 end
 
