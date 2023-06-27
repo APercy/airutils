@@ -158,17 +158,6 @@ function airutils.logic(self)
                 end
             end
         end
-        ----------------------------------
-        -- shows the hud for the player
-        ----------------------------------
-        if ctrl.up == true and ctrl.down == true and self._last_time_command >= 1 then
-            self._last_time_command = 0
-            if self._show_hud == true then
-                self._show_hud = false
-            else
-                self._show_hud = true
-            end
-        end
     end
 
     local accel_y = self.object:get_acceleration().y

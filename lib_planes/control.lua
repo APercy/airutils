@@ -46,11 +46,7 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
         --engine and power control
         if ctrl.aux1 and self._last_time_command > 0.5 then
             self._last_time_command = 0
-            if self._yaw_by_mouse == true then
-                self._yaw_by_mouse = false
-            else
-                self._yaw_by_mouse = true
-            end
+
         end
 
         self._acceleration = 0
@@ -130,6 +126,18 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
         if ctrl.right and ctrl.left then
             self._elevator_angle = 0
             self._rudder_angle = 0
+        end
+
+        if ctrl.up and ctrl.down and self._last_time_command > 0.5 then
+            self._last_time_command = 0
+            local name = player:get_player_name()
+            if self._yaw_by_mouse == true then
+                minetest.chat_send_player(name, core.colorize('#0000ff', " >>> Mouse control disabled."))
+                self._yaw_by_mouse = false
+            else
+                minetest.chat_send_player(name, core.colorize('#0000ff', " >>> Mouse control enabled."))
+                self._yaw_by_mouse = true
+            end
         end
 	end
 
