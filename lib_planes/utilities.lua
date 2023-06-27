@@ -33,7 +33,6 @@ function airutils.get_gauge_angle(value, initial_angle)
 	return angle
 end
 
--- attach player
 function airutils.attach(self, player, instructor_mode)
     instructor_mode = instructor_mode or false
     local name = player:get_player_name()
@@ -65,36 +64,6 @@ function airutils.attach(self, player, instructor_mode)
     end)
 end
 
--- attach passenger
-function airutils.attach_pax(self, player)
-    local name = player:get_player_name()
-    self._passenger = name
-
-    -- attach the driver
-    local eye_y = 0
-    if self._instruction_mode == true then
-        eye_y = -4
-        player:set_attach(self.pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-    else
-        eye_y = -2.5
-        player:set_attach(self.passenger_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-    end
-    if airutils.detect_player_api(player) == 1 then
-        eye_y = eye_y + 6.5
-    end
-
-    player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 1, z = -30})
-    player_api.player_attached[name] = true
-    player_api.set_animation(player, "sit")
-    -- make the driver sit
-    minetest.after(1, function()
-        player = minetest.get_player_by_name(name)
-        if player then
-            airutils.sit(player)
-            --apply_physics_override(player, {speed=0,gravity=0,jump=0})
-        end
-    end)
-end
 
 function airutils.dettachPlayer(self, player)
     local name = self.driver_name
@@ -109,28 +78,124 @@ function airutils.dettachPlayer(self, player)
 
     -- detach the player
     --player:set_physics_override({speed = 1, jump = 1, gravity = 1, sneak = true})
-    player:set_detach()
-    player_api.player_attached[name] = nil
-    player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
-    player_api.set_animation(player, "stand")
+    if player then
+        player:set_detach()
+        player_api.player_attached[name] = nil
+        player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
+        player_api.set_animation(player, "stand")
+    end
     self.driver = nil
     --remove_physics_override(player, {speed=1,gravity=1,jump=1})
 end
 
+function airutils.check_passenger_is_attached(self, name)
+    local is_attached = false
+    if self._passenger == name then is_attached = true end
+    if is_attached == false then
+        for i = self._max_occupants,1,-1 
+        do 
+            if self._passengers[i] == name then
+                is_attached = true
+                break
+            end
+        end
+    end
+    return is_attached
+end
+
+-- attach passenger
+function airutils.attach_pax(self, player, is_copilot)
+    local is_copilot = is_copilot or false
+    local name = player:get_player_name()
+
+    local eye_y = -4
+    if airutils.detect_player_api(player) == 1 then
+        eye_y = 2.5
+    end
+
+    if is_copilot == true then
+        if self._passenger == nil then
+            self._passenger = name
+
+            -- attach the driver
+            player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+            player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
+            player_api.player_attached[name] = true
+            player_api.set_animation(player, "sit")
+            -- make the driver sit
+            minetest.after(1, function()
+                player = minetest.get_player_by_name(name)
+                if player then
+                    airutils.sit(player)
+                    --apply_physics_override(player, {speed=0,gravity=0,jump=0})
+                end
+            end)
+        end
+    else
+        --randomize the seat
+        t = {}    -- new array
+        for i=1, self._max_occupants - 2 do --(the first 2 are the pilot and the copilot
+            t[i] = i
+        end
+
+        for i = 1, #t*2 do
+            local a = math.random(#t)
+            local b = math.random(#t)
+            t[a],t[b] = t[b],t[a]
+        end
+
+        --for i = 1,10,1 do
+        for k,v in ipairs(t) do
+            i = t[k]
+            if self._passengers[i] == nil then
+                --minetest.chat_send_all(self.driver_name)
+                self._passengers[i] = name
+                player:set_attach(self._passengers_base[i], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+                if i > 2 then
+                    player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
+                else
+                    player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
+                end
+                player_api.player_attached[name] = true
+                player_api.set_animation(player, "sit")
+                -- make the driver sit
+                minetest.after(1, function()
+                    player = minetest.get_player_by_name(name)
+                    if player then
+                        airutils.sit(player)
+                        --apply_physics_override(player, {speed=0,gravity=0,jump=0})
+                    end
+                end)
+                break
+            end
+        end
+
+    end
+end
+
 function airutils.dettach_pax(self, player)
-    local name = self._passenger
+    local name = player:get_player_name() --self._passenger
 
     -- passenger clicked the object => driver gets off the vehicle
-    self._passenger = nil
+    if self._passenger == name then
+        self._passenger = nil
+    else
+        for i = (self._max_occupants - 2),1,-1  --the first 2 are the pilot and copilot
+        do 
+            if self._passengers[i] == name then
+                self._passengers[i] = nil
+                break
+            end
+        end
+    end
 
     -- detach the player
-    --player:set_physics_override({speed = 1, jump = 1, gravity = 1, sneak = true})
     if player then
         player:set_detach()
         player_api.player_attached[name] = nil
         player_api.set_animation(player, "stand")
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
-    --remove_physics_override(player, {speed=1,gravity=1,jump=1})
+        --remove_physics_override(player, {speed=1,gravity=1,jump=1})
     end
 end
 
