@@ -408,7 +408,7 @@ function airutils.logic(self)
     local indicated_speed = longit_speed * 0.9
     if indicated_speed < 0 then indicated_speed = 0 end
     self._indicated_speed = indicated_speed
-    local speed_angle = supercub.get_gauge_angle(indicated_speed, -45)
+    local speed_angle = airutils.get_gauge_angle(indicated_speed, -45)
 
     --adjust power indicator
     local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10)
@@ -452,11 +452,6 @@ function airutils.logic(self)
 
     if self._custom_step_additional_function then
         self._custom_step_additional_function(self)
-    end
-
-    --set stick position
-    if self.stick then
-        self.stick:set_attach(self.object,'',self._stick_pos,{x=self._elevator_angle/2,y=0,z=self._rudder_angle})
     end
 
     -- calculate energy consumption --

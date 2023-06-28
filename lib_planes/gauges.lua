@@ -34,7 +34,7 @@ local function get_pointer(pointer_angle, gauge_center_x, gauge_center_y, full_p
     return retval
 end
 
-function airutils.plot_altimeter_gauge(self, scale, height, place_x, place_y)
+function airutils.plot_altimeter_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
     local pointer_img = 8   
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
@@ -43,13 +43,13 @@ function airutils.plot_altimeter_gauge(self, scale, height, place_x, place_y)
 
 
     --altimeter
-    local altitude = (height / 0.32) / 100
+    --[[local altitude = (height / 0.32) / 100
     local hour, minutes = math.modf( altitude )
     hour = math.fmod (hour, 10)
     minutes = minutes * 100
     minutes = (minutes * 100) / 100
     local minute_angle = (minutes*-360)/100
-    local hour_angle = (hour*-360)/10 + ((minute_angle*36)/360)
+    local hour_angle = (hour*-360)/10 + ((minute_angle*36)/360)]]--
 
     --[[
     #### `[combine:<w>x<h>:<x1>,<y1>=<file1>:<x2>,<y2>=<file2>:...`
@@ -68,46 +68,46 @@ function airutils.plot_altimeter_gauge(self, scale, height, place_x, place_y)
     local altimeter = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_altimeter_gauge.png:"
 
-    altimeter = altimeter..get_pointer(minute_angle+180, gauge_center_x, gauge_center_y, 1)
-    altimeter = altimeter..get_pointer(hour_angle+180, gauge_center_x, gauge_center_y, 0)
+    --altimeter = altimeter..get_pointer(minute_angle+180, gauge_center_x, gauge_center_y, 1)
+    --altimeter = altimeter..get_pointer(hour_angle+180, gauge_center_x, gauge_center_y, 0)
 
     return altimeter
 end
 
-function airutils.plot_fuel_gauge(self, scale, curr_level, max_level, place_x, place_y)
+function airutils.plot_fuel_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
     local pointer_img = 8   
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
     local gauge_center_x = place_x + gauge_center
     local gauge_center_y = place_y + gauge_center
 
-    local fuel_percentage = (curr_level*100)/max_level
-    local fuel_angle = -(fuel_percentage*180)/100
+    --local fuel_percentage = (curr_level*100)/max_level
+    --local fuel_angle = -(fuel_percentage*180)/100
     --minetest.chat_send_all(dump(fuel_angle))
 
     local fuel = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_fuel_gauge.png:"
 
-    fuel = fuel..get_pointer(fuel_angle-90, gauge_center_x, gauge_center_y, 1)
+    --fuel = fuel..get_pointer(fuel_angle-90, gauge_center_x, gauge_center_y, 1)
 
     return fuel
 end
 
-function airutils.plot_speed_gauge(self, scale, curr_level, max_level, place_x, place_y)
+function airutils.plot_speed_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
     local pointer_img = 8   
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
     local gauge_center_x = place_x + gauge_center
     local gauge_center_y = place_y + gauge_center
 
-    local speed_percentage = (curr_level*100)/max_level
-    local speed_angle = -(speed_percentage*350)/100
+    --local speed_percentage = (curr_level*100)/max_level
+    --local speed_angle = -(speed_percentage*350)/100
     --minetest.chat_send_all(dump(fuel_angle))
 
     local fuel = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_speed_gauge.png:"
 
-    fuel = fuel..get_pointer(speed_angle-180, gauge_center_x, gauge_center_y, 1)
+    --fuel = fuel..get_pointer(speed_angle-180, gauge_center_x, gauge_center_y, 1)
 
     return fuel
 end
