@@ -347,14 +347,16 @@ function airutils.testImpact(self, velocity, position)
             local player_name = self.driver_name
 
             --minetest.chat_send_all('damage: '.. damage .. ' - hp: ' .. self.hp_max)
-            if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
-                airutils.destroy(self, true)
+            if self.hp_max < 0 then --adieu
+                airutils.destroy(self, self._enable_explosion)
             end
 
             local player = minetest.get_player_by_name(player_name)
             if player then
 		        if player:get_hp() > 0 then
-			        player:set_hp(player:get_hp()-(damage/2))
+                    local hurt_by_impact_divisor = 0.5 --less is more
+                    if self.hp_max > 0 then hurt_by_impact = 2 end
+			        player:set_hp(player:get_hp()-(damage/hurt_by_impact_divisor))
 		        end
             end
             if self._passenger ~= nil then

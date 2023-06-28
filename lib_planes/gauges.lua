@@ -104,10 +104,29 @@ function airutils.plot_speed_gauge(self, scale, place_x, place_y)
     --local speed_angle = -(speed_percentage*350)/100
     --minetest.chat_send_all(dump(fuel_angle))
 
-    local fuel = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
+    local speed = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_speed_gauge.png:"
 
     --fuel = fuel..get_pointer(speed_angle-180, gauge_center_x, gauge_center_y, 1)
 
-    return fuel
+    return speed
+end
+
+function airutils.plot_power_gauge(self, scale, place_x, place_y)
+    local bg_width_height = 100
+    local pointer_img = 8   
+    local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
+    local gauge_center_x = place_x + gauge_center
+    local gauge_center_y = place_y + gauge_center
+
+    --local speed_percentage = (curr_level*100)/max_level
+    --local speed_angle = -(speed_percentage*350)/100
+    --minetest.chat_send_all(dump(fuel_angle))
+
+    local rpm = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
+                        ..place_x..","..place_y.."=airutils_rpm_gauge.png:"
+
+    --fuel = fuel..get_pointer(speed_angle-180, gauge_center_x, gauge_center_y, 1)
+
+    return rpm
 end

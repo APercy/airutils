@@ -192,10 +192,15 @@ function airutils.logic(self)
     --if is_flying then minetest.chat_send_all('is flying') end
 
     local is_attached = airutils.checkAttach(self, player)
+    if self._indicated_speed == nil then self._indicated_speed = 0 end
 
 	if not is_attached then
         -- for some engine error the player can be detached from the machine, so lets set him attached again
         airutils.checkattachBug(self)
+    end
+
+    if self._custom_step_additional_function then
+        self._custom_step_additional_function(self)
     end
 
     if longit_speed == 0 and is_flying == false and is_attached == false and self._engine_running == false then
@@ -448,10 +453,6 @@ function airutils.logic(self)
     if self._aileron_r_pos and self._aileron_l_pos then
         self.object:set_bone_position("aileron.r", self._aileron_r_pos, {x=-self._rudder_angle - 90,y=0,z=0})
         self.object:set_bone_position("aileron.l", self._aileron_l_pos, {x=self._rudder_angle - 90,y=0,z=0})
-    end
-
-    if self._custom_step_additional_function then
-        self._custom_step_additional_function(self)
     end
 
     -- calculate energy consumption --
