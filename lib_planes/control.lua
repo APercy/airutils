@@ -161,7 +161,7 @@ end
 function airutils.set_pitch_by_mouse(self, player)
     local vehicle_rot = self.object:get_rotation()
     local rot_x = player:get_look_vertical()-vehicle_rot.x
-	self._elevator_angle = -(rot_x * self._elevator_limit)*5
+	self._elevator_angle = -(rot_x * self._elevator_limit)*(self._pitch_intensity*10)
     if self._elevator_angle > self._elevator_limit then self._elevator_angle = self._elevator_limit end
     if self._elevator_angle < -self._elevator_limit then self._elevator_angle = -self._elevator_limit end
 end
@@ -191,8 +191,7 @@ function airutils.set_yaw_by_mouse(self, dir)
     if rot_y >= 270 and dir <= 90 then dir = dir + 360 end
     if rot_y <= 90 and dir >= 270 then dir = dir - 360 end
 
-    local intensity = 2
-    if self._intensity then intensity = self._intensity end
+    local intensity = self._yaw_intensity / 10
     local command = (rot_y - dir) * intensity
     if command < -90 then command = -90 
     elseif command > 90 then command = 90 end

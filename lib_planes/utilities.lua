@@ -265,12 +265,14 @@ function airutils.testImpact(self, velocity, position)
     if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
         airutils.destroy(self, true)
     end
+    local impact_speed = 2
     local p = position --self.object:get_pos()
     local collision = false
     if self._last_vel == nil then return end
+    local touch_point = self.initial_properties.collisionbox[2]-0.5
     --lets calculate the vertical speed, to avoid the bug on colliding on floor with hard lag
-    if abs(velocity.y - self._last_vel.y) > 2 then
-		local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=-2.8}))
+    if abs(velocity.y - self._last_vel.y) > impact_speed then
+		local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
 	    if (noded and noded.drawtype ~= 'airlike') then
 		    collision = true
 	    else
@@ -280,16 +282,18 @@ function airutils.testImpact(self, velocity, position)
         end
     end
     local impact = abs(airutils.get_hipotenuse_value(velocity, self._last_vel))
+    local vertical_impact = math.abs(velocity.y - self._last_vel.y)
+
     --minetest.chat_send_all('impact: '.. impact .. ' - hp: ' .. self.hp_max)
-    if impact > 2 then
+    if impact > impact_speed then
         --minetest.chat_send_all('impact: '.. impact .. ' - hp: ' .. self.hp_max)
         if self.colinfo then
             collision = self.colinfo.collides
         end
     end
 
-    if impact > 1.2  and self._longit_speed > 2 then
-        local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=-2.8}))
+    if vertical_impact > 0.5  and self._longit_speed > self._min_speed/2 then
+        local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
 	    if (noded and noded.drawtype ~= 'airlike') then
             minetest.sound_play("airutils_touch", {
                 --to_player = self.driver_name,
@@ -329,8 +333,19 @@ function airutils.testImpact(self, velocity, position)
     end
 
     if collision then
-        --self.object:set_velocity({x=0,y=0,z=0})
-        local damage = impact / 2
+        local damage = impact/2 --default for basic planes and trainers
+        if self._hard_damage then
+            damage = impact*3
+            --check if the impact was on landing gear area
+            if math.abs(impact - vertical_impact) < (impact*0.1) and --vert speed difference less than 10% of total
+                 math.abs(math.deg(self.object:get_rotation().x)) < 20 and --nose angle between +20 and -20 degrees
+                self._longit_speed < (self._min_speed*2) and  --longit speed less than the double of min speed
+                self._longit_speed > (self._min_speed/2) then --longit speed bigger than the half of min speed
+                damage = impact / 2 --if the plane was landing, the damage is mainly on landing gear, so lets reduce the damage
+            end
+            --end check
+        end
+
         self.hp_max = self.hp_max - damage --subtract the impact value directly to hp meter
         minetest.sound_play(self._collision_sound, {
             --to_player = self.driver_name,
@@ -355,7 +370,7 @@ function airutils.testImpact(self, velocity, position)
             if player then
 		        if player:get_hp() > 0 then
                     local hurt_by_impact_divisor = 0.5 --less is more
-                    if self.hp_max > 0 then hurt_by_impact = 2 end
+                    if self.hp_max > 0 then hurt_by_impact_divisor = 4 end
 			        player:set_hp(player:get_hp()-(damage/hurt_by_impact_divisor))
 		        end
             end
