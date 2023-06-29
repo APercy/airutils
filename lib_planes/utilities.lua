@@ -552,6 +552,10 @@ function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
 end
 
 function airutils.add_destruction_effects(pos, radius)
+	local node = airutils.nodeatpos(pos)
+    local is_liquid = false
+    if (node.drawtype == 'liquid' or node.drawtype == 'flowingliquid') then is_liquid = true end
+
     minetest.sound_play("airutils_explode", {
         pos = pos,
         max_hear_distance = 100,
@@ -559,32 +563,34 @@ function airutils.add_destruction_effects(pos, radius)
         fade = 0.0,
         pitch = 1.0,
     }, true)
-	minetest.add_particle({
-		pos = pos,
-		velocity = vector.new(),
-		acceleration = vector.new(),
-		expirationtime = 0.4,
-		size = radius * 10,
-		collisiondetection = false,
-		vertical = false,
-		texture = "airutils_boom.png",
-		glow = 15,
-	})
-	minetest.add_particlespawner({
-		amount = 32,
-		time = 0.5,
-		minpos = vector.subtract(pos, radius / 2),
-		maxpos = vector.add(pos, radius / 2),
-		minvel = {x = -10, y = -10, z = -10},
-		maxvel = {x = 10, y = 10, z = 10},
-		minacc = vector.new(),
-		maxacc = vector.new(),
-		minexptime = 1,
-		maxexptime = 2.5,
-		minsize = radius * 3,
-		maxsize = radius * 5,
-		texture = "airutils_boom.png",
-	})
+    if is_liquid == false then
+	    minetest.add_particle({
+		    pos = pos,
+		    velocity = vector.new(),
+		    acceleration = vector.new(),
+		    expirationtime = 0.4,
+		    size = radius * 10,
+		    collisiondetection = false,
+		    vertical = false,
+		    texture = "airutils_boom.png",
+		    glow = 15,
+	    })
+	    minetest.add_particlespawner({
+		    amount = 32,
+		    time = 0.5,
+		    minpos = vector.subtract(pos, radius / 2),
+		    maxpos = vector.add(pos, radius / 2),
+		    minvel = {x = -10, y = -10, z = -10},
+		    maxvel = {x = 10, y = 10, z = 10},
+		    minacc = vector.new(),
+		    maxacc = vector.new(),
+		    minexptime = 1,
+		    maxexptime = 2.5,
+		    minsize = radius * 3,
+		    maxsize = radius * 5,
+		    texture = "airutils_boom.png",
+	    })
+    end
 	minetest.add_particlespawner({
 		amount = 64,
 		time = 1.0,

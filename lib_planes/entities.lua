@@ -106,6 +106,24 @@ function airutils.on_step(self,dtime,colinfo)
     self.time_total=self.time_total+self.dtime
 end
 
+local function ground_pitch(self, longit_speed, curr_pitch)
+    newpitch = curr_pitch
+    -- adjust pitch at ground
+    if math.abs(longit_speed) < self._tail_lift_max_speed then
+        --minetest.chat_send_all(math.abs(longit_speed))
+        local speed_range = self._tail_lift_max_speed - self._tail_lift_min_speed
+        local percentage = 1-((math.abs(longit_speed) - self._tail_lift_min_speed)/speed_range)
+        if percentage > 1 then percentage = 1 end
+        if percentage < 0 then percentage = 0 end
+        local angle = self._tail_angle * percentage
+        local calculated_newpitch = math.rad(angle)
+        if newpitch < calculated_newpitch then newpitch = calculated_newpitch end --ja aproveita o pitch atual se ja estiver cerrto
+        if newpitch > math.rad(self._tail_angle) then newpitch = math.rad(self._tail_angle) end --não queremos arrastar o cauda no chão
+    end
+    
+    return newpitch
+end
+
 function airutils.logic(self)
     local velocity = self.object:get_velocity()
     local curr_pos = self.object:get_pos()
@@ -256,17 +274,7 @@ function airutils.logic(self)
 
     -- adjust pitch at ground
     if math.abs(longit_speed) > self._tail_lift_min_speed then
-        if math.abs(longit_speed) < self._tail_lift_max_speed then
-            --minetest.chat_send_all(math.abs(longit_speed))
-            local speed_range = self._tail_lift_max_speed - self._tail_lift_min_speed
-            percentage = 1-((math.abs(longit_speed) - self._tail_lift_min_speed)/speed_range)
-            if percentage > 1 then percentage = 1 end
-            if percentage < 0 then percentage = 0 end
-            local angle = self._tail_angle * percentage
-            local calculated_newpitch = math.rad(angle)
-            if newpitch < calculated_newpitch then newpitch = calculated_newpitch end --ja aproveita o pitch atual se ja estiver cerrto
-            if newpitch > math.rad(self._tail_angle) then newpitch = math.rad(self._tail_angle) end --não queremos arrastar o cauda no chão
-        end
+        newpitch = ground_pitch(self, longit_speed, newpitch)
     else
         if math.abs(longit_speed) < self._tail_lift_min_speed then
             newpitch = math.rad(self._tail_angle)
@@ -351,8 +359,26 @@ function airutils.logic(self)
     end
 
     local new_accel = accel
-    if longit_speed > 1.5 then
-        new_accel = airutils.getLiftAccel(self, velocity, new_accel, longit_speed, roll, curr_pos, self._lift, 15000)
+    if longit_speed > self._min_speed*0.66 then
+        --[[lets do something interesting:
+        here I'll fake the longit speed effect for takeoff, to force the airplane
+        to use more runway 
+        ]]--
+        local factorized_longit_speed = longit_speed
+        if is_flying == false and airutils.quadBezier then
+            local takeoff_speed = self._min_speed * 4  --so first I'll consider the takeoff speed 4x the minimal flight speed
+            if longit_speed < takeoff_speed and longit_speed > self._min_speed then -- then if the airplane is above the mininam speed and bellow the take off
+                local scale = (longit_speed*1)/takeoff_speed --get a scale of current longit speed relative to takeoff speed
+                if scale == nil then scale = 0 end --lets avoid any nil
+                factorized_longit_speed = airutils.quadBezier(scale, self._min_speed, longit_speed, longit_speed) --here the magic happens using a bezier curve
+                --minetest.chat_send_all("factor: " .. factorized_longit_speed .. " - longit: " .. longit_speed .. " - scale: " .. scale)
+                if factorized_longit_speed < 0 then factorized_longit_speed = 0 end --lets avoid negative numbers
+                if factorized_longit_speed == nil then factorized_longit_speed = longit_speed end --and nil numbers
+            end
+        end
+
+        local ceiling = 15000
+        new_accel = airutils.getLiftAccel(self, velocity, new_accel, factorized_longit_speed, roll, curr_pos, self._lift, ceiling, self._wing_span)
     end
     -- end lift
 

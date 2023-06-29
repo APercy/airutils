@@ -30,7 +30,7 @@ function airutils.pilot_formspec(name)
     if ent._yaw_by_mouse then yaw = "true" end
 
 	basic_form = basic_form.."button[1,1.0;4,1;turn_on;Start/Stop Engines]"
-	basic_form = basic_form.."button[1,2.1;4,1;go_out;Go Offboard]"
+	basic_form = basic_form.."button[1,2.1;4,1;go_out;Go Out!]"
 	basic_form = basic_form.."button[1,3.2;4,1;hud;Show/Hide Gauges]"
 	basic_form = basic_form.."button[1,4.3;4,1;inventory;Show Inventory]"
     basic_form = basic_form.."checkbox[1,5.7;yaw;Yaw by mouse;"..yaw.."]"
