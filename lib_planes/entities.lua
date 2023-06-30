@@ -454,12 +454,12 @@ function airutils.logic(self)
     local speed_angle = airutils.get_gauge_angle(indicated_speed, -45)
 
     --adjust power indicator
-    local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10)
-    --self.power_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_POWER_POSITION,{x=0,y=0,z=power_indicator_angle})
+    local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10) + 90
+    local energy_indicator_angle = (airutils.get_gauge_angle((self._max_fuel - self._energy)*2)) - 90
 
     if is_attached then
         if self._show_hud then
-            airutils.update_hud(player, climb_angle, speed_angle)
+            airutils.update_hud(player, climb_angle, speed_angle, power_indicator_angle, energy_indicator_angle)
         else
             airutils.remove_hud(player)
         end
