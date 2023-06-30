@@ -108,16 +108,28 @@ end
 
 local function ground_pitch(self, longit_speed, curr_pitch)
     newpitch = curr_pitch
+    if self._last_longit_speed == nil then self._last_longit_speed = 0 end
+
+    -- Estado atual do sistema
+    if self._current_value == nil then self._current_value = 0 end -- Valor atual do sistema
+    if self._last_error == nil then self._last_error = 0 end -- Último erro registrado
+
     -- adjust pitch at ground
     if math.abs(longit_speed) < self._tail_lift_max_speed then
-        --minetest.chat_send_all(math.abs(longit_speed))
         local speed_range = self._tail_lift_max_speed - self._tail_lift_min_speed
         local percentage = 1-((math.abs(longit_speed) - self._tail_lift_min_speed)/speed_range)
         if percentage > 1 then percentage = 1 end
         if percentage < 0 then percentage = 0 end
         local angle = self._tail_angle * percentage
-        local calculated_newpitch = math.rad(angle)
-        if newpitch < calculated_newpitch then newpitch = calculated_newpitch end --ja aproveita o pitch atual se ja estiver cerrto
+        local rad_angle = math.rad(angle)
+
+        if newpitch < rad_angle then newpitch = rad_angle end --ja aproveita o pitch atual se ja estiver cerrto
+        --[[self._current_value = curr_pitch
+        local kp = (longit_speed - self._tail_lift_min_speed)/10
+        local output, last_error = airutils.pid_controller(self._current_value, rad_angle, self._last_error, self.dtime, kp)
+        self._last_error = last_error
+        newpitch = output]]--
+
         if newpitch > math.rad(self._tail_angle) then newpitch = math.rad(self._tail_angle) end --não queremos arrastar o cauda no chão
     end
     
@@ -489,6 +501,7 @@ function airutils.logic(self)
 
     --saves last velocity for collision detection (abrupt stop)
     self._last_vel = self.object:get_velocity()
+    self._last_longit_speed = longit_speed
 end
 
 local function damage_vehicle(self, toolcaps, ttime, damage)

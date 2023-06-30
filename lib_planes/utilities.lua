@@ -551,6 +551,25 @@ function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
     end
 end
 
+function airutils.pid_controller(current_value, setpoint, last_error, d_time, kp, ki, kd)
+    kp = kp or 0
+    ki = ki or 0.00000000000001
+    kd = kd or 0.005
+
+    local ti = kp/ki
+    local td = kd/kp
+    local delta_t = d_time
+
+    local _error = setpoint - current_value
+    local derivative = _error - last_error
+    --local output = kpv*erro + (kpv/Tiv)*I + kpv*Tdv*((erro - erro_passado)/delta_t);
+    if integrative == nil then integrative = 0 end
+    integrative = integrative + (((_error + last_error)/delta_t)/2);
+    local output = kp*_error + (kp/ti)*integrative + kp * td*((_error - last_error)/delta_t)
+    last_error = _error
+    return output, last_error
+end
+
 function airutils.add_destruction_effects(pos, radius)
 	local node = airutils.nodeatpos(pos)
     local is_liquid = false

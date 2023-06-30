@@ -235,7 +235,7 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
 
     local retval_accel = accel
 
-    local max_autopilot_power = 85
+    --[[local max_autopilot_power = 85
 
     --climb
     local velocity = self.object:get_velocity()
@@ -248,7 +248,7 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
     self._acceleration = 0
     if self._engine_running then
         --engine acceleration calc
-        local engineacc = (self._power_lever * airutils.max_engine_acc) / 100;
+        local engineacc = (self._power_lever * self._max_engine_acc) / 100;
         --self.engine:set_animation_frame_speed(60 + self._power_lever)
 
         local factor = math.abs(climb_rate * 0.1) --getAdjustFactor(curr_pos.y, self._auto_pilot_altitude)
@@ -261,7 +261,7 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
             airutils.powerAdjust(self, dtime, factor, 1, max_autopilot_power)
         end
         --do not exceed
-        local max_speed = airutils.max_speed
+        local max_speed = self._max_speed
         if longit_speed > max_speed then
             engineacc = engineacc - (longit_speed-max_speed)
             if engineacc < 0 then engineacc = 0 end
@@ -287,7 +287,7 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
         if airutils.elevator_auto_correction then
             self._elevator_angle = airutils.elevator_auto_correction(self, longit_speed, self.dtime, airutils.max_speed, self._elevator_angle, airutils.elevator_limit, airutils.ideal_step, self._elevator_auto_estabilize)
         end
-    end
+    end]]--
 
     return retval_accel
 end
