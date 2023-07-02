@@ -671,7 +671,7 @@ function airutils.camera_reposition(player, pitch, roll)
     local player_properties = player:get_properties()
     local new_eye_offset = vector.new()
 
-    local eye_y = -6
+    local eye_y = -5
     if airutils.detect_player_api(player) == 1 then
         --minetest.chat_send_all("1")
         eye_y = 0.5
