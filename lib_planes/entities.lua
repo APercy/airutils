@@ -468,7 +468,8 @@ function airutils.logic(self)
 
     --adjust power indicator
     local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10) + 90
-    local energy_indicator_angle = (airutils.get_gauge_angle((self._max_fuel - self._energy)*2)) - 90
+    local fuel_in_percent = (self._energy * 1)/self._max_fuel
+    local energy_indicator_angle = (180*fuel_in_percent)-180    --(airutils.get_gauge_angle((self._max_fuel - self._energy)*2)) - 90
 
     if is_attached then
         if self._show_hud then
