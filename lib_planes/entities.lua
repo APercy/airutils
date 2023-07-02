@@ -486,7 +486,7 @@ function airutils.logic(self)
 	    newyaw = yaw + yaw_turn
     end
 
-    if player then
+    if player and self._use_camera_relocation then
         --minetest.chat_send_all(dump(newroll))
         local new_eye_offset = airutils.camera_reposition(player, newpitch, newroll)
         player:set_eye_offset(new_eye_offset, {x = 0, y = 1, z = -30})
