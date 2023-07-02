@@ -33,6 +33,7 @@ function airutils.get_gauge_angle(value, initial_angle)
 	return angle
 end
 
+-- attach player
 function airutils.attach(self, player, instructor_mode)
     instructor_mode = instructor_mode or false
     local name = player:get_player_name()
@@ -40,9 +41,9 @@ function airutils.attach(self, player, instructor_mode)
 
     -- attach the driver
     local eye_y = 0
-    if instructor_mode == true then
-        eye_y = -2.5
-        player:set_attach(self.passenger_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+    if instructor_mode == true and self._have_copilot then
+        eye_y = -4
+        player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     else
         eye_y = -4
         player:set_attach(self.pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
@@ -92,7 +93,8 @@ function airutils.check_passenger_is_attached(self, name)
     local is_attached = false
     if self._passenger == name then is_attached = true end
     if is_attached == false then
-        for i = self._max_occupants,1,-1 
+        local max_occupants = table.getn(self._seats)
+        for i = max_occupants,1,-1 
         do 
             if self._passengers[i] == name then
                 is_attached = true
@@ -114,8 +116,8 @@ function airutils.attach_pax(self, player, is_copilot)
     end
 
     if is_copilot == true then
-        if self._passenger == nil then
-            self._passenger = name
+        if self.co_pilot == nil then
+            self.co_pilot = name
 
             -- attach the driver
             player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
@@ -133,8 +135,11 @@ function airutils.attach_pax(self, player, is_copilot)
         end
     else
         --randomize the seat
+        local max_seats = table.getn(self._seats)
+        local crew = 1
+        if self._have_copilot then crew = crew + 1 end
         t = {}    -- new array
-        for i=1, self._max_occupants - 2 do --(the first 2 are the pilot and the copilot
+        for i=1, max_seats - crew do --(the first are for the crew
             t[i] = i
         end
 
@@ -146,7 +151,7 @@ function airutils.attach_pax(self, player, is_copilot)
 
         --for i = 1,10,1 do
         for k,v in ipairs(t) do
-            i = t[k]
+            i = t[k] + crew --jump the crew seats
             if self._passengers[i] == nil then
                 --minetest.chat_send_all(self.driver_name)
                 self._passengers[i] = name
@@ -180,7 +185,8 @@ function airutils.dettach_pax(self, player)
     if self._passenger == name then
         self._passenger = nil
     else
-        for i = (self._max_occupants - 2),1,-1  --the first 2 are the pilot and copilot
+        local max_seats = table.getn(self._seats)
+        for i = max_seats,1,-1
         do 
             if self._passengers[i] == name then
                 self._passengers[i] = nil
@@ -203,26 +209,35 @@ function airutils.checkAttach(self, player)
     if player then
         local player_attach = player:get_attach()
         if player_attach then
-            if player_attach == self.pilot_seat_base or player_attach == self.passenger_seat_base then
-                return true
+            local max_seats = table.getn(self._seats)
+            for i = max_seats,1,-1
+            do
+                if player_attach == self._passengers_base[i] then
+                    return true
+                end
             end
         end
     end
     return false
 end
 
-function airutils.destroy(self, effects)
-    effects = effects or false
+function airutils.destroy(self, by_name)
+    by_name = by_name or ""
+    local with_fire = self._enable_fire_explosion
+    if by_name == self.owner then with_fire = false end
+
     if self.sound_handle then
         minetest.sound_stop(self.sound_handle)
         self.sound_handle = nil
     end
 
-    if self._passenger then
-        -- detach the passenger
-        local passenger = minetest.get_player_by_name(self._passenger)
-        if passenger then
-            airutils.dettach_pax(self, passenger)
+    --remove the passengers first                
+    local max_seats = table.getn(self._seats)
+    for i = max_seats,2,-1
+    do 
+        if self._passengers[i] then
+            local passenger = minetest.get_player_by_name(self._passengers[i])
+            if passenger then airutils.dettach_pax(self, passenger) end
         end
     end
 
@@ -233,8 +248,9 @@ function airutils.destroy(self, effects)
     end
 
     local pos = self.object:get_pos()
-    if effects then airutils.add_destruction_effects(pos, 5) end
+    airutils.add_destruction_effects(pos, 5, with_fire)
 
+    airutils.seats_destroy(self)
     if self._destroy_parts_method then
         self._destroy_parts_method(self)
     end
@@ -263,7 +279,7 @@ end
 
 function airutils.testImpact(self, velocity, position)
     if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
-        airutils.destroy(self, true)
+        airutils.destroy(self)
     end
     local impact_speed = 2
     local p = position --self.object:get_pos()
@@ -327,7 +343,7 @@ function airutils.testImpact(self, velocity, position)
                 airutils.setText(self, self.infotext)
             end
             if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
-                airutils.destroy(self, true)
+                airutils.destroy(self)
             end
         end
     end
@@ -363,7 +379,7 @@ function airutils.testImpact(self, velocity, position)
 
             --minetest.chat_send_all('damage: '.. damage .. ' - hp: ' .. self.hp_max)
             if self.hp_max < 0 then --adieu
-                airutils.destroy(self, self._enable_explosion)
+                airutils.destroy(self)
             end
 
             local player = minetest.get_player_by_name(player_name)
@@ -570,7 +586,9 @@ function airutils.pid_controller(current_value, setpoint, last_error, d_time, kp
     return output, last_error
 end
 
-function airutils.add_destruction_effects(pos, radius)
+function airutils.add_destruction_effects(pos, radius, w_fire)
+    w_fire = w_fire
+    if w_fire == nil then w_fire = true end
 	local node = airutils.nodeatpos(pos)
     local is_liquid = false
     if (node.drawtype == 'liquid' or node.drawtype == 'flowingliquid') then is_liquid = true end
@@ -582,7 +600,7 @@ function airutils.add_destruction_effects(pos, radius)
         fade = 0.0,
         pitch = 1.0,
     }, true)
-    if is_liquid == false then
+    if is_liquid == false and w_fire == true then
 	    minetest.add_particle({
 		    pos = pos,
 		    velocity = vector.new(),
@@ -661,3 +679,30 @@ function airutils.camera_reposition(player, pitch, roll)
     return new_eye_offset
 end
 
+function airutils.seats_create(self)
+    if self.object then
+        local pos = self.object:get_pos()
+        self._passengers_base = {}
+        local max_seats = table.getn(self._seats)
+        for i=1, max_seats do
+            self._passengers_base[i] = minetest.add_entity(pos,'airutils:seat_base')
+            if not self._seats_rot then
+                self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=0,z=0})
+            else
+                self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=self._seats_rot[i],z=0})
+            end
+        end
+
+        self.pilot_seat_base = self._passengers_base[1] --sets pilot seat reference
+        if self._have_copilot and self.pilot_seat_base[2] then
+            self.co_pilot_seat_base = self.pilot_seat_base[2] --sets copilot seat reference
+        end
+    end
+end
+
+function airutils.seats_destroy(self)
+    local max_seats = table.getn(self._passengers_base)
+    for i=1, max_seats do
+        if self._passengers_base[i] then self._passengers_base[i]:remove() end
+    end
+end

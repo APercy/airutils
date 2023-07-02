@@ -73,6 +73,8 @@ function airutils.on_activate(self, staticdata, dtime_s)
 	    self.inv = inv
     end
 
+    airutils.seats_create(self)
+    self._passengers = {}
     if not self._vehicle_custom_data then self._vehicle_custom_data = {} end --initialize when it does not exists
 
     airutils.setText(self, self.infotext)
@@ -263,7 +265,7 @@ function airutils.logic(self)
         if longit_speed > (self._min_speed) then
             local percentage = math.abs(((longit_speed * 100)/(self._min_speed + 5))/100)
             if percentage > 1.5 then percentage = 1.5 end
-            self._angle_of_attack = self._wing_angle_of_attack - ((self._elevator_angle / 10)*percentage)
+            self._angle_of_attack = self._wing_angle_of_attack - ((self._elevator_angle / self._elevator_response_attenuation)*percentage)
 
             --set the plane on level
             if airutils.adjust_attack_angle_by_speed then
@@ -295,7 +297,7 @@ function airutils.logic(self)
 
     -- new yaw
 	if math.abs(self._rudder_angle)>1.5 then
-        local turn_rate = math.rad(14)
+        local turn_rate = math.rad(self._yaw_turn_rate)
         local yaw_turn = self.dtime * math.rad(self._rudder_angle) * turn_rate *
                 airutils.sign(longit_speed) * math.abs(longit_speed/2)
 		newyaw = yaw + yaw_turn
@@ -521,8 +523,9 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
 end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
+	local name = puncher:get_player_name()
     if self.hp_max <= 0 then
-        airutils.destroy(self, true)
+        airutils.destroy(self, name)
     end
     airutils.setText(self, self.infotext)
 
@@ -539,7 +542,6 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 
     local is_admin = false
     is_admin = minetest.check_player_privs(puncher, {server=true})
-	local name = puncher:get_player_name()
     if self.owner and self.owner ~= name and self.owner ~= "" then
         if is_admin == false then return end
     end
@@ -615,7 +617,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         end
 
         if self.hp_max <= 0 then
-            airutils.destroy(self)
+            airutils.destroy(self, name)
         end
     else
         if self._custom_punch_when_attached then self._custom_punch_when_attached(self, puncher) end
@@ -623,6 +625,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 end
 
 function airutils.on_rightclick(self, clicker)
+    local message = ""
 	if not clicker or not clicker:is_player() then
 		return
 	end
@@ -633,86 +636,117 @@ function airutils.on_rightclick(self, clicker)
         self.owner = name
     end
 
-    local passenger_name = nil
-    if self._passenger then
-        passenger_name = self._passenger
+    local copilot_name = nil
+    if self.co_pilot and self._have_copilot then
+        copilot_name = self.co_pilot
     end
 
-    local touching_ground, liquid_below = airutils.check_node_below(self.object, 1.3)
+    local touching_ground, liquid_below = airutils.check_node_below(self.object, 2.5)
     local is_on_ground = self.isinliquid or touching_ground or liquid_below
     local is_under_water = airutils.check_is_under_water(self.object)
 
-    --minetest.chat_send_all('name '.. dump(name) .. ' - pilot: ' .. dump(self.driver_name) .. ' - pax: ' .. dump(passenger_name))
+    --minetest.chat_send_all('name '.. dump(name) .. ' - pilot: ' .. dump(self.driver_name) .. ' - pax: ' .. dump(copilot_name))
     --=========================
-    --  detach pilot
+    --  form to pilot
     --=========================
+    local is_attached = false
+    local seat = clicker:get_attach()
+    --TODO crar funcao legacy aqui
+    if seat then
+        local plane = seat:get_attach()
+        if plane == self.object then is_attached = true end
+    end
     if name == self.driver_name then
-        if not self._custom_pilot_formspec then
-            airutils.pilot_formspec(name)
+        if is_attached then
+            local itmstck=clicker:get_wielded_item()
+            local item_name = ""
+            if itmstck then item_name = itmstck:get_name() end
+            --adf program function
+            if (item_name == "compassgps:cgpsmap_marked") then
+                local meta = minetest.deserialize(itmstck:get_metadata())
+                if meta then
+                    self._adf_destiny = {x=meta["x"], z=meta["z"]}
+                end
+            else
+                --formspec of the plane
+                if not self._custom_pilot_formspec then
+                    airutils.pilot_formspec(name)
+                else
+                    self._custom_pilot_formspec(name)
+                end
+            end
         else
-            self._custom_pilot_formspec(name)
+            self.driver_name = nil --error, so clean it
         end
     --=========================
-    --  detach passenger
+    --  detach copilot
     --=========================
-    elseif name == passenger_name then
-        if is_on_ground or clicker:get_player_control().sneak then
-            airutils.dettach_pax(self, clicker)
-        else
-            minetest.chat_send_player(name, "Hold sneak and right-click to disembark while flying")
-        end
+    elseif name == copilot_name then
+        airutils.pax_formspec(name)
 
     --=========================
     --  attach pilot
     --=========================
     elseif not self.driver_name then
         if self.owner == name or minetest.check_player_privs(clicker, {protection_bypass=true}) then
+            if clicker:get_player_control().aux1 == true then --lets see the inventory
+                airutils.show_vehicle_trunk_formspec(self, clicker, self._trunk_slots)
+            else
+                --[[if airutils.restricted == "true" and not minetest.check_player_privs(clicker, {flight_licence=true}) then
+                    minetest.show_formspec(name, "airutils:flightlicence",
+                        "size[4,2]" ..
+                        "label[0.0,0.0;Sorry ...]"..
+                        "label[0.0,0.7;You need a flight licence to fly it.]" ..
+                        "label[0.0,1.0;You must obtain it from server admin.]" ..
+                        "button_exit[1.5,1.9;0.9,0.1;e;Exit]")
+                    return
+                end]]--
 
-            local itmstck=clicker:get_wielded_item()
-            local item_name = ""
-            if itmstck then item_name = itmstck:get_name() end
+                if is_under_water then return end
 
-	        if itmstck then
-		        if airutils.set_param_paint(self, clicker, itmstck, 2) == false then
-
-                    if clicker:get_player_control().aux1 == true then --lets see the inventory
-                        airutils.show_vehicle_trunk_formspec(self, clicker, self._trunk_slots)
-                    else
-                        if is_under_water then return end
-                        --remove pax to prevent bug
-                        if self._passenger then 
-                            local pax_obj = minetest.get_player_by_name(self._passenger)
-                            airutils.dettach_pax(self, pax_obj)
-                        end
-
-                        --attach player
-                        if clicker:get_player_control().sneak == true then
-                            -- flight instructor mode
-                            self._instruction_mode = true
-                            airutils.attach(self, clicker, true)
-                        else
-                            -- no driver => clicker is new driver
-                            self._instruction_mode = false
-                            airutils.attach(self, clicker)
-                        end
-                        self._elevator_angle = 0
-                        self._rudder_angle = 0
-                        self._command_is_given = false
+                --remove the passengers first                
+                local max_seats = table.getn(self._seats)
+                for i = max_seats,1,-1
+                do 
+                    if self._passengers[i] then
+                        local passenger = minetest.get_player_by_name(self._passengers[i])
+                        if passenger then airutils.dettach_pax(self, passenger) end
                     end
+                end
 
-		        end
+                --attach player
+                -- no driver => clicker is new driver
+                airutils.attach(self, clicker)
+                self._command_is_given = false
             end
         else
-            minetest.chat_send_player(name, core.colorize('#ff0000', " >>> You aren't the owner of this machine."))
+            airutils.dettach_pax(self, clicker)
+            minetest.chat_send_player(name, core.colorize('#ff0000', " >>> You aren't the owner of this "..self.infotext.."."))
         end
 
     --=========================
     --  attach passenger
     --=========================
-    elseif self.driver_name and not self._passenger then
-        airutils.attach_pax(self, clicker)
-    
+    --TODO - _autoflymode
+    elseif self.driver_name ~= nil or self._autoflymode == true then
+        local player = minetest.get_player_by_name(self.driver_name)
+        if player then
+            is_attached = airutils.check_passenger_is_attached(self, name)
+
+            if is_attached then
+                --remove pax
+                airutils.pax_formspec(name)
+            else
+                --attach normal passenger
+                airutils.attach_pax(self, clicker)
+            end
+
+        else
+            minetest.chat_send_player(clicker:get_player_name(), message)
+        end
     else
-        minetest.chat_send_player(name, core.colorize('#ff0000', " >>> Can't enter airplane."))
+        minetest.chat_send_player(clicker:get_player_name(), message)
     end
+
 end
+
