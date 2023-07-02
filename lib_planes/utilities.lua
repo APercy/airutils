@@ -705,8 +705,8 @@ function airutils.seats_create(self)
             end
 
             self.pilot_seat_base = self._passengers_base[1] --sets pilot seat reference
-            if self._have_copilot and self.pilot_seat_base[2] then
-                self.co_pilot_seat_base = self.pilot_seat_base[2] --sets copilot seat reference
+            if self._have_copilot and self._passengers_base[2] then
+                self.co_pilot_seat_base = self._passengers_base[2] --sets copilot seat reference
             end
         end
     end
