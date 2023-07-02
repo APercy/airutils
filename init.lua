@@ -123,11 +123,16 @@ function airutils.detect_player_api(player)
     --if player_proterties.mesh == mesh then
         local models = player_api.registered_models
         local character = models[player_proterties.mesh]
+        --minetest.chat_send_all(dump(character));
         if character then
             if character.animations.sit.eye_height then
+                --minetest.chat_send_all(dump(character.animations.sit.eye_height));
                 if character.animations.sit.eye_height == 0.8 then
                     --minetest.chat_send_all("new model");
                     return 1
+                else
+                    --minetest.chat_send_all("new height");
+                    return 2 --strange bug with armor ands skins returning 1.47
                 end
             else
                 --minetest.chat_send_all("old model");

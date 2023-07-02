@@ -51,7 +51,10 @@ function airutils.attach(self, player, instructor_mode)
     if airutils.detect_player_api(player) == 1 then
         eye_y = eye_y + 6.5
     end
-
+    if airutils.detect_player_api(player) == 2 then
+        eye_y = -4
+    end
+    
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 1, z = -30})
     player_api.player_attached[name] = true
     player_api.set_animation(player, "sit")
@@ -156,11 +159,7 @@ function airutils.attach_pax(self, player, is_copilot)
                 --minetest.chat_send_all(self.driver_name)
                 self._passengers[i] = name
                 player:set_attach(self._passengers_base[i], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-                if i > 2 then
-                    player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
-                else
-                    player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
-                end
+                player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
                 player_api.player_attached[name] = true
                 player_api.set_animation(player, "sit")
                 -- make the driver sit
@@ -671,7 +670,16 @@ function airutils.camera_reposition(player, pitch, roll)
 
     local player_properties = player:get_properties()
     local new_eye_offset = vector.new()
-    local z, y = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, pitch, player_properties.eye_height)
+
+    local eye_y = -4
+    if airutils.detect_player_api(player) == 1 then
+        eye_y = eye_y + 6.5
+    end
+    if airutils.detect_player_api(player) == 2 then
+        eye_y = -4
+    end
+     
+    local z, y = airutils.get_xz_from_hipotenuse(0, eye_y, pitch, player_properties.eye_height)
     new_eye_offset.z = z*7
     new_eye_offset.y = y*1.5
     local x, _ = airutils.get_xz_from_hipotenuse(0, player_properties.eye_height, roll, player_properties.eye_height)
