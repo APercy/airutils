@@ -56,6 +56,10 @@ function airutils.on_activate(self, staticdata, dtime_s)
             self._last_applied_power = -1 --signal to start
         end
     end
+    self._climb_rate = 0
+    self._yaw = 0
+    self._roll = 0
+    self._pitch = 0
 
     if self._register_parts_method then
         self._register_parts_method(self)
@@ -455,7 +459,7 @@ function airutils.logic(self)
     --GAUGES
     --minetest.chat_send_all('rate '.. climb_rate)
     local climb_angle = airutils.get_gauge_angle(climb_rate)
-    --self.climb_gauge:set_attach(self.object,'',ALBATROS_D5_GAUGE_CLIMBER_POSITION,{x=0,y=0,z=climb_angle})
+    self._climb_rate = climb_rate
 
     local indicated_speed = longit_speed * 0.9
     if indicated_speed < 0 then indicated_speed = 0 end
@@ -526,6 +530,9 @@ function airutils.logic(self)
     --saves last velocity for collision detection (abrupt stop)
     self._last_vel = self.object:get_velocity()
     self._last_longit_speed = longit_speed
+    self._yaw = newyaw
+    self._roll = newroll
+    self._pitch = newpitch
 end
 
 local function damage_vehicle(self, toolcaps, ttime, damage)
