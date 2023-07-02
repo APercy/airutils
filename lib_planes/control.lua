@@ -43,10 +43,16 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
 	if player then
 		ctrl = player:get_player_control()
 
-        --engine and power control
         if ctrl.aux1 and self._last_time_command > 0.5 then
             self._last_time_command = 0
-
+            
+        end
+        ----------------------------------
+        -- flap operation
+        ----------------------------------
+        if ctrl.aux1 and ctrl.sneak and self._last_time_command >= 0.3 and self._wing_angle_extra_flaps then
+            self._last_time_command = 0
+            airutils.flap_operate(self, player)
         end
 
         self._acceleration = 0

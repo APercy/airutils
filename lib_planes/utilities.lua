@@ -683,19 +683,21 @@ function airutils.seats_create(self)
     if self.object then
         local pos = self.object:get_pos()
         self._passengers_base = {}
-        local max_seats = table.getn(self._seats)
-        for i=1, max_seats do
-            self._passengers_base[i] = minetest.add_entity(pos,'airutils:seat_base')
-            if not self._seats_rot then
-                self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=0,z=0})
-            else
-                self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=self._seats_rot[i],z=0})
+        if self._seats then 
+            local max_seats = table.getn(self._seats)
+            for i=1, max_seats do
+                self._passengers_base[i] = minetest.add_entity(pos,'airutils:seat_base')
+                if not self._seats_rot then
+                    self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=0,z=0})
+                else
+                    self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=self._seats_rot[i],z=0})
+                end
             end
-        end
 
-        self.pilot_seat_base = self._passengers_base[1] --sets pilot seat reference
-        if self._have_copilot and self.pilot_seat_base[2] then
-            self.co_pilot_seat_base = self.pilot_seat_base[2] --sets copilot seat reference
+            self.pilot_seat_base = self._passengers_base[1] --sets pilot seat reference
+            if self._have_copilot and self.pilot_seat_base[2] then
+                self.co_pilot_seat_base = self.pilot_seat_base[2] --sets copilot seat reference
+            end
         end
     end
 end
@@ -704,5 +706,99 @@ function airutils.seats_destroy(self)
     local max_seats = table.getn(self._passengers_base)
     for i=1, max_seats do
         if self._passengers_base[i] then self._passengers_base[i]:remove() end
+    end
+end
+
+function airutils.flap_on(self)
+    if self._wing_angle_extra_flaps == nil then self._wing_angle_extra_flaps = 0 end --if not, just keep the same as normal angle of attack
+    local flap_limit = 15
+    if self._flap_limit then flap_limit = self._flap_limit end
+    self._wing_configuration = self._wing_angle_of_attack + self._wing_angle_extra_flaps
+    self.object:set_bone_position("flap.l", {x=0, y=0, z=0}, {x=-flap_limit, y=0, z=0})
+    self.object:set_bone_position("flap.r", {x=0, y=0, z=0}, {x=-flap_limit, y=0, z=0})
+end
+
+function airutils.flap_off(self)
+    self._wing_configuration = self._wing_angle_of_attack
+    self.object:set_bone_position("flap.l", {x=0, y=0, z=0}, {x=0, y=0, z=0})
+    self.object:set_bone_position("flap.r", {x=0, y=0, z=0}, {x=0, y=0, z=0})
+end
+
+function airutils.flap_operate(self, player)
+    if self._flap == false then
+        minetest.chat_send_player(player:get_player_name(), ">>> Flap down")
+        self._flap = true
+        airutils.flap_on(self)
+        minetest.sound_play("airutils_collision", {
+            object = self.object,
+            max_hear_distance = 15,
+            gain = 1.0,
+            fade = 0.0,
+            pitch = 0.5,
+        }, true)
+    else
+        minetest.chat_send_player(player:get_player_name(), ">>> Flap up")
+        self._flap = false
+        airutils.flap_off(self)
+        minetest.sound_play("airutils_collision", {
+            object = self.object,
+            max_hear_distance = 15,
+            gain = 1.0,
+            fade = 0.0,
+            pitch = 0.7,
+        }, true)
+    end
+end
+
+local function do_attach(self, player, slot)
+    if slot == 0 then return end
+    if self._passengers[slot] == nil then
+        local name = player:get_player_name()
+        --minetest.chat_send_all(self.driver_name)
+        self._passengers[slot] = name
+        player:set_attach(self._passengers_base[slot], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+        player_api.player_attached[name] = true
+
+        local eye_y = -4
+        if airutils.detect_player_api(player) == 1 then
+            eye_y = 2.5
+        end
+        player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
+
+        player_api.set_animation(player, "sit")
+        -- make the driver sit
+        minetest.after(1, function()
+            player = minetest.get_player_by_name(name)
+            if player then
+                airutils.sit(player)
+                --apply_physics_override(player, {speed=0,gravity=0,jump=0})
+            end
+        end)
+    end
+end
+
+--this method checks for a disconected player who comes back
+function airutils.rescueConnectionFailedPassengers(self)
+    if self._disconnection_check_time == nil then self._disconnection_check_time = 1 end
+    self._disconnection_check_time = self._disconnection_check_time + self.dtime
+    local max_seats = table.getn(self._passengers_base)
+    if self._disconnection_check_time > 1 then
+        --minetest.chat_send_all(dump(self._passengers))
+        self._disconnection_check_time = 0
+        for i = max_seats,1,-1 
+        do 
+            if self._passengers[i] then
+                local player = minetest.get_player_by_name(self._passengers[i])
+                if player then --we have a player!
+                    if player_api.player_attached[self._passengers[i]] == nil then --but isn't attached?
+                        --minetest.chat_send_all("okay")
+		                if player:get_hp() > 0 then
+                            self._passengers[i] = nil --clear the slot first
+                            do_attach(self, player, i) --attach
+		                end
+                    end
+                end
+            end
+        end
     end
 end

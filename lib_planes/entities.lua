@@ -17,6 +17,8 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_last_accell = self._last_accell,
         stored_engine_running = self._engine_running,
         stored_inv_id = self._inv_id,
+        stored_flap = self._flap,
+        stored_passengers = self._passengers,
         stored_vehicle_custom_data = self._vehicle_custom_data
     })
 end
@@ -27,6 +29,7 @@ end
 
 function airutils.on_activate(self, staticdata, dtime_s)
     airutils.actfunc(self, staticdata, dtime_s)
+
     if staticdata ~= "" and staticdata ~= nil then
         local data = minetest.deserialize(staticdata) or {}
         self._energy = data.stored_energy
@@ -39,6 +42,8 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._last_accell = data.stored_last_accell
         self._engine_running = data.stored_engine_running
         self._inv_id = data.stored_inv_id
+        self._flap = data.stored_flap
+        self._passengers = data.stored_passengers or {}
         local custom_data = data.stored_vehicle_custom_data
         if custom_data then
             self._vehicle_custom_data = custom_data
@@ -51,7 +56,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
             self._last_applied_power = -1 --signal to start
         end
     end
-    
+
     if self._register_parts_method then
         self._register_parts_method(self)
     end
@@ -352,8 +357,10 @@ function airutils.logic(self)
             accel = airutils.autopilot(self, self.dtime, hull_direction, longit_speed, accel, curr_pos)
         end
     end
-
     --end accell
+
+    --get disconnected players
+    airutils.rescueConnectionFailedPassengers(self)
 
     if accel == nil then accel = {x=0,y=0,z=0} end
 
@@ -484,6 +491,21 @@ function airutils.logic(self)
     --apply rotations
     self.object:set_rotation({x=newpitch,y=newyaw,z=newroll})
     --end
+
+    if self._wing_configuration == self._wing_angle_of_attack and self._flap then
+        airutils.flap_on(self)
+    end
+    if self._wing_configuration ~= self._wing_angle_of_attack and self._flap == false then
+        airutils.flap_off(self)
+    end
+
+    if longit_speed > self._max_speed and self._flap == true then
+        if is_attached and self.driver_name then
+            minetest.chat_send_player(self.driver_name, core.colorize('#ff0000', " >>> Flaps retracted due for overspeed"))
+        end
+        self._flap = false
+    end
+
 
     --adjust elevator pitch (3d model)
     self.object:set_bone_position("elevator", self._elevator_pos, {x=-self._elevator_angle*2 - 90, y=0, z=0})
