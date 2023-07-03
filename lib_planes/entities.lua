@@ -719,6 +719,17 @@ function airutils.on_rightclick(self, clicker)
     --=========================
     elseif not self.driver_name then
         if self.owner == name or minetest.check_player_privs(clicker, {protection_bypass=true}) then
+
+            local itmstck=clicker:get_wielded_item()
+            local item_name = ""
+            if itmstck then item_name = itmstck:get_name() end
+
+	        if itmstck then
+		        if airutils.set_param_paint(self, clicker, itmstck, 2) == true then
+                    return
+		        end
+            end
+
             if clicker:get_player_control().aux1 == true then --lets see the inventory
                 airutils.show_vehicle_trunk_formspec(self, clicker, self._trunk_slots)
             else
