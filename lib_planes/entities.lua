@@ -86,6 +86,8 @@ function airutils.on_activate(self, staticdata, dtime_s)
     self._passengers = {}
     if not self._vehicle_custom_data then self._vehicle_custom_data = {} end --initialize when it does not exists
 
+    if self._flap then airutils.flap_on(self) end
+
     airutils.setText(self, self.infotext)
 end
 
@@ -242,6 +244,13 @@ function airutils.logic(self)
 
     if self._custom_step_additional_function then
         self._custom_step_additional_function(self)
+    end
+
+    if self._wing_configuration == self._wing_angle_of_attack and self._flap then
+        airutils.flap_on(self)
+    end
+    if self._wing_configuration ~= self._wing_angle_of_attack and self._flap == false then
+        airutils.flap_off(self)
     end
 
     if longit_speed == 0 and is_flying == false and is_attached == false and self._engine_running == false then
@@ -496,13 +505,6 @@ function airutils.logic(self)
     --apply rotations
     self.object:set_rotation({x=newpitch,y=newyaw,z=newroll})
     --end
-
-    if self._wing_configuration == self._wing_angle_of_attack and self._flap then
-        airutils.flap_on(self)
-    end
-    if self._wing_configuration ~= self._wing_angle_of_attack and self._flap == false then
-        airutils.flap_off(self)
-    end
 
     if longit_speed > self._max_speed and self._flap == true then
         if is_attached and self.driver_name then
