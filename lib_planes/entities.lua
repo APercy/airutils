@@ -159,15 +159,15 @@ function airutils.logic(self)
 
     local player = nil
     if self.driver_name then player = minetest.get_player_by_name(self.driver_name) end
-    local passenger = nil
-    if self._passenger then passenger = minetest.get_player_by_name(self._passenger) end
+    local co_pilot = nil
+    if self.co_pilot and self._have_copilot then co_pilot = minetest.get_player_by_name(self.co_pilot) end
 
     if player then
         local ctrl = player:get_player_control()
         ---------------------
         -- change the driver
         ---------------------
-        if passenger and self._last_time_command >= 1 and self._instruction_mode == true then
+        if co_pilot and self._have_copilot and self._last_time_command >= 1 and self._instruction_mode == true then
             if self._command_is_given == true then
                 if ctrl.sneak or ctrl.jump or ctrl.up or ctrl.down or ctrl.right or ctrl.left then
                     self._last_time_command = 0
@@ -175,11 +175,11 @@ function airutils.logic(self)
                     airutils.transfer_control(self, false)
                 end
             else
-                if ctrl.sneak == true and ctrl.jump == true then
+                --[[if ctrl.sneak == true and ctrl.jump == true then
                     self._last_time_command = 0
                     --trasnfer the control to student
                     airutils.transfer_control(self, true)
-                end
+                end]]--
             end
         end
         -----------
@@ -353,16 +353,18 @@ function airutils.logic(self)
     -- end roll
 
     local pilot = player
-    if self._command_is_given and passenger then
-        pilot = passenger
-    else
-        self._command_is_given = false
+    if self._have_copilot then
+        if self._command_is_given and co_pilot then
+            pilot = co_pilot
+        else
+            self._command_is_given = false
+        end
     end
 
     ------------------------------------------------------
     --accell calculation block
     ------------------------------------------------------
-    if is_attached or passenger then
+    if is_attached or co_pilot then
         if self._autopilot ~= true then
             accel, stop = airutils.control(self, self.dtime, hull_direction,
                 longit_speed, longit_drag, later_speed, later_drag, accel, pilot, is_flying)

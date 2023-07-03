@@ -96,10 +96,11 @@ function airutils.setText(self, vehicle_name)
 end
 
 function airutils.transfer_control(self, status)
+    if not self._have_copilot then return end
     if status == false then
         self._command_is_given = false
-        if self._passenger then
-            minetest.chat_send_player(self._passenger,
+        if self.co_pilot then
+            minetest.chat_send_player(self.co_pilot,
                 core.colorize('#ff0000', " >>> The captain got the control."))
         end
         if self.driver_name then
@@ -108,8 +109,8 @@ function airutils.transfer_control(self, status)
         end
     else
         self._command_is_given = true
-        if self._passenger then
-            minetest.chat_send_player(self._passenger,
+        if self.co_pilot then
+            minetest.chat_send_player(self.co_pilot,
                 core.colorize('#00ff00', " >>> The control is with you now."))
         end
         if self.driver_name then minetest.chat_send_player(self.driver_name," >>> The control was given.") end

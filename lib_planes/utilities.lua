@@ -181,8 +181,8 @@ function airutils.dettach_pax(self, player)
     local name = player:get_player_name() --self._passenger
 
     -- passenger clicked the object => driver gets off the vehicle
-    if self._passenger == name then
-        self._passenger = nil
+    if self.co_pilot == name then
+        self.co_pilot = nil
     else
         local max_seats = table.getn(self._seats)
         for i = max_seats,1,-1
