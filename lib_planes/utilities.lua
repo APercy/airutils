@@ -832,3 +832,21 @@ function airutils.rescueConnectionFailedPassengers(self)
         end
     end
 end
+
+function airutils.landing_lights_operate(self)
+    if self._last_light_move == nil then self._last_light_move = 0.15 end
+    self._last_light_move = self._last_light_move + self.dtime
+    if self._last_light_move > 0.15 then
+        self._last_light_move = 0
+        if self._land_light == true and self._engine_running == true then
+            self._light_active_time = self._light_active_time + self.dtime
+            --minetest.chat_send_all(self._light_active_time)
+            if self._light_active_time > 24 then self._land_light = false end
+            airutils.put_light(self)
+        else
+            self._land_light = false
+            self._light_active_time = 0
+            airutils.remove_light(self)
+        end
+    end
+end

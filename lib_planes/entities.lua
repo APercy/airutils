@@ -29,6 +29,7 @@ end
 
 function airutils.on_activate(self, staticdata, dtime_s)
     airutils.actfunc(self, staticdata, dtime_s)
+    self._flap = false
 
     if staticdata ~= "" and staticdata ~= nil then
         local data = minetest.deserialize(staticdata) or {}
@@ -251,6 +252,11 @@ function airutils.logic(self)
     end
     if self._wing_configuration ~= self._wing_angle_of_attack and self._flap == false then
         airutils.flap_off(self)
+    end
+
+    --landing light
+    if self._have_landing_lights then
+        airutils.landing_lights_operate(self)
     end
 
     if longit_speed == 0 and is_flying == false and is_attached == false and self._engine_running == false then
