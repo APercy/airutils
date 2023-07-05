@@ -15,7 +15,6 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_power_lever = self._power_lever,
         stored_driver_name = self.driver_name,
         stored_last_accell = self._last_accell,
-        stored_engine_running = self._engine_running,
         stored_inv_id = self._inv_id,
         stored_flap = self._flap,
         stored_passengers = self._passengers,
@@ -41,7 +40,6 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._power_lever = data.stored_power_lever
         self.driver_name = data.stored_driver_name
         self._last_accell = data.stored_last_accell
-        self._engine_running = data.stored_engine_running
         self._inv_id = data.stored_inv_id
         self._flap = data.stored_flap
         self._passengers = data.stored_passengers or {}

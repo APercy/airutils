@@ -189,10 +189,16 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
 		    if fields.go_out then
                 local touch_point = ent.initial_properties.collisionbox[2]-1.0
-                local touching_ground, liquid_below = airutils.check_node_below(plane_obj, touch_point)
-                local is_on_ground = ent.isinliquid or touching_ground or liquid_below
+                -----////
+                local is_on_ground = false
+                local pos = plane_obj:get_pos()
+                pos.y = pos.y + touch_point
+                local node_below = minetest.get_node(pos).name
+                local nodedef = minetest.registered_nodes[node_below]
+                is_on_ground = not nodedef or nodedef.walkable or false -- unknown nodes are solid
 
                 if ent.driver_name == name then
+                    --minetest.chat_send_all(dump(noded))
                     if is_on_ground then --or clicker:get_player_control().sneak then
                         --remove the passengers first                
                         local max_seats = table.getn(ent._seats)
