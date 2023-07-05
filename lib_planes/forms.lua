@@ -41,7 +41,7 @@ function airutils.pilot_formspec(name)
         extra_height = extra_height + 0.5
     end
 
-    if ent._have_copilot then extra_height = extra_height + 1.1 end
+    if ent._have_copilot and name == ent.driver_name then extra_height = extra_height + 1.1 end
 
     local yaw = "false"
     if ent._yaw_by_mouse then yaw = "true" end
@@ -72,7 +72,7 @@ function airutils.pilot_formspec(name)
     basic_form = basic_form.."checkbox[1,"..ver_pos..";yaw;Yaw by mouse;"..yaw.."]"
     ver_pos = ver_pos + 0.5
 
-    if ent._have_copilot then
+    if ent._have_copilot and name == ent.driver_name then
         basic_form = basic_form.."button[1,"..ver_pos..";4,1;copilot_form;Co-pilot Manage]"
         ver_pos = ver_pos + 1.1
     end
@@ -188,33 +188,36 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 end
             end
 		    if fields.go_out then
-                local touching_ground, liquid_below = airutils.check_node_below(plane_obj, 1.3)
+                local touch_point = ent.initial_properties.collisionbox[2]-1.0
+                local touching_ground, liquid_below = airutils.check_node_below(plane_obj, touch_point)
                 local is_on_ground = ent.isinliquid or touching_ground or liquid_below
 
-                if is_on_ground then --or clicker:get_player_control().sneak then
-                    if ent._passenger then --any pax?
-                        local pax_obj = minetest.get_player_by_name(ent._passenger)
-                        airutils.dettach_pax(ent, pax_obj)
+                if ent.driver_name == name then
+                    if is_on_ground then --or clicker:get_player_control().sneak then
+                        --remove the passengers first                
+                        local max_seats = table.getn(ent._seats)
+                        for i = max_seats,2,-1
+                        do 
+                            if ent._passengers[i] then
+                                local passenger = minetest.get_player_by_name(ent._passengers[i])
+                                if passenger then airutils.dettach_pax(ent, passenger) end
+                            end
+                        end
+                        ent._instruction_mode = false
+                    else
+                        -- not on ground
+                        if ent.co_pilot then
+                            --give the control to the pax
+                            ent._autopilot = false
+                            airutils.transfer_control(ent, true)
+                            ent._command_is_given = true
+                            ent._instruction_mode = true
+                        end
                     end
-                    ent._instruction_mode = false
-                    --[[ sound and animation
-                    if ent.sound_handle then
-                        minetest.sound_stop(ent.sound_handle)
-                        ent.sound_handle = nil
-                    end
-                    ent.engine:set_animation_frame_speed(0)]]--
+                    airutils.dettachPlayer(ent, player)
                 else
-                    -- not on ground
-                    if ent._passenger then
-                        --give the control to the pax
-                        ent._autopilot = false
-                        airutils.transfer_control(ent, true)
-                        ent._command_is_given = true
-                        ent._instruction_mode = true
-                    end
+                    airutils.dettach_pax(ent, player)
                 end
-
-                airutils.dettachPlayer(ent, player)
 		    end
             if fields.inventory then
                 if ent._trunk_slots then

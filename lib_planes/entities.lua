@@ -722,7 +722,11 @@ function airutils.on_rightclick(self, clicker)
     --  detach copilot
     --=========================
     elseif name == copilot_name then
-        airutils.pax_formspec(name)
+        if self._command_is_given then
+            self._custom_pilot_formspec(name)  --open the plane menu for the copilot
+        else
+            airutils.pax_formspec(name)
+        end
 
     --=========================
     --  attach pilot
