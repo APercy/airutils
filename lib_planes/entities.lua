@@ -18,6 +18,7 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_inv_id = self._inv_id,
         stored_flap = self._flap,
         stored_passengers = self._passengers,
+        stored_adf_destiny = self._adf_destiny,
         stored_vehicle_custom_data = self._vehicle_custom_data
     })
 end
@@ -43,6 +44,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._inv_id = data.stored_inv_id
         self._flap = data.stored_flap
         self._passengers = data.stored_passengers or {}
+        self._adf_destiny = data.stored_adf_destiny or vector.new()
         local custom_data = data.stored_vehicle_custom_data
         if custom_data then
             self._vehicle_custom_data = custom_data

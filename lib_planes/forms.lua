@@ -107,6 +107,46 @@ function airutils.manage_copilot_formspec(name)
     minetest.show_formspec(name, "lib_planes:manage_copilot", basic_form)
 end
 
+function airutils.adf_formspec(name)
+    local player = minetest.get_player_by_name(name)
+    local plane_obj = airutils.getPlaneFromPlayer(player)
+    if plane_obj == nil then
+        return
+    end
+    local ent = plane_obj:get_luaentity()
+
+    local adf = "false"
+    if ent._adf then adf = "true" end
+    local x = 0
+    local z = 0
+    if ent._adf_destiny then
+        if ent._adf_destiny.x then
+            if type(ent._adf_destiny.x) ~= nil then
+                x = math.floor(ent._adf_destiny.x)
+            end
+        end
+        if ent._adf_destiny.z then
+            if type(ent._adf_destiny.z) ~= nil then
+                z = math.floor(ent._adf_destiny.z)
+            end
+        end
+    else
+        --return
+    end
+
+    local basic_form = table.concat({
+        "formspec_version[3]",
+        "size[6,3.5]",
+	}, "")
+
+    basic_form = basic_form.."checkbox[1.0,1.0;adf;Auto Direction Find;"..adf.."]"
+    basic_form = basic_form.."field[1.0,1.7;1.5,0.6;adf_x;pos x;"..x.."]"
+    basic_form = basic_form.."field[2.8,1.7;1.5,0.6;adf_z;pos z;"..z.."]"
+    basic_form = basic_form.."button[4.5,1.7;0.6,0.6;save_adf;OK]"
+
+    minetest.show_formspec(name, "lib_planes:adf_main", basic_form)
+end
+
 function airutils.pax_formspec(name)
     local basic_form = table.concat({
         "formspec_version[3]",
@@ -148,6 +188,39 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         end
         minetest.close_formspec(name, "lib_planes:go_out_confirmation_form")
     end
+	if formname == "lib_planes:adf_main" then
+        local name = player:get_player_name()
+        local plane_obj = airutils.getPlaneFromPlayer(player)
+        if plane_obj == nil then
+            minetest.close_formspec(name, "lib_planes:adf_main")
+            return
+        end
+        local ent = plane_obj:get_luaentity()
+        if ent then
+            if fields.adf then
+                if ent._adf == true then
+                    ent._adf = false
+                else
+                    ent._adf = true
+                end
+            end
+            if fields.save_adf then
+                if ent._adf_destiny then
+                    if fields.adf_x then
+                        if tonumber(fields.adf_x, 10) ~= nil then
+                            ent._adf_destiny.x = tonumber(fields.adf_x, 10)
+                        end
+                    end
+                    if fields.adf_z then
+                        if tonumber(fields.adf_z, 10) ~= nil then
+                            ent._adf_destiny.z = tonumber(fields.adf_z, 10)
+                        end
+                    end
+                end
+            end
+        end
+        minetest.close_formspec(name, "lib_planes:adf_main")
+	end
 	if formname == "lib_planes:passenger_main" then
         local name = player:get_player_name()
         local plane_obj = airutils.getPlaneFromPlayer(player)
