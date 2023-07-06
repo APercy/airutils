@@ -43,6 +43,8 @@ function airutils.pilot_formspec(name)
 
     if ent._have_copilot and name == ent.driver_name then extra_height = extra_height + 1.1 end
 
+    if ent._have_adf then extra_height = extra_height + 1.1 end
+
     local yaw = "false"
     if ent._yaw_by_mouse then yaw = "true" end
 
@@ -68,12 +70,17 @@ function airutils.pilot_formspec(name)
         basic_form = basic_form.."checkbox[1,"..ver_pos..";light;Landing Light;"..light.."]"
         ver_pos = ver_pos + 0.5
     end
-
+    
     basic_form = basic_form.."checkbox[1,"..ver_pos..";yaw;Yaw by mouse;"..yaw.."]"
     ver_pos = ver_pos + 0.5
 
     if ent._have_copilot and name == ent.driver_name then
-        basic_form = basic_form.."button[1,"..ver_pos..";4,1;copilot_form;Co-pilot Manage]"
+        basic_form = basic_form.."button[1,"..ver_pos..";4,1;copilot_form;Co-pilot Manager]"
+        ver_pos = ver_pos + 1.1
+    end
+
+    if ent._have_adf then
+        basic_form = basic_form.."button[1,"..ver_pos..";4,1;adf_form;Adf Manager]"
         ver_pos = ver_pos + 1.1
     end
 
@@ -333,6 +340,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
             if fields.copilot_form then
                 airutils.manage_copilot_formspec(name)
+            end
+            if fields.adf_form then
+                airutils.adf_formspec(name)
             end
         end
         minetest.close_formspec(name, "lib_planes:pilot_main")

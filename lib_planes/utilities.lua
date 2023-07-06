@@ -850,3 +850,15 @@ function airutils.landing_lights_operate(self)
         end
     end
 end
+
+function airutils.get_adf_angle(self, pos)
+    local adf = 0
+    if self._adf == true then
+        if airutils.getAngleFromPositions and self._adf_destiny then
+            adf = airutils.getAngleFromPositions(pos, self._adf_destiny)
+            adf = -(adf + math.deg(self._yaw))
+        end
+    end
+    return adf
+end
+

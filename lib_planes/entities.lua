@@ -153,6 +153,7 @@ end
 function airutils.logic(self)
     local velocity = self.object:get_velocity()
     local curr_pos = self.object:get_pos()
+    self._curr_pos = curr_pos --shared
 
     self._last_time_command = self._last_time_command + self.dtime
 
