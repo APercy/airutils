@@ -283,6 +283,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
         local angle_of_attack = math.rad(self._angle_of_attack + wing_config)
         --local acc = 0.8
         local daoa = deg(angle_of_attack)
+        --minetest.chat_send_all(dump(daoa))
 
         --to decrease the lift coefficient at hight altitudes
         local curr_percent_height = (100 - ((curr_pos.y * 100) / max_height))/100
@@ -297,8 +298,9 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
 	    local cross = vector.cross(velocity,hdir)
 	    local lift_dir = vector.normalize(vector.cross(cross,hdir))
 
-        local lift_coefficient = (0.24*abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(angle_of_attack))
+        local lift_coefficient = (0.24*abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
         local lift_val = math.abs((lift*(vector.length(velocity)^2)*lift_coefficient)*curr_percent_height)
+        if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
         --minetest.chat_send_all('lift: '.. lift_val)
 
         local lift_acc = vector.multiply(lift_dir,lift_val)
