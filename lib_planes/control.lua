@@ -241,7 +241,10 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
 
     local retval_accel = accel
 
-    --[[local max_autopilot_power = 85
+    if not self._have_auto_pilot then return end
+
+    local max_autopilot_power = 85
+    local max_attack_angle = 1.8
 
     --climb
     local velocity = self.object:get_velocity()
@@ -257,14 +260,14 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
         local engineacc = (self._power_lever * self._max_engine_acc) / 100;
         --self.engine:set_animation_frame_speed(60 + self._power_lever)
 
-        local factor = math.abs(climb_rate * 0.1) --getAdjustFactor(curr_pos.y, self._auto_pilot_altitude)
+        local factor = math.abs(climb_rate * 0.1)
         --increase power lever
         if climb_rate > 0.2 then
             airutils.powerAdjust(self, dtime, factor, -1)
         end
         --decrease power lever
         if climb_rate < 0 then
-            airutils.powerAdjust(self, dtime, factor, 1, max_autopilot_power)
+            airutils.powerAdjust(self, dtime, factor, 1)
         end
         --do not exceed
         local max_speed = self._max_speed
@@ -279,9 +282,9 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
     retval_accel=vector.add(retval_accel,hull_acc)
 
     --pitch
-    if self._angle_of_attack > self._max_attack_angle then
+    if self._angle_of_attack > max_attack_angle then
         airutils.set_pitch(self, 1, dtime)
-    elseif self._angle_of_attack < self._max_attack_angle then
+    elseif self._angle_of_attack < max_attack_angle then
         airutils.set_pitch(self, -1, dtime)
     end
 
@@ -291,9 +294,9 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
     if longit_speed > 0 then
         airutils.rudder_auto_correction(self, longit_speed, dtime)
         if airutils.elevator_auto_correction then
-            self._elevator_angle = airutils.elevator_auto_correction(self, longit_speed, self.dtime, airutils.max_speed, self._elevator_angle, airutils.elevator_limit, airutils.ideal_step, self._elevator_auto_estabilize)
+            self._elevator_angle = airutils.elevator_auto_correction(self, longit_speed, self.dtime, self._max_speed, self._elevator_angle, self._elevator_limit, airutils.ideal_step, 500)
         end
-    end]]--
+    end
 
     return retval_accel
 end

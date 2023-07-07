@@ -820,7 +820,8 @@ function airutils.rescueConnectionFailedPassengers(self)
             if self._passengers[i] then
                 local player = minetest.get_player_by_name(self._passengers[i])
                 if player then --we have a player!
-                    if player_api.player_attached[self._passengers[i]] == nil then --but isn't attached?
+                    if player:get_attach() == nil then
+                    --if player_api.player_attached[self._passengers[i]] == nil then --but isn't attached?
                         --minetest.chat_send_all("okay")
 		                if player:get_hp() > 0 then
                             self._passengers[i] = nil --clear the slot first

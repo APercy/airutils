@@ -169,7 +169,7 @@ function airutils.logic(self)
         ---------------------
         -- change the driver
         ---------------------
-        if co_pilot and self._have_copilot and self._last_time_command >= 1 and self._instruction_mode == true then
+        if co_pilot and self._have_copilot and self._last_time_command >= 1 then
             if self._command_is_given == true then
                 if ctrl.sneak or ctrl.jump or ctrl.up or ctrl.down or ctrl.right or ctrl.left then
                     self._last_time_command = 0
@@ -177,11 +177,11 @@ function airutils.logic(self)
                     airutils.transfer_control(self, false)
                 end
             else
-                --[[if ctrl.sneak == true and ctrl.jump == true then
+                if ctrl.sneak == true and ctrl.jump == true then
                     self._last_time_command = 0
                     --trasnfer the control to student
                     airutils.transfer_control(self, true)
-                end]]--
+                end
             end
         end
         -----------
@@ -195,7 +195,7 @@ function airutils.logic(self)
                     minetest.chat_send_player(self.driver_name," >>> Autopilot deactivated")
                 end
             else
-                if ctrl.sneak == true and ctrl.jump == true then
+                if ctrl.sneak == true and ctrl.jump == true and self._have_auto_pilot then
                     self._last_time_command = 0
                     self._autopilot = true
                     self._auto_pilot_altitude = curr_pos.y
@@ -771,8 +771,15 @@ function airutils.on_rightclick(self, clicker)
                 end
 
                 --attach player
-                -- no driver => clicker is new driver
-                airutils.attach(self, clicker)
+                if clicker:get_player_control().sneak == true then
+                    -- flight instructor mode
+                    self._instruction_mode = true
+                    airutils.attach(self, clicker, true)
+                else
+                    -- no driver => clicker is new driver
+                    self._instruction_mode = false
+                    airutils.attach(self, clicker)
+                end
                 self._command_is_given = false
             end
         else
