@@ -250,20 +250,6 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     local vel_wind = vector.multiply(accel_wind, self.dtime)
     local new_velocity = vector.add(velocity, vel_wind)
     
-    --[[local hull_direction = airutils.rot_to_dir(self.object:get_rotation())
-    local wind_yaw = minetest.dir_to_yaw(wind)
-    local orig_vel = vector.dot(velocity,hull_direction)
-    local new_vel = vector.dot(vel_wind,hull_direction)
-    if orig_vel > new_vel then
-        orig_vel = core.colorize('#00ff00', orig_vel)
-        new_vel = core.colorize('#ff0000', new_vel)
-    else
-        orig_vel = core.colorize('#ff0000', orig_vel)
-        new_vel = core.colorize('#00ff00', new_vel)
-    end
-    minetest.chat_send_all("velocity: "..orig_vel.." - new: "..new_vel.." - dir: "..math.deg(wind_yaw) )]]--
-
-    velocity = new_velocity    
     if longit_speed == nil then longit_speed = 0 end
     wingspan = wingspan or 10
     local ground_effect_extra_lift = airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
@@ -279,7 +265,14 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     local retval = accel
     local min_speed = 1;
     if self._min_speed then min_speed = self._min_speed end
+    min_speed = min_speed / 2
+
     if longit_speed > min_speed then
+        local striped_velocity = {x=velocity.x, y=velocity.y, z=velocity.z}
+        local cut_velocity = (min_speed * 1)/longit_speed
+        striped_velocity.x = striped_velocity.x - (striped_velocity.x * cut_velocity)
+        striped_velocity.z = striped_velocity.z - (striped_velocity.z * cut_velocity)
+
         local angle_of_attack = math.rad(self._angle_of_attack + wing_config)
         --local acc = 0.8
         local daoa = deg(angle_of_attack)
@@ -299,7 +292,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
 	    local lift_dir = vector.normalize(vector.cross(cross,hdir))
 
         local lift_coefficient = (0.24*abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
-        local lift_val = math.abs((lift*(vector.length(velocity)^2)*lift_coefficient)*curr_percent_height)
+        local lift_val = math.abs((lift*(vector.length(striped_velocity)^2)*lift_coefficient)*curr_percent_height)
         if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
         --minetest.chat_send_all('lift: '.. lift_val)
 
