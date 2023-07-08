@@ -37,7 +37,9 @@ end
 function airutils.consumptionCalc(self, accel)
     if accel == nil then return end
     if self._energy > 0 and self._engine_running and accel ~= nil then
-        local consumed_power = self._power_lever/700000
+        local divisor = 700000
+        if self._fuel_consumption_divisor then divisor = self._fuel_consumption_divisor end
+        local consumed_power = self._power_lever/divisor
         --minetest.chat_send_all('consumed: '.. consumed_power)
         self._energy = self._energy - consumed_power;
 
