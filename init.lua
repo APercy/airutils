@@ -291,7 +291,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
 	    local cross = vector.cross(velocity,hdir)
 	    local lift_dir = vector.normalize(vector.cross(cross,hdir))
 
-        local lift_coefficient = (0.24*abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
+        local lift_coefficient = (0.24*math.abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
         local lift_val = math.abs((lift*(vector.length(striped_velocity)^2)*lift_coefficient)*curr_percent_height)
         if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
         --minetest.chat_send_all('lift: '.. lift_val)

@@ -83,7 +83,7 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
                             engineacc = longit_speed * -1
                         end
                     end
-                    if abs(longit_speed) < 0.2 then
+                    if math.abs(longit_speed) < 0.2 then
                         stop = true
                     end
                 end
