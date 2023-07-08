@@ -71,7 +71,7 @@ end
 
 function airutils.dettachPlayer(self, player)
     local name = self.driver_name
-    airutils.setText(self, self.infotext)
+    airutils.setText(self, self._vehicle_name)
 
     airutils.remove_hud(player)
 
@@ -359,7 +359,7 @@ function airutils.testImpact(self, velocity, position)
             self.hp_max = self.hp_max - self._damage_by_wind_speed
             if self.driver_name then
                 local player_name = self.driver_name
-                airutils.setText(self, self.infotext)
+                airutils.setText(self, self._vehicle_name)
             end
             if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
                 airutils.destroy(self)
@@ -391,7 +391,7 @@ function airutils.testImpact(self, velocity, position)
             pitch = 1.0,
         }, true)
         
-        airutils.setText(self, self.infotext)
+        airutils.setText(self, self._vehicle_name)
 
         if self.driver_name then
             local player_name = self.driver_name

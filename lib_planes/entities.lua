@@ -89,7 +89,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
 
     if self._flap then airutils.flap_on(self) end
 
-    airutils.setText(self, self.infotext)
+    airutils.setText(self, self._vehicle_name)
 end
 
 function airutils.on_step(self,dtime,colinfo)
@@ -559,7 +559,7 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
 
         damage = damage + (toolcaps.damage_groups[group] or 0) * tmp
         self.hp_max = self.hp_max - damage
-        airutils.setText(self, self.infotext)
+        airutils.setText(self, self._vehicle_name)
     end
 end
 
@@ -568,7 +568,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if self.hp_max <= 0 then
         airutils.destroy(self, name)
     end
-    airutils.setText(self, self.infotext)
+    airutils.setText(self, self._vehicle_name)
 
     -- lets permit destroying on the air
     local is_flying = not self.colinfo.touching_ground
@@ -629,7 +629,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
                     inv:remove_item("main", stack)
                     self.hp_max = self.hp_max + 10
                     if self.hp_max > self._max_plane_hp then self.hp_max = self._max_plane_hp end
-                    airutils.setText(self, self.infotext)
+                    airutils.setText(self, self._vehicle_name)
                 else
                     minetest.chat_send_player(puncher:get_player_name(), "You need steel ingots in your inventory to perform this repair.")
                 end
@@ -652,7 +652,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
                         fade = 0.0,
                         pitch = 1.0,
                     })
-                    airutils.setText(self, self.infotext)
+                    airutils.setText(self, self._vehicle_name)
 			    end
 		    end
         end
