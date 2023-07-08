@@ -37,53 +37,74 @@ function airutils.pilot_formspec(name)
         if ent._land_light then light = "true" end
     end
 
+    local autopilot = "false"
+    if ent._have_auto_pilot then
+        if ent._autopilot then autopilot = "true" end
+    end
+
     local yaw = "false"
     if ent._yaw_by_mouse then yaw = "true" end
 
-    local basic_form = table.concat({
-        "formspec_version[3]",
-        "size[11.0,7.4]",
-	}, "")
-
     local ver_pos = 1.0
+    local basic_form = ""
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;turn_on;Start/Stop Engines]"
     ver_pos = ver_pos + 1.1
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;hud;Show/Hide Gauges]"
     ver_pos = ver_pos + 1.1
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;inventory;Show Inventory]"
-    ver_pos = ver_pos + 2.2
+    ver_pos = ver_pos + 1.5
+
+    basic_form = basic_form.."checkbox[1,"..ver_pos..";yaw;Yaw by mouse;"..yaw.."]"
+    ver_pos = ver_pos + 0.5
 
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;go_out;Go Out!]"
 
+    --form second part
+    local expand_form = false
     ver_pos = 1.2 --restart in second collumn
     if have_flaps then
         basic_form = basic_form.."checkbox[6,"..ver_pos..";flap_is_down;Flaps down;"..flap_is_down.."]"
         ver_pos = ver_pos + 0.5
+        expand_form = true
     end
 
     if ent._have_landing_lights then
         basic_form = basic_form.."checkbox[6,"..ver_pos..";light;Landing Light;"..light.."]"
         ver_pos = ver_pos + 0.5
+        expand_form = true
+    end
+
+    if ent._have_auto_pilot then
+        basic_form = basic_form.."checkbox[6,"..ver_pos..";turn_auto_pilot_on;Autopilot;"..autopilot.."]"
+        ver_pos = ver_pos + 0.5
+        expand_form = true
     end
     
-    basic_form = basic_form.."checkbox[6,"..ver_pos..";yaw;Yaw by mouse;"..yaw.."]"
-    ver_pos = ver_pos + 0.5
-
     if ent._have_copilot and name == ent.driver_name then
         basic_form = basic_form.."button[6,"..ver_pos..";4,1;copilot_form;Co-pilot Manager]"
-        ver_pos = ver_pos + 1.1
+        ver_pos = ver_pos + 1.25
+        expand_form = true
     end
 
     if ent._have_adf then
         basic_form = basic_form.."button[6,"..ver_pos..";4,1;adf_form;Adf Manager]"
         ver_pos = ver_pos + 1.1
+        expand_form = true
     end
 
     if ent._have_manual then
-    	basic_form = basic_form.."button[6,5.4;4,1;manual;Manual]"
+    	basic_form = basic_form.."button[6,5.2;4,1;manual;Manual]"
+        expand_form = true
     end
 
-    minetest.show_formspec(name, "lib_planes:pilot_main", basic_form)
+    local form_width = 6
+    if expand_form then form_width = 11 end
+    local form = table.concat({
+        "formspec_version[3]",
+        "size["..form_width..",7.2]",
+	}, "")
+
+    minetest.show_formspec(name, "lib_planes:pilot_main", form..basic_form)
 end
 
 function airutils.manage_copilot_formspec(name)
@@ -341,6 +362,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             if fields.adf_form then
                 airutils.adf_formspec(name)
             end
+		    if fields.turn_auto_pilot_on then
+                if ent._autopilot == true then
+                    ent._autopilot = false
+                else
+                    ent._autopilot = true
+                end
+		    end
             if fields.manual then
                 if ent._have_manual then
                     ent._have_manual(name)
