@@ -286,7 +286,7 @@ function airutils.testImpact(self, velocity, position)
     if self._last_vel == nil then return end
     local touch_point = self.initial_properties.collisionbox[2]-0.5
     --lets calculate the vertical speed, to avoid the bug on colliding on floor with hard lag
-    if abs(velocity.y - self._last_vel.y) > impact_speed then
+    if math.abs(velocity.y - self._last_vel.y) > impact_speed then
 		local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
 	    if (noded and noded.drawtype ~= 'airlike') then
 		    collision = true
@@ -296,7 +296,7 @@ function airutils.testImpact(self, velocity, position)
             self.object:set_velocity(vector.add(velocity, vector.multiply(self._last_accell, self.dtime/8)))
         end
     end
-    local impact = abs(airutils.get_hipotenuse_value(velocity, self._last_vel))
+    local impact = math.abs(airutils.get_hipotenuse_value(velocity, self._last_vel))
     local vertical_impact = math.abs(velocity.y - self._last_vel.y)
 
     --minetest.chat_send_all('impact: '.. impact .. ' - hp: ' .. self.hp_max)
