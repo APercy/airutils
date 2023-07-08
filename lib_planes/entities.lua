@@ -522,7 +522,7 @@ function airutils.logic(self)
     self.object:set_rotation({x=newpitch,y=newyaw,z=newroll})
     --end
 
-    if longit_speed > self._max_speed and self._flap == true then
+    if (longit_speed / 2) > self._max_speed and self._flap == true then
         if is_attached and self.driver_name then
             minetest.chat_send_player(self.driver_name, core.colorize('#ff0000', " >>> Flaps retracted due for overspeed"))
         end
