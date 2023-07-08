@@ -446,9 +446,10 @@ function airutils.engineSoundPlay(self)
     --sound
     if self.sound_handle then minetest.sound_stop(self.sound_handle) end
     if self.object then
+        local pitch_adjust = 0.5 + ((self._power_lever/100)/2)
         self.sound_handle = minetest.sound_play({name = self._engine_sound},
             {object = self.object, gain = 2.0,
-                pitch = 0.5 + ((self._power_lever/100)/2),
+                pitch = pitch_adjust,
                 max_hear_distance = 15,
                 loop = true,})
     end
@@ -457,8 +458,7 @@ end
 function airutils.engine_set_sound_and_animation(self)
     --minetest.chat_send_all('test1 ' .. dump(self._engine_running) )
     if self._engine_running then
-        if self._last_applied_power ~= self._power_lever then
-            --minetest.chat_send_all('test2')
+        if self._last_applied_power ~= self._power_lever and not self._autopilot then
             self._last_applied_power = self._power_lever
             self.object:set_animation_frame_speed(60 + self._power_lever)
             airutils.engineSoundPlay(self)

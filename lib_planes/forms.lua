@@ -21,8 +21,6 @@ function airutils.pilot_formspec(name)
     end
     local ent = plane_obj:get_luaentity()
 
-    local extra_height = 0
-
     local flap_is_down = "false"
     local have_flaps = false
     if ent._wing_angle_extra_flaps then
@@ -32,25 +30,19 @@ function airutils.pilot_formspec(name)
     end
     if have_flaps then
         if ent._flap then flap_is_down = "true" end
-        extra_height = extra_height + 0.5
     end
 
     local light = "false"
     if ent._have_landing_lights then
         if ent._land_light then light = "true" end
-        extra_height = extra_height + 0.5
     end
-
-    if ent._have_copilot and name == ent.driver_name then extra_height = extra_height + 1.1 end
-
-    if ent._have_adf then extra_height = extra_height + 1.1 end
 
     local yaw = "false"
     if ent._yaw_by_mouse then yaw = "true" end
 
     local basic_form = table.concat({
         "formspec_version[3]",
-        "size[6.0,"..(7.0+extra_height).."]",
+        "size[11.0,7.4]",
 	}, "")
 
     local ver_pos = 1.0
@@ -59,32 +51,37 @@ function airutils.pilot_formspec(name)
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;hud;Show/Hide Gauges]"
     ver_pos = ver_pos + 1.1
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;inventory;Show Inventory]"
-    ver_pos = ver_pos + 1.5
+    ver_pos = ver_pos + 2.2
 
+	basic_form = basic_form.."button[1,"..ver_pos..";4,1;go_out;Go Out!]"
+
+    ver_pos = 1.2 --restart in second collumn
     if have_flaps then
-        basic_form = basic_form.."checkbox[1,"..ver_pos..";flap_is_down;Flaps down;"..flap_is_down.."]"
+        basic_form = basic_form.."checkbox[6,"..ver_pos..";flap_is_down;Flaps down;"..flap_is_down.."]"
         ver_pos = ver_pos + 0.5
     end
 
     if ent._have_landing_lights then
-        basic_form = basic_form.."checkbox[1,"..ver_pos..";light;Landing Light;"..light.."]"
+        basic_form = basic_form.."checkbox[6,"..ver_pos..";light;Landing Light;"..light.."]"
         ver_pos = ver_pos + 0.5
     end
     
-    basic_form = basic_form.."checkbox[1,"..ver_pos..";yaw;Yaw by mouse;"..yaw.."]"
+    basic_form = basic_form.."checkbox[6,"..ver_pos..";yaw;Yaw by mouse;"..yaw.."]"
     ver_pos = ver_pos + 0.5
 
     if ent._have_copilot and name == ent.driver_name then
-        basic_form = basic_form.."button[1,"..ver_pos..";4,1;copilot_form;Co-pilot Manager]"
+        basic_form = basic_form.."button[6,"..ver_pos..";4,1;copilot_form;Co-pilot Manager]"
         ver_pos = ver_pos + 1.1
     end
 
     if ent._have_adf then
-        basic_form = basic_form.."button[1,"..ver_pos..";4,1;adf_form;Adf Manager]"
+        basic_form = basic_form.."button[6,"..ver_pos..";4,1;adf_form;Adf Manager]"
         ver_pos = ver_pos + 1.1
     end
 
-	basic_form = basic_form.."button[1,"..ver_pos..";4,1;go_out;Go Out!]"
+    if ent._have_manual then
+    	basic_form = basic_form.."button[6,5.4;4,1;manual;Manual]"
+    end
 
     minetest.show_formspec(name, "lib_planes:pilot_main", basic_form)
 end
@@ -343,6 +340,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
             if fields.adf_form then
                 airutils.adf_formspec(name)
+            end
+            if fields.manual then
+                if ent._have_manual then
+                    ent._have_manual(name)
+                end
             end
         end
         minetest.close_formspec(name, "lib_planes:pilot_main")
