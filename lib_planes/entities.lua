@@ -70,7 +70,14 @@ function airutils.on_activate(self, staticdata, dtime_s)
 
 	self.object:set_armor_groups({immortal=1})
 
-    self.object:set_animation({x = 1, y = self._anim_frames}, 0, 0, true)
+    local start_frame = 1
+    local end_frame = self._anim_frames
+    if self._anim_start_frame then
+        start_frame = self._anim_start_frame
+        end_frame = self._anim_start_frame + self._anim_frames
+    end    
+
+    self.object:set_animation({x = start_frame, y = end_frame}, 0, 0, true)
     if self.wheels then
         self.wheels:set_animation({x = 1, y = self._anim_frames}, 0, 0, true)
     end
