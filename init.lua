@@ -275,7 +275,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
 
         local angle_of_attack = math.rad(self._angle_of_attack + wing_config)
         --local acc = 0.8
-        local daoa = deg(angle_of_attack)
+        local daoa = math.deg(angle_of_attack)
         --minetest.chat_send_all(dump(daoa))
 
         --to decrease the lift coefficient at hight altitudes
