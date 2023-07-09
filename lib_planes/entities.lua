@@ -536,8 +536,10 @@ function airutils.logic(self)
     self.object:set_bone_position("rudder", self._rudder_pos, {x=0,y=self._rudder_angle,z=0})
     --adjust ailerons
     if self._aileron_r_pos and self._aileron_l_pos then
-        self.object:set_bone_position("aileron.r", self._aileron_r_pos, {x=-self._rudder_angle - 90,y=0,z=0})
-        self.object:set_bone_position("aileron.l", self._aileron_l_pos, {x=self._rudder_angle - 90,y=0,z=0})
+        local ailerons = self._rudder_angle
+        if self._invert_ailerons then ailerons = ailerons * -1 end
+        self.object:set_bone_position("aileron.r", self._aileron_r_pos, {x=-ailerons - 90,y=0,z=0})
+        self.object:set_bone_position("aileron.l", self._aileron_l_pos, {x=ailerons - 90,y=0,z=0})
     end
 
     -- calculate energy consumption --
