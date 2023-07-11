@@ -486,6 +486,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
     if itmstck then item_name = itmstck:get_name() end
     
     if item_name == "automobiles_lib:painter" or item_name == "bike:painter" then
+        self._skin = ""
         --painting with bike painter
         local meta = itmstck:get_meta()
 	    local colour = meta:get_string("paint_color")
@@ -495,7 +496,6 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
 
         if mode == 1 then colstr = colour end
         if mode == 2 then colstr_2 = colour end
-
         airutils.param_paint(self, colstr, colstr_2)
         return true
     else
@@ -504,6 +504,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
         local color, indx, _
         if split[1] then _,indx = split[1]:find('dye') end
         if indx then
+            self._skin = ""
             --[[for clr,_ in pairs(airutils.colors) do
                 local _,x = split[2]:find(clr)
                 if x then color = clr end
@@ -550,10 +551,41 @@ local function _paint(self, l_textures, colstr, paint_list, mask_associations)
     return l_textures
 end
 
+local function _set_skin(self, l_textures, paint_list, target_texture, skin)
+    skin = skin or self._skin
+    paint_list = paint_list or self._painting_texture
+    target_texture = target_texture or self._skin_target_texture
+    if not target_texture then return l_textures end
+    for _, texture in ipairs(l_textures) do
+        for i, texture_name in ipairs(paint_list) do --textures list
+            local indx = texture:find(target_texture)
+            if indx then
+                l_textures[_] = l_textures[_].."^"..skin  --paint it normally
+            end
+        end
+    end
+    return l_textures
+end
+
 --painting
 function airutils.param_paint(self, colstr, colstr_2)
     colstr_2 = colstr_2 or colstr
     if not self then return end
+    if self._skin ~= nil and self._skin ~= "" then
+        local l_textures = self.initial_properties.textures
+        l_textures = _set_skin(self, l_textures, self._painting_texture, self._skin_target_texture, self._skin)
+        self.object:set_properties({textures=l_textures})
+
+        if self._paintable_parts then --paint individual parts
+            for i, part_entity in ipairs(self._paintable_parts) do
+                local p_textures = part_entity.initial_properties.textures
+                p_textures = _set_skin(part_entity, p_textures, self._painting_texture, self._skin_target_texture, self._skin)
+                part_entity.object:set_properties({textures=p_textures})
+            end
+        end
+        return
+    end
+
     if colstr then
         self._color = colstr
         self._color_2 = colstr_2
@@ -814,6 +846,7 @@ end
 function airutils.rescueConnectionFailedPassengers(self)
     if self._disconnection_check_time == nil then self._disconnection_check_time = 1 end
     self._disconnection_check_time = self._disconnection_check_time + self.dtime
+    if not self._passengers_base then return end
     local max_seats = table.getn(self._passengers_base)
     if self._disconnection_check_time > 1 then
         --minetest.chat_send_all(dump(self._passengers))
