@@ -186,6 +186,20 @@ function airutils.set_pitch(self, dir, dtime)
 	end
 end
 
+function airutils.set_autopilot_pitch(self, dir, dtime)
+    local pitch_factor = 0.05
+    local multiplier = pitch_factor*(dtime/airutils.ideal_step)
+	if dir == -1 then
+        --minetest.chat_send_all("cabrando")
+        if self._elevator_angle > 0 then pitch_factor = pitch_factor * 2 end
+		self._elevator_angle = math.max(self._elevator_angle-multiplier,-self._elevator_limit)
+	elseif dir == 1 then
+        --minetest.chat_send_all("picando")
+        if self._angle_of_attack < 0 then pitch_factor = 1 end --lets reduce the command power to avoid accidents
+		self._elevator_angle = math.min(self._elevator_angle+multiplier,self._elevator_limit)
+	end
+end
+
 function airutils.set_yaw_by_mouse(self, dir)
     local rotation = self.object:get_rotation()
     local rot_y = math.deg(rotation.y)
@@ -283,9 +297,9 @@ function airutils.autopilot(self, dtime, hull_direction, longit_speed, accel, cu
 
     --pitch
     if self._angle_of_attack > max_attack_angle then
-        airutils.set_pitch(self, 1, dtime)
+        airutils.set_autopilot_pitch(self, 1, dtime)
     elseif self._angle_of_attack < max_attack_angle then
-        airutils.set_pitch(self, -1, dtime)
+        airutils.set_autopilot_pitch(self, -1, dtime)
     end
 
 	-- yaw
