@@ -140,7 +140,7 @@ function airutils.attach_pax(self, player, is_copilot)
         --randomize the seat
         local max_seats = table.getn(self._seats)
         local crew = 1
-        if self._have_copilot then crew = crew + 1 end
+        if self._have_copilot and max_seats > 2 then crew = crew + 1 end
         t = {}    -- new array
         for i=1, max_seats - crew do --(the first are for the crew
             t[i] = i

@@ -38,7 +38,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self.owner = data.stored_owner
         self.hp_max = data.stored_hp
         self._color = data.stored_color
-        self._color_2 = data.stored_color_2
+        self._color_2 = data.stored_color_2 or data.stored_color --if it has no color 2, now it have!
         self._power_lever = data.stored_power_lever
         self.driver_name = data.stored_driver_name
         self._last_accell = data.stored_last_accell
@@ -703,7 +703,6 @@ function airutils.on_rightclick(self, clicker)
     --=========================
     local is_attached = false
     local seat = clicker:get_attach()
-    --TODO crar funcao legacy aqui
     if seat then
         local plane = seat:get_attach()
         if plane == self.object then is_attached = true end
