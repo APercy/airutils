@@ -193,6 +193,7 @@ function airutils.dettach_pax(self, player)
     -- passenger clicked the object => driver gets off the vehicle
     if self.co_pilot == name then
         self.co_pilot = nil
+        self._passengers[2] = nil
     else
         local max_seats = table.getn(self._seats)
         for i = max_seats,1,-1
