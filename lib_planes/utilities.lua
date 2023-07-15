@@ -108,6 +108,24 @@ function airutils.check_passenger_is_attached(self, name)
     return is_attached
 end
 
+local function attach_copilot(self, name, player, eye_y)
+    self.co_pilot = name
+    self._passengers[2] = name
+    -- attach the driver
+    player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+    player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
+    player_api.player_attached[name] = true
+    player_api.set_animation(player, "sit")
+    -- make the driver sit
+    minetest.after(1, function()
+        player = minetest.get_player_by_name(name)
+        if player then
+            airutils.sit(player)
+            --apply_physics_override(player, {speed=0,gravity=0,jump=0})
+        end
+    end)
+end
+
 -- attach passenger
 function airutils.attach_pax(self, player, is_copilot)
     local is_copilot = is_copilot or false
@@ -120,21 +138,7 @@ function airutils.attach_pax(self, player, is_copilot)
 
     if is_copilot == true then
         if self.co_pilot == nil then
-            self.co_pilot = name
-            self._passengers[2] = name
-            -- attach the driver
-            player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-            player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
-            player_api.player_attached[name] = true
-            player_api.set_animation(player, "sit")
-            -- make the driver sit
-            minetest.after(1, function()
-                player = minetest.get_player_by_name(name)
-                if player then
-                    airutils.sit(player)
-                    --apply_physics_override(player, {speed=0,gravity=0,jump=0})
-                end
-            end)
+            attach_copilot(self, name, player, eye_y)
         end
     else
         --randomize the seat
@@ -143,20 +147,7 @@ function airutils.attach_pax(self, player, is_copilot)
         if self._have_copilot and max_seats > 2 then
             crew = crew + 1
         else
-            self.co_pilot = name
-            player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-            player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
-            player_api.player_attached[name] = true
-            player_api.set_animation(player, "sit")
-            -- make the driver sit
-            minetest.after(1, function()
-                player = minetest.get_player_by_name(name)
-                if player then
-                    airutils.sit(player)
-                    --apply_physics_override(player, {speed=0,gravity=0,jump=0})
-                end
-            end)
-
+            attach_copilot(self, name, player, eye_y)
             return
         end
 
