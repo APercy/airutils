@@ -126,7 +126,12 @@ function airutils.manage_copilot_formspec(name)
 	}, "")
 
     basic_form = basic_form.."label[1,1.0;Bring a copilot:]"
-    basic_form = basic_form.."dropdown[1,1.5;4,0.6;copilot;"..pass_list..";0;false]"
+
+    local max_seats = table.getn(ent._seats)
+    if ent._have_copilot and max_seats > 2 then --no need to select if there are only 2 occupants
+        basic_form = basic_form.."dropdown[1,1.5;4,0.6;copilot;"..pass_list..";0;false]"
+    end
+
     basic_form = basic_form.."button[1,2.5;4,1;pass_control;Pass the Control]"
 
     minetest.show_formspec(name, "lib_planes:manage_copilot", basic_form)

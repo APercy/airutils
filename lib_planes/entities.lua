@@ -784,10 +784,14 @@ function airutils.on_rightclick(self, clicker)
                 if clicker:get_player_control().sneak == true then
                     -- flight instructor mode
                     self._instruction_mode = true
-                    airutils.attach(self, clicker, true)
+                    self.co_pilot_seat_base = self._passengers_base[1]
+                    self.pilot_seat_base = self._passengers_base[2]
+                    airutils.attach(self, clicker)
                 else
                     -- no driver => clicker is new driver
                     self._instruction_mode = false
+                    self.co_pilot_seat_base = self._passengers_base[2]
+                    self.pilot_seat_base = self._passengers_base[1]
                     airutils.attach(self, clicker)
                 end
                 self._command_is_given = false

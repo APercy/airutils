@@ -140,7 +140,26 @@ function airutils.attach_pax(self, player, is_copilot)
         --randomize the seat
         local max_seats = table.getn(self._seats)
         local crew = 1
-        if self._have_copilot and max_seats > 2 then crew = crew + 1 end
+        if self._have_copilot and max_seats > 2 then
+            crew = crew + 1
+        else
+            self.co_pilot = name
+            player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
+            player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
+            player_api.player_attached[name] = true
+            player_api.set_animation(player, "sit")
+            -- make the driver sit
+            minetest.after(1, function()
+                player = minetest.get_player_by_name(name)
+                if player then
+                    airutils.sit(player)
+                    --apply_physics_override(player, {speed=0,gravity=0,jump=0})
+                end
+            end)
+
+            return
+        end
+
         t = {}    -- new array
         for i=1, max_seats - crew do --(the first are for the crew
             t[i] = i
