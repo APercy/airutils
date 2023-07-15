@@ -121,7 +121,7 @@ function airutils.attach_pax(self, player, is_copilot)
     if is_copilot == true then
         if self.co_pilot == nil then
             self.co_pilot = name
-
+            self._passengers[2] = name
             -- attach the driver
             player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
             player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})

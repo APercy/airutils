@@ -300,13 +300,15 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 local nodedef = minetest.registered_nodes[node_below]
                 is_on_ground = not nodedef or nodedef.walkable or false -- unknown nodes are solid
 
-                if ent.driver_name == name then
+                if ent.driver_name == name and ent.owner == ent.driver_name then --just the owner can do this
                     --minetest.chat_send_all(dump(noded))
                     if is_on_ground then --or clicker:get_player_control().sneak then
+                        --minetest.chat_send_all(dump("is on ground"))
                         --remove the passengers first                
                         local max_seats = table.getn(ent._seats)
-                        for i = max_seats,2,-1
+                        for i = max_seats,1,-1
                         do 
+                            --minetest.chat_send_all("index: "..i.." - "..dump(ent._passengers[i]))
                             if ent._passengers[i] then
                                 local passenger = minetest.get_player_by_name(ent._passengers[i])
                                 if passenger then airutils.dettach_pax(ent, passenger) end
@@ -324,7 +326,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                         end
                     end
                     airutils.dettachPlayer(ent, player)
-                else
+                elseif ent.owner == name then --just the owner too, but not driving
+                    airutils.dettachPlayer(ent, player)
+                else --anyone
                     airutils.dettach_pax(ent, player)
                 end
 		    end
