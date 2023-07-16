@@ -400,13 +400,16 @@ function airutils.logic(self)
 
     --lets apply some bob in water
 	if self.isinliquid then
-        self._engine_running = false
-        local bob = airutils.minmax(airutils.dot(accel,hull_direction),0.2)	-- vertical bobbing
+        local bob = airutils.minmax(airutils.dot(accel,hull_direction),0.5)	-- vertical bobbing
+        if bob < 0 then bob = 0 end
         accel.y = accel.y + bob
         local max_pitch = 6
-        local h_vel_compensation = (((longit_speed * 2) * 100)/max_pitch)/100
+        local ref_speed = longit_speed * 20
+        if ref_speed < 0 then ref_speed = 0 end
+        local h_vel_compensation = ((ref_speed * 100)/max_pitch)/100
         if h_vel_compensation < 0 then h_vel_compensation = 0 end
         if h_vel_compensation > max_pitch then h_vel_compensation = max_pitch end
+        --minetest.chat_send_all(h_vel_compensation)
         newpitch = newpitch + (velocity.y * math.rad(max_pitch - h_vel_compensation))
     end
 

@@ -321,10 +321,10 @@ function airutils.testImpact(self, velocity, position)
     if self._last_water_touch == nil then self._last_water_touch = 3 end
     if self._last_water_touch <= 3 then self._last_water_touch = self._last_water_touch + self.dtime end
     if impact > 0.2  and self._longit_speed > 0.6 and self._last_water_touch >=3 then
-        self._last_water_touch = 0
         local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
 	    if (noded and noded.drawtype ~= 'airlike') then
             if noded.drawtype == 'liquid' then
+                self._last_water_touch = 0
                 minetest.sound_play("airutils_touch_water", {
                     --to_player = self.driver_name,
                     object = self.object,
@@ -341,9 +341,9 @@ function airutils.testImpact(self, velocity, position)
     if self._last_touch == nil then self._last_touch = 1 end
     if self._last_touch <= 1 then self._last_touch = self._last_touch + self.dtime end
     if vertical_impact > 1.0  and self._longit_speed > self._min_speed/2 and self._last_touch >= 1 then
-        self._last_touch = 0
         local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
-	    if (noded and noded.drawtype ~= 'airlike') then
+	    if (noded and noded.drawtype ~= 'airlike') and (noded.drawtype ~= 'liquid') then
+            self._last_touch = 0
             minetest.sound_play("airutils_touch", {
                 --to_player = self.driver_name,
                 object = self.object,

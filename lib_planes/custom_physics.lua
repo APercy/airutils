@@ -1,19 +1,8 @@
-
-local min = math.min
-local abs = math.abs
---local deg = math.deg
-
 function airutils.physics(self)
     local friction = 0.99
 	local vel=self.object:get_velocity()
-		-- dumb friction
-	if self.isonground and not self.isinliquid then
-        vel = {x=vel.x*friction,
-								y=vel.y,
-								z=vel.z*friction}
-		self.object:set_velocity(vel)
-	end
-	
+    local new_velocity = vel
+
 	--buoyancy
 	local surface = nil
 	local surfnodename = nil
@@ -30,56 +19,59 @@ function airutils.physics(self)
 		surfnode = airutils.nodeatpos(snodepos)
 	end
 
-    local new_velocity = nil
 	self.isinliquid = surfnodename
 	if surface then				-- standing in liquid
         self.isinliquid = true
     end
 
-    local accell = {x=0, y=0, z=0}
-    self.water_drag = 0.1
     if self.isinliquid then
+        local accell = {x=0, y=0, z=0}
+        self.water_drag = 0.1
         local height = self.height
-		local submergence = min(surface-spos.y,height)/height
+		local submergence = math.min(surface-spos.y,height)/height
 --		local balance = self.buoyancy*self.height
 		local buoyacc = airutils.gravity*(self.buoyancy-submergence)
-		--[[airutils.set_acceleration(self.object,
-			{x=-vel.x*self.water_drag,y=buoyacc-vel.y*abs(vel.y)*0.4,z=-vel.z*self.water_drag})]]--
-        accell = {x=-vel.x*self.water_drag,y=buoyacc-(vel.y*abs(vel.y)*0.4),z=-vel.z*self.water_drag}
-        --local v_accell = {x=0,y=buoyacc-(vel.y*abs(vel.y)*0.4),z=0}
-        --airutils.set_acceleration(self.object,v_accell)
-        new_velocity = vector.add(vel, vector.multiply(accell, self.dtime))
-        
+        --minetest.chat_send_all(buoyacc)
+        accell = {x=-new_velocity.x*self.water_drag,y=buoyacc-(new_velocity.y*math.abs(new_velocity.y)*5.4),z=-new_velocity.z*self.water_drag}
+
+        if self.buoyancy >= 1 then self._engine_running = false end
+        new_velocity = vector.add(new_velocity, vector.multiply(accell, self.dtime))
 	else
         airutils.set_acceleration(self.object,{x=0,y=0,z=0})
 		self.isinliquid = false
-        new_velocity = vector.add(vel, {x=0,y=airutils.gravity * self.dtime,z=0})
-        --self.object:set_velocity(new_velocity)
+        new_velocity = vector.add(new_velocity, {x=0,y=airutils.gravity * self.dtime,z=0})
 	end
 
-	-- bounciness
-	if self.springiness and self.springiness > 0 then
-		local vnew = vector.new(vel)
-		
-		if not self.collided then						-- ugly workaround for inconsistent collisions
-			for _,k in ipairs({'y','z','x'}) do
-				if vel[k]==0 and abs(self.lastvelocity[k])> 0.1 then
-					vnew[k]=-self.lastvelocity[k]*self.springiness
-				end
-			end
-		end
-		
-		if not vector.equals(vel,vnew) then
-			self.collided = true
-		else
-			if self.collided then
-				vnew = vector.new(self.lastvelocity)
-			end
-			self.collided = false
-		end
-		
-		self.object:set_velocity(vnew)
-	end
+    if self.isonground and not self.isinliquid then
+        --dumb friction
+        new_velocity = {x=new_velocity.x*friction,
+							    y=new_velocity.y,
+							    z=new_velocity.z*friction}
+        -- bounciness
+        if self.springiness and self.springiness > 0 and self.buoyancy >= 1 then
+            local vnew = vector.new(new_velocity)
+            
+            if not self.collided then						-- ugly workaround for inconsistent collisions
+	            for _,k in ipairs({'y','z','x'}) do
+		            if new_velocity[k]==0 and math.abs(self.lastvelocity[k])> 0.1 then
+			            vnew[k]=-self.lastvelocity[k]*self.springiness
+		            end
+	            end
+            end
+            
+            if not vector.equals(new_velocity,vnew) then
+	            self.collided = true
+            else
+	            if self.collided then
+		            vnew = vector.new(self.lastvelocity)
+	            end
+	            self.collided = false
+            end
+            new_velocity = vnew
+        end
+    end
 
-    self.object:set_acceleration({x=0,y=airutils.gravity,z=0})
+    self.object:set_velocity(new_velocity)
+
 end
+
