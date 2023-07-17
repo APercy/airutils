@@ -24,22 +24,24 @@ function airutils.physics(self)
         self.isinliquid = true
     end
 
+    self.object:move_to(self.object:get_pos())
     if self.isinliquid then
         local accell = {x=0, y=0, z=0}
-        self.water_drag = 0.1
+        self.water_drag = 0.2
+        self.isinliquid = true
         local height = self.height
 		local submergence = math.min(surface-spos.y,height)/height
 --		local balance = self.buoyancy*self.height
 		local buoyacc = airutils.gravity*(self.buoyancy-submergence)
-        --minetest.chat_send_all(buoyacc)
-        accell = {x=-new_velocity.x*self.water_drag,y=buoyacc-(new_velocity.y*math.abs(new_velocity.y)*5.4),z=-new_velocity.z*self.water_drag}
-
+        --local buoyacc = self._baloon_buoyancy*(self.buoyancy-submergence)
+        accell = {x=-vel.x*self.water_drag,y=buoyacc-(vel.y*math.abs(vel.y)*0.4),z=-vel.z*self.water_drag}
         if self.buoyancy >= 1 then self._engine_running = false end
-        new_velocity = vector.add(new_velocity, vector.multiply(accell, self.dtime))
+        airutils.set_acceleration(self.object,accell)
+        --new_velocity = vector.add(new_velocity, vector.multiply(accell, self.dtime))
 	else
-        airutils.set_acceleration(self.object,{x=0,y=0,z=0})
+        airutils.set_acceleration(self.object,{x=0,y=airutils.gravity,z=0})
 		self.isinliquid = false
-        new_velocity = vector.add(new_velocity, {x=0,y=airutils.gravity * self.dtime,z=0})
+        --new_velocity = vector.add(new_velocity, {x=0,y=airutils.gravity * self.dtime,z=0})
 	end
 
     if self.isonground and not self.isinliquid then
@@ -69,9 +71,8 @@ function airutils.physics(self)
             end
             new_velocity = vnew
         end
+        self.object:set_velocity(new_velocity)
     end
-
-    self.object:set_velocity(new_velocity)
 
 end
 

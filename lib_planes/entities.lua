@@ -400,7 +400,7 @@ function airutils.logic(self)
 
     --lets apply some bob in water
 	if self.isinliquid then
-        local bob = airutils.minmax(airutils.dot(accel,hull_direction),0.5)	-- vertical bobbing
+        local bob = airutils.minmax(airutils.dot(accel,hull_direction),0.02)	-- vertical bobbing
         if bob < 0 then bob = 0 end
         accel.y = accel.y + bob
         local max_pitch = 6
