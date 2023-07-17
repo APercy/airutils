@@ -296,7 +296,7 @@ function airutils.logic(self)
         newpitch = math.rad(self._angle_of_attack)
     else
         --ajustar angulo de ataque
-        if longit_speed > (self._min_speed) then
+        if longit_speed > self._min_speed then
             local percentage = math.abs(((longit_speed * 100)/(self._min_speed + 5))/100)
             if percentage > 1.5 then percentage = 1.5 end
             self._angle_of_attack = self._wing_angle_of_attack - ((self._elevator_angle / self._elevator_response_attenuation)*percentage)
@@ -321,7 +321,7 @@ function airutils.logic(self)
     --minetest.chat_send_all(self._angle_of_attack)
 
     -- adjust pitch at ground
-    if math.abs(longit_speed) > self._tail_lift_min_speed then
+    if math.abs(longit_speed) > self._tail_lift_min_speed and is_flying == false then
         newpitch = ground_pitch(self, longit_speed, newpitch)
     else
         if math.abs(longit_speed) < self._tail_lift_min_speed then
