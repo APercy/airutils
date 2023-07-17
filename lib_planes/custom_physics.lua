@@ -24,7 +24,6 @@ function airutils.physics(self)
         self.isinliquid = true
     end
 
-    self.object:move_to(self.object:get_pos())
     if self.isinliquid then
         local accell = {x=0, y=0, z=0}
         self.water_drag = 0.2
@@ -38,6 +37,8 @@ function airutils.physics(self)
         if self.buoyancy >= 1 then self._engine_running = false end
         airutils.set_acceleration(self.object,accell)
         --new_velocity = vector.add(new_velocity, vector.multiply(accell, self.dtime))
+        self.object:move_to(self.object:get_pos())
+        return
 	else
         airutils.set_acceleration(self.object,{x=0,y=airutils.gravity,z=0})
 		self.isinliquid = false
