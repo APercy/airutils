@@ -241,7 +241,7 @@ function airutils.logic(self)
     local node_bellow = airutils.nodeatpos(airutils.pos_shift(curr_pos,{y=-1.3}))
     local is_flying = true
     if self.colinfo then
-        is_flying = not self.colinfo.touching_ground
+        is_flying = (not self.colinfo.touching_ground) and (self.isinliquid == false)
     end
     --if is_flying then minetest.chat_send_all('is flying') end
 
