@@ -304,6 +304,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     -----------------------------------------------------------
     -- end lift
     local multiplier = self.dtime / airutils.ideal_step
+    if multiplier < 1 then multiplier = 1 end
     retval = retval * multiplier
 
     return retval
