@@ -1,5 +1,5 @@
 function airutils.physics(self)
-    local friction = 0.99
+    local friction = self._ground_friction or 0.99
 	local vel=self.object:get_velocity()
     local new_velocity = vel
 
@@ -72,6 +72,15 @@ function airutils.physics(self)
             end
             new_velocity = vnew
         end
+
+        --damage if the friction is below .97
+        if self._last_longit_speed then
+            if friction <= 0.97 and self._last_longit_speed > 0 then
+                self.hp_max = self.hp_max - 0.001
+                airutils.setText(self, self._vehicle_name)
+            end --damage the plane if it have hard friction
+        end
+
         self.object:set_velocity(new_velocity)
     end
 

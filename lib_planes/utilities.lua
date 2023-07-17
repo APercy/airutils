@@ -344,14 +344,27 @@ function airutils.testImpact(self, velocity, position)
         local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
 	    if (noded and noded.drawtype ~= 'airlike') and (noded.drawtype ~= 'liquid') then
             self._last_touch = 0
-            minetest.sound_play("airutils_touch", {
-                --to_player = self.driver_name,
-                object = self.object,
-                max_hear_distance = 15,
-                gain = 1.0,
-                fade = 0.0,
-                pitch = 1.0,
-            }, true)
+            if not self._ground_friction then self._ground_friction = 0.99 end
+
+            if self._ground_friction > 0.97 then
+                minetest.sound_play("airutils_touch", {
+                    --to_player = self.driver_name,
+                    object = self.object,
+                    max_hear_distance = 15,
+                    gain = 1.0,
+                    fade = 0.0,
+                    pitch = 1.0,
+                }, true)
+            else
+                minetest.sound_play("airutils_collision", {
+                    --to_player = self.driver_name,
+                    object = self.object,
+                    max_hear_distance = 15,
+                    gain = 1.0,
+                    fade = 0.0,
+                    pitch = 1.0,
+                }, true)
+            end
 	    end
     end
 
