@@ -803,14 +803,24 @@ function airutils.flap_on(self)
     local flap_limit = 15
     if self._flap_limit then flap_limit = self._flap_limit end
     self._wing_configuration = self._wing_angle_of_attack + self._wing_angle_extra_flaps
-    self.object:set_bone_position("flap.l", {x=0, y=0, z=0}, {x=-flap_limit, y=0, z=0})
-    self.object:set_bone_position("flap.r", {x=0, y=0, z=0}, {x=-flap_limit, y=0, z=0})
+    for i = 0,flap_limit do
+        minetest.after(0.05*i, function()
+            self.object:set_bone_position("flap.l", {x=0, y=0, z=0}, {x=-i, y=0, z=0})
+            self.object:set_bone_position("flap.r", {x=0, y=0, z=0}, {x=-i, y=0, z=0})
+        end)
+    end
 end
 
 function airutils.flap_off(self)
     self._wing_configuration = self._wing_angle_of_attack
-    self.object:set_bone_position("flap.l", {x=0, y=0, z=0}, {x=0, y=0, z=0})
-    self.object:set_bone_position("flap.r", {x=0, y=0, z=0}, {x=0, y=0, z=0})
+    local flap_limit = 15
+    if self._flap_limit then flap_limit = self._flap_limit end
+    for i = 0,flap_limit do
+        minetest.after(0.05*i, function()
+            self.object:set_bone_position("flap.l", {x=0, y=0, z=0}, {x=-flap_limit+i, y=0, z=0})
+            self.object:set_bone_position("flap.r", {x=0, y=0, z=0}, {x=-flap_limit+i, y=0, z=0})
+        end)
+    end
 end
 
 function airutils.flap_operate(self, player)
