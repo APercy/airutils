@@ -223,6 +223,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         local plane_obj = airutils.getPlaneFromPlayer(player)
         if plane_obj == nil then
             minetest.close_formspec(name, "lib_planes:adf_main")
+            minetest.chat_send_player(name, core.colorize('#ff0000', " >>> There is something wrong with the plane..."))
             return
         end
         local ent = plane_obj:get_luaentity()
@@ -230,24 +231,29 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             if fields.adf then
                 if ent._adf == true then
                     ent._adf = false
+                    minetest.chat_send_player(name, core.colorize('#0000ff', " >>> ADF deactivated."))
                 else
                     ent._adf = true
+                    minetest.chat_send_player(name, core.colorize('#00ff00', " >>> ADF activated."))
                 end
             end
             if fields.save_adf then
                 if ent._adf_destiny then
-                    if fields.adf_x then
-                        if tonumber(fields.adf_x, 10) ~= nil then
+                    if fields.adf_x and fields.adf_z then
+                        if tonumber(fields.adf_x, 10) ~= nil and tonumber(fields.adf_z, 10) ~= nil then
                             ent._adf_destiny.x = tonumber(fields.adf_x, 10)
-                        end
-                    end
-                    if fields.adf_z then
-                        if tonumber(fields.adf_z, 10) ~= nil then
                             ent._adf_destiny.z = tonumber(fields.adf_z, 10)
+                            minetest.chat_send_player(name, core.colorize('#00ff00', " >>> Destination written successfully."))
+                        else
+                            minetest.chat_send_player(name, core.colorize('#ff0000', " >>> There is something wrong with the ADF fields values."))
                         end
+                    else
+                        minetest.chat_send_player(name, core.colorize('#ff0000', " >>> Both ADF fields must be given to complete the operation."))
                     end
                 end
             end
+        else
+            minetest.chat_send_player(name, core.colorize('#ff0000', " >>> There is something wrong on ADF saving..."))
         end
         minetest.close_formspec(name, "lib_planes:adf_main")
 	end

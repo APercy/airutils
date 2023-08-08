@@ -56,8 +56,13 @@ function airutils.attach(self, player, instructor_mode)
     end
     
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 1, z = -30})
-    player_api.player_attached[name] = true
-    player_api.set_animation(player, "sit")
+    if minetest.get_modpath("player_api") then
+        player_api.player_attached[name] = true
+        player_api.set_animation(player, "sit")
+    elseif minetest.get_modpath("mcl_player") then
+        airutils.sit(player)
+    end
+
     -- make the driver sit
     minetest.after(1, function()
         if player then
@@ -84,9 +89,14 @@ function airutils.dettachPlayer(self, player)
     --player:set_physics_override({speed = 1, jump = 1, gravity = 1, sneak = true})
     if player then
         player:set_detach()
-        player_api.player_attached[name] = nil
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
-        player_api.set_animation(player, "stand")
+        if minetest.get_modpath("player_api") then
+            player_api.player_attached[name] = nil
+            player_api.set_animation(player, "stand")
+        elseif minetest.get_modpath("mcl_player") then
+            mcl_player.player_attached[name] = nil
+            mcl_player.player_set_animation(player, "stand")
+        end
     end
     self.driver = nil
     --remove_physics_override(player, {speed=1,gravity=1,jump=1})
@@ -114,8 +124,13 @@ local function attach_copilot(self, name, player, eye_y)
     -- attach the driver
     player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
-    player_api.player_attached[name] = true
-    player_api.set_animation(player, "sit")
+    if minetest.get_modpath("player_api") then
+        player_api.player_attached[name] = true
+        player_api.set_animation(player, "sit")
+    elseif minetest.get_modpath("mcl_player") then
+        mcl_player.player_attached[name] = true
+        airutils.sit(player)
+    end
     -- make the driver sit
     minetest.after(1, function()
         player = minetest.get_player_by_name(name)
@@ -170,8 +185,15 @@ function airutils.attach_pax(self, player, is_copilot)
                 self._passengers[i] = name
                 player:set_attach(self._passengers_base[i], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
                 player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
-                player_api.player_attached[name] = true
-                player_api.set_animation(player, "sit")
+
+                if minetest.get_modpath("player_api") then
+                    player_api.player_attached[name] = true
+                    player_api.set_animation(player, "sit")
+                elseif minetest.get_modpath("mcl_player") then
+                    mcl_player.player_attached[name] = true
+                    airutils.sit(player)
+                end
+
                 -- make the driver sit
                 minetest.after(1, function()
                     player = minetest.get_player_by_name(name)
@@ -208,8 +230,15 @@ function airutils.dettach_pax(self, player)
     -- detach the player
     if player then
         player:set_detach()
-        player_api.player_attached[name] = nil
-        player_api.set_animation(player, "stand")
+
+        if minetest.get_modpath("player_api") then
+            player_api.player_attached[name] = nil
+            player_api.set_animation(player, "stand")
+        elseif minetest.get_modpath("mcl_player") then
+            mcl_player.player_attached[name] = nil
+            mcl_player.player_set_animation(player, "stand")
+        end
+
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
         --remove_physics_override(player, {speed=1,gravity=1,jump=1})
     end
@@ -878,7 +907,6 @@ local function do_attach(self, player, slot)
         --minetest.chat_send_all(self.driver_name)
         self._passengers[slot] = name
         player:set_attach(self._passengers_base[slot], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-        player_api.player_attached[name] = true
 
         local eye_y = -4
         if airutils.detect_player_api(player) == 1 then
@@ -886,7 +914,14 @@ local function do_attach(self, player, slot)
         end
         player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
 
-        player_api.set_animation(player, "sit")
+        if minetest.get_modpath("player_api") then
+            player_api.player_attached[name] = true
+            player_api.set_animation(player, "sit")
+        elseif minetest.get_modpath("mcl_player") then
+            mcl_player.player_attached[name] = true
+            airutils.sit(player)
+        end
+
         -- make the driver sit
         minetest.after(1, function()
             player = minetest.get_player_by_name(name)

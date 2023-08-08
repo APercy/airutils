@@ -40,7 +40,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "init.lua")
 
-if player_api and not minetest.settings:get_bool('airutils.disable_uniforms') then
+if minetest.get_modpath("player_api") and not minetest.settings:get_bool('airutils.disable_uniforms') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "pilot_skin_manager.lua")
 end
 
@@ -122,6 +122,7 @@ function airutils.detect_player_api(player)
     local player_proterties = player:get_properties()
     --local mesh = "character.b3d"
     --if player_proterties.mesh == mesh then
+    if minetest.get_modpath("player_api") then
         local models = player_api.registered_models
         local character = models[player_proterties.mesh]
         --minetest.chat_send_all(dump(character));
@@ -140,7 +141,7 @@ function airutils.detect_player_api(player)
                 return 0
             end
         end
-    --end
+    end
 
     return 0
 end
