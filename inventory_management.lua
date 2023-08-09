@@ -3,7 +3,7 @@ airutils.modname = minetest.get_current_modname()
 
 --function to format formspec for mineclone. In case of minetest, just returns an empty string
 local function get_itemslot_bg(a, b, c, d)
-    if not minetest.get_modpath("player_api") then
+    if airutils.is_mcl then
         return mcl_formspec.get_itemslot_bg(a,b,c,d)
     end
     return ""
@@ -12,7 +12,7 @@ end
 local function get_formspec_by_size(self, size)
     local background = ""
     local hotbar = ""
-    local is_minetest_game = minetest.get_modpath("player_api") or false
+    local is_minetest_game = airutils.is_minetest or false
     if is_minetest_game then
         background = background .. default.gui_bg .. default.gui_bg_img .. default.gui_slots
         hotbar = default.get_hotbar_bg(0,4.85)

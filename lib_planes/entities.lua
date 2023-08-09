@@ -654,6 +654,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         -- deal with painting or destroying
 	    if itmstck then
 		    if airutils.set_param_paint(self, puncher, itmstck, 1) == false then
+                
 			    if not self.driver and toolcaps and toolcaps.damage_groups
                         and toolcaps.groupcaps and toolcaps.groupcaps.choppy and item_name ~= airutils.fuel then
 				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)

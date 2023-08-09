@@ -56,10 +56,10 @@ function airutils.attach(self, player, instructor_mode)
     end
     
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 1, z = -30})
-    if minetest.get_modpath("player_api") then
+    if airutils.is_minetest then
         player_api.player_attached[name] = true
         player_api.set_animation(player, "sit")
-    elseif minetest.get_modpath("mcl_player") then
+    elseif airutils.is_mcl then
         airutils.sit(player)
     end
 
@@ -90,10 +90,10 @@ function airutils.dettachPlayer(self, player)
     if player then
         player:set_detach()
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
-        if minetest.get_modpath("player_api") then
+        if airutils.is_minetest then
             player_api.player_attached[name] = nil
             player_api.set_animation(player, "stand")
-        elseif minetest.get_modpath("mcl_player") then
+        elseif airutils.is_mcl then
             mcl_player.player_attached[name] = nil
             mcl_player.player_set_animation(player, "stand")
         end
@@ -124,10 +124,10 @@ local function attach_copilot(self, name, player, eye_y)
     -- attach the driver
     player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
-    if minetest.get_modpath("player_api") then
+    if airutils.is_minetest then
         player_api.player_attached[name] = true
         player_api.set_animation(player, "sit")
-    elseif minetest.get_modpath("mcl_player") then
+    elseif airutils.is_mcl then
         mcl_player.player_attached[name] = true
         airutils.sit(player)
     end
@@ -186,10 +186,10 @@ function airutils.attach_pax(self, player, is_copilot)
                 player:set_attach(self._passengers_base[i], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
                 player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
 
-                if minetest.get_modpath("player_api") then
+                if airutils.is_minetest then
                     player_api.player_attached[name] = true
                     player_api.set_animation(player, "sit")
-                elseif minetest.get_modpath("mcl_player") then
+                elseif airutils.is_mcl then
                     mcl_player.player_attached[name] = true
                     airutils.sit(player)
                 end
@@ -231,10 +231,10 @@ function airutils.dettach_pax(self, player)
     if player then
         player:set_detach()
 
-        if minetest.get_modpath("player_api") then
+        if airutils.is_minetest then
             player_api.player_attached[name] = nil
             player_api.set_animation(player, "stand")
-        elseif minetest.get_modpath("mcl_player") then
+        elseif airutils.is_mcl then
             mcl_player.player_attached[name] = nil
             mcl_player.player_set_animation(player, "stand")
         end
@@ -914,10 +914,10 @@ local function do_attach(self, player, slot)
         end
         player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
 
-        if minetest.get_modpath("player_api") then
+        if airutils.is_minetest then
             player_api.player_attached[name] = true
             player_api.set_animation(player, "sit")
-        elseif minetest.get_modpath("mcl_player") then
+        elseif airutils.is_mcl then
             mcl_player.player_attached[name] = true
             airutils.sit(player)
         end
