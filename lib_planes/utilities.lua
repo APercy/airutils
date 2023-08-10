@@ -60,6 +60,8 @@ function airutils.attach(self, player, instructor_mode)
         player_api.player_attached[name] = true
         player_api.set_animation(player, "sit")
     elseif airutils.is_mcl then
+		mcl_player.player_attached[name] = true
+        mcl_player.player_set_animation(player, "sit" , 30)
         airutils.sit(player)
     end
 
@@ -128,7 +130,8 @@ local function attach_copilot(self, name, player, eye_y)
         player_api.player_attached[name] = true
         player_api.set_animation(player, "sit")
     elseif airutils.is_mcl then
-        mcl_player.player_attached[name] = true
+		mcl_player.player_attached[name] = true
+        mcl_player.player_set_animation(player, "sit" , 30)
         airutils.sit(player)
     end
     -- make the driver sit
@@ -190,7 +193,8 @@ function airutils.attach_pax(self, player, is_copilot)
                     player_api.player_attached[name] = true
                     player_api.set_animation(player, "sit")
                 elseif airutils.is_mcl then
-                    mcl_player.player_attached[name] = true
+		            mcl_player.player_attached[name] = true
+                    mcl_player.player_set_animation(player, "sit" , 30)
                     airutils.sit(player)
                 end
 
@@ -918,7 +922,8 @@ local function do_attach(self, player, slot)
             player_api.player_attached[name] = true
             player_api.set_animation(player, "sit")
         elseif airutils.is_mcl then
-            mcl_player.player_attached[name] = true
+		    mcl_player.player_attached[name] = true
+            mcl_player.player_set_animation(player, "sit" , 30)
             airutils.sit(player)
         end
 

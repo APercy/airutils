@@ -654,9 +654,8 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         -- deal with painting or destroying
 	    if itmstck then
 		    if airutils.set_param_paint(self, puncher, itmstck, 1) == false then
-                
 			    if not self.driver and toolcaps and toolcaps.damage_groups
-                        and toolcaps.groupcaps and toolcaps.groupcaps.choppy and item_name ~= airutils.fuel then
+                        and toolcaps.groupcaps and (toolcaps.groupcaps.choppy or toolcaps.groupcaps.axey_dig) and item_name ~= airutils.fuel then
 				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)
 				    --airutils.make_sound(self,'hit')
                     damage_vehicle(self, toolcaps, ttime, damage)
@@ -729,6 +728,7 @@ function airutils.on_rightclick(self, clicker)
                 else
                     self._custom_pilot_formspec(name)
                 end
+                airutils.sit(clicker)
             end
         else
             self.driver_name = nil --error, so clean it
