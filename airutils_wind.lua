@@ -127,7 +127,7 @@ minetest.register_entity("airutils:wind_indicator",{
 minetest.register_node("airutils:wind",{
 	description = "Wind Direction Indicator",
 	waving = 1,
-	tiles = {"default_tin_block.png","default_tin_block.png","default_tin_block.png","default_tin_block.png","default_tin_block.png","default_tin_block.png"},
+	tiles = {"default_steel_block.png","default_steel_block.png","default_steel_block.png","default_steel_block.png","default_steel_block.png","default_steel_block.png"},
 	paramtype = "light",
 	paramtype2 = "leveled",
 	is_ground_content = false,
