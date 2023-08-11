@@ -48,7 +48,7 @@ end
 -- biofuel
 minetest.register_craftitem(":biofuel:biofuel",{
 	description = "Bio Fuel",
-	inventory_image = "biofuel_inv.png",
+	inventory_image = "airutils_biofuel_inv.png",
 })
 
 minetest.register_craft({
