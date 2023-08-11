@@ -81,7 +81,7 @@ local biofueldistiller_formspec = "size[8,9]"
 
 minetest.register_node( module_name .. ":biofuel_distiller", {
 	description = "Biofuel Distiller",
-	tiles = {"airutils_metal.png", "airutils_aluminum.png", "airutils_copper.png" },
+	tiles = {"airutils_black.png", "airutils_aluminum.png", "airutils_copper.png" },
 	drawtype = "mesh",
 	mesh = "airutils_biofuel_distiller.b3d",
 	paramtype = "light",
