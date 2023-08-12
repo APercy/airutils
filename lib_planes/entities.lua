@@ -785,7 +785,7 @@ function airutils.on_rightclick(self, clicker)
                 end
 
                 --attach player
-                if clicker:get_player_control().sneak == true then
+                if clicker:get_player_control().sneak == true and max_seats > 1 then
                     -- flight instructor mode
                     self._instruction_mode = true
                     self.co_pilot_seat_base = self._passengers_base[1]
