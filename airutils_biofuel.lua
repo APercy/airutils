@@ -258,7 +258,7 @@ minetest.register_node( module_name .. ":biofuel_distiller", {
 	end,
 })
 
-
+--lets remove the old one
 minetest.register_node(":".."biofuel:biofuel_distiller", {
     groups = {old_biofuel=1},
 })
@@ -269,7 +269,7 @@ minetest.register_abm({
     chance = 1,
     action = function(pos, node)
         --minetest.env:remove_node(pos)
-        minetest.env:swap_node(pos,{name = "airutils:biofuel_distiller"})
+        minetest.env:swap_node(pos,{name = module_name..":biofuel_distiller"})
     end,
 })
 
