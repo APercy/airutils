@@ -44,7 +44,12 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "init.lua")
 
-if not minetest.settings:get_bool('airutils.disable_biofuel') then
+local is_biofuel_installed = false
+if biomass then
+    if biomass.convertible_groups then is_biofuel_installed = true end
+end
+local enable_internal_bioduel = minetest.settings:get_bool('airutils.force_enable_biofuel')
+if not is_biofuel_installed or enable_internal_bioduel then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_biofuel.lua")
 end
 
