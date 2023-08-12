@@ -24,7 +24,8 @@ airutils.is_minetest = minetest.get_modpath("player_api")
 airutils.is_mcl = minetest.get_modpath("mcl_player")
 
 airutils.fuel = {['biofuel:biofuel'] = 1,['biofuel:bottle_fuel'] = 1,
-                ['biofuel:phial_fuel'] = 0.25, ['biofuel:fuel_can'] = 10}
+                ['biofuel:phial_fuel'] = 0.25, ['biofuel:fuel_can'] = 10,
+                ['airutils:biofuel'] = 1,}
 
 if not minetest.settings:get_bool('airutils.disable_papi') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_papi.lua")

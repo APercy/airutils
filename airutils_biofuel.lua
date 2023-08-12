@@ -46,23 +46,26 @@ end
 
 
 -- biofuel
-minetest.register_craftitem(":biofuel:biofuel",{
+local new_gallon_id = "airutils:biofuel"
+minetest.register_craftitem(new_gallon_id,{
 	description = "Bio Fuel",
 	inventory_image = "airutils_biofuel_inv.png",
 })
 
 minetest.register_craft({
 	type = "fuel",
-	recipe = "biofuel:biofuel",
+	recipe = new_gallon_id,
 	burntime = 50,
 })
 
+minetest.register_alias("biofuel:biofuel", new_gallon_id) --for the old biofuel
+
 local ferment = {
-	{"default:papyrus", "biofuel:biofuel"},
-	{"farming:wheat", "biofuel:biofuel"},
-	{"farming:corn", "biofuel:biofuel"},
-	{"farming:baked_potato", "biofuel:biofuel"},
-    {"farming:potato", "biofuel:biofuel"}
+	{"default:papyrus", new_gallon_id},
+	{"farming:wheat", new_gallon_id},
+	{"farming:corn", new_gallon_id},
+	{"farming:baked_potato", new_gallon_id},
+    {"farming:potato", new_gallon_id}
 }
 
 local ferment_groups = {'flora', 'leaves', 'flower', 'sapling', 'tree', 'wood', 'stick', 'plant', 'seed',
@@ -221,7 +224,7 @@ minetest.register_node( module_name .. ":biofuel_distiller", {
 			return true
 		end
 
-		if has_group and not inv:room_for_item("dst", "biofuel:biofuel") then
+		if has_group and not inv:room_for_item("dst", new_gallon_id) then
 			meta:set_string("infotext", "Fuel Distiller (FULL)")
 			return true
 		end
@@ -240,7 +243,7 @@ minetest.register_node( module_name .. ":biofuel_distiller", {
                 for i,itemstack in pairs(inv:get_list("src")) do
 			        inv:remove_item("src", ItemStack(itemstack:get_name().." 1"))
                 end
-			    inv:add_item("dst", "biofuel:biofuel")
+			    inv:add_item("dst", new_gallon_id)
             end
 
 			meta:set_float("status", 0,0)

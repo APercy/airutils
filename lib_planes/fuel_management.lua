@@ -10,17 +10,18 @@ end
 function airutils.loadFuel(self, player_name)
     local player = minetest.get_player_by_name(player_name)
     local inv = player:get_inventory()
-
     local itmstck=player:get_wielded_item()
+
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
 
     local fuel = airutils.contains(airutils.fuel, item_name)
     if fuel then
-        local stack = ItemStack(item_name .. " 1")
+        --local stack = ItemStack(item_name .. " 1")
 
         if self._energy < self._max_fuel then
-            inv:remove_item("main", stack)
+            itmstck:set_count(1)
+            inv:remove_item("main", itmstck)
             self._energy = self._energy + fuel
             if self._energy > self._max_fuel then self._energy = self._max_fuel end
 
