@@ -586,7 +586,8 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 
     -- lets permit destroying on the air
     local is_flying = not self.colinfo.touching_ground
-    if is_flying and not puncher:is_player() then
+    --if is_flying and not puncher:is_player() then
+    if not puncher:is_player() then
         damage_vehicle(self, toolcaps, ttime, damage)
     end
     --end

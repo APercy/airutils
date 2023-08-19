@@ -55,6 +55,14 @@ end
 
 -- attach player
 function airutils.attach(self, player, instructor_mode)
+    if self._needed_licence then
+        local can_fly = minetest.check_player_privs(player, self._needed_licence)
+        if not can_fly then
+            minetest.chat_send_player(player:get_player_name(), core.colorize('#ff0000', ' >>> You need trhe priv "'..self._needed_licence..'" to fly this plane.'))
+            return
+        end
+    end
+
     instructor_mode = instructor_mode or false
     local name = player:get_player_name()
     self.driver_name = name
