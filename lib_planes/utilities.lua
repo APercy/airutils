@@ -751,27 +751,30 @@ function airutils.get_xz_from_hipotenuse(orig_x, orig_z, yaw, distance)
 end
 
 function airutils.camera_reposition(player, pitch, roll)
-    if roll < -0.4 then roll = -0.4 end
-    if roll > 0.4 then roll = 0.4 end
-
-    local player_properties = player:get_properties()
     local new_eye_offset = vector.new()
+    if airutils.is_minetest then
+        if roll < -0.4 then roll = -0.4 end
+        if roll > 0.4 then roll = 0.4 end
 
-    local eye_y = -5
-    if airutils.detect_player_api(player) == 1 then
-        --minetest.chat_send_all("1")
-        eye_y = 0.5
+        local player_properties = player:get_properties()
+
+        local eye_y = -5
+        if airutils.detect_player_api(player) == 1 then
+            --minetest.chat_send_all("1")
+            eye_y = 0.5
+        end
+        if airutils.detect_player_api(player) == 2 then
+            --minetest.chat_send_all("2")
+            eye_y = -5
+        end
+         
+        local z, y = airutils.get_xz_from_hipotenuse(0, eye_y, pitch, player_properties.eye_height)
+        new_eye_offset.z = z*7
+        new_eye_offset.y = y*1.5
+        local x, _ = airutils.get_xz_from_hipotenuse(0, eye_y, roll, player_properties.eye_height)
+        new_eye_offset.x = -x*15
+        return new_eye_offset
     end
-    if airutils.detect_player_api(player) == 2 then
-        --minetest.chat_send_all("2")
-        eye_y = -5
-    end
-     
-    local z, y = airutils.get_xz_from_hipotenuse(0, eye_y, pitch, player_properties.eye_height)
-    new_eye_offset.z = z*7
-    new_eye_offset.y = y*1.5
-    local x, _ = airutils.get_xz_from_hipotenuse(0, eye_y, roll, player_properties.eye_height)
-    new_eye_offset.x = -x*15
     return new_eye_offset
 end
 
