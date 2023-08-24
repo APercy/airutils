@@ -680,6 +680,7 @@ function airutils.pid_controller(current_value, setpoint, last_error, d_time, kp
 end
 
 function airutils.add_destruction_effects(pos, radius, w_fire)
+    if pos == nil then return end
     w_fire = w_fire
     if w_fire == nil then w_fire = true end
 	local node = airutils.nodeatpos(pos)
