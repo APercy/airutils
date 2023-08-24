@@ -739,6 +739,50 @@ function airutils.add_destruction_effects(pos, radius, w_fire)
 	})
 end
 
+function airutils.add_blast_damage(pos, radius)
+    if not pos then return end
+    radius = radius or 10
+
+    local objs = minetest.get_objects_inside_radius(pos, radius)
+	for _, obj in pairs(objs) do
+		local obj_pos = obj:get_pos()
+		local dist = math.max(1, vector.distance(pos, obj_pos))
+        local damage = (50 / dist) * radius
+        
+        if obj:is_player() then
+            obj:set_hp(obj:get_hp() - damage)
+        else
+            local luaobj = obj:get_luaentity()
+
+            -- object might have disappeared somehow
+            if luaobj then
+				local do_damage = true
+				local do_knockback = true
+				local entity_drops = {}
+				local objdef = minetest.registered_entities[luaobj.name]
+
+				if objdef and objdef.on_blast then
+					do_damage, do_knockback, entity_drops = objdef.on_blast(luaobj, damage)
+				end
+
+				if do_knockback then
+					local obj_vel = obj:get_velocity()
+				end
+				if do_damage then
+                    obj:punch(obj, 1.0, {
+                        full_punch_interval = 1.0,
+                        damage_groups = {fleshy = damage},
+                    }, nil)
+				end
+				for _, item in pairs(entity_drops) do
+					add_drop(drops, item)
+				end
+			end
+
+        end
+    end
+end
+
 function airutils.start_engine(self)
     if self._engine_running then
 	    self._engine_running = false
