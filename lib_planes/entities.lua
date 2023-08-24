@@ -119,6 +119,10 @@ function airutils.on_step(self,dtime,colinfo)
 	    end
     end
     
+    if self.hp_max <= 0 then
+        airutils.destroy(self)
+    end
+
     self:physics()
 
     if self.logic then
@@ -214,6 +218,7 @@ function airutils.logic(self)
         end
     end
 
+    if not self.object:get_acceleration() then return end
     local accel_y = self.object:get_acceleration().y
     local rotation = self.object:get_rotation()
     local yaw = rotation.y

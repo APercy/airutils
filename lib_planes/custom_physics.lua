@@ -7,6 +7,7 @@ function airutils.physics(self)
 	local surface = nil
 	local surfnodename = nil
 	local spos = airutils.get_stand_pos(self)
+    if not spos then return end
 	spos.y = spos.y+0.01
 	-- get surface height
 	local snodepos = airutils.get_node_pos(spos)
