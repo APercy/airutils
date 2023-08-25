@@ -283,6 +283,8 @@ function airutils.destroy(self, by_name)
     airutils.destroy_inventory(self)
     self.object:remove()
 
+    airutils.add_blast_damage(pos, 5 + 4, 10)
+
     --[[pos.y=pos.y+2
     minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'hidroplane:wings')
 
@@ -739,15 +741,16 @@ function airutils.add_destruction_effects(pos, radius, w_fire)
 	})
 end
 
-function airutils.add_blast_damage(pos, radius)
+function airutils.add_blast_damage(pos, radius, damage_cal)
     if not pos then return end
     radius = radius or 10
+    damage_cal = damage_cal or 4
 
     local objs = minetest.get_objects_inside_radius(pos, radius)
 	for _, obj in pairs(objs) do
 		local obj_pos = obj:get_pos()
 		local dist = math.max(1, vector.distance(pos, obj_pos))
-        local damage = (50 / dist) * radius
+        local damage = (damage_cal / dist) * radius
         
         if obj:is_player() then
             obj:set_hp(obj:get_hp() - damage)
