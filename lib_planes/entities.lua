@@ -274,6 +274,28 @@ function airutils.logic(self)
         airutils.landing_lights_operate(self)
     end
 
+    --smoke and fire
+    if self._engine_running then
+        local curr_health_percent = (self.hp_max * 100)/self._max_plane_hp
+        if curr_health_percent < 20 then
+            airutils.add_smoke_trail(self, 2)
+        elseif curr_health_percent < 50 then
+            airutils.add_smoke_trail(self, 1)
+        end
+    else
+        if self._smoke_spawner and not self._smoke_semaphore then
+            self._smoke_semaphore = 1 --to set it only one time
+            minetest.after(5, function()
+                if self._smoke_spawner then
+                    minetest.delete_particlespawner(self._smoke_spawner)
+                    self._smoke_spawner = nil
+                    self._smoke_semaphore = nil
+                end
+            end)
+        end
+    end
+
+
     if longit_speed == 0 and is_flying == false and is_attached == false and self._engine_running == false then
         return
     end
@@ -477,8 +499,6 @@ function airutils.logic(self)
         end
     end
 
-
-
     ------------------------------------------------------
     -- end accell
     ------------------------------------------------------
@@ -487,6 +507,7 @@ function airutils.logic(self)
     -- sound and animation
     ------------------------------------------------------
     airutils.engine_set_sound_and_animation(self)
+
     ------------------------------------------------------
 
     --self.object:get_luaentity() --hack way to fix jitter on climb

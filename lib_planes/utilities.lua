@@ -689,6 +689,42 @@ function airutils.pid_controller(current_value, setpoint, last_error, d_time, kp
     return output, last_error
 end
 
+function airutils.add_smoke_trail(self, smoke_type)
+    smoke_type = smoke_type or 1
+    local smoke_texture = "airutils_smoke.png"
+    if smoke_type == 2 then
+        smoke_texture = "airutils_smoke.png^[multiply:#020202"
+    end
+
+    if self._curr_smoke_type ~= smoke_type then
+        self._curr_smoke_type = smoke_type
+        if self._smoke_spawner then
+            minetest.delete_particlespawner(self._smoke_spawner)
+            self._smoke_spawner = nil
+        end
+    end
+
+    if self._smoke_spawner == nil then
+        local radius = 1
+	    self._smoke_spawner = minetest.add_particlespawner({
+		    amount = 3,
+		    time = 0,
+		    --minpos = vector.subtract(pos, radius / 2),
+		    --maxpos = vector.add(pos, radius / 2),
+		    minvel = {x = -1, y = -1, z = -1},
+		    maxvel = {x = 1, y = 5, z = 1},
+		    minacc = vector.new(),
+		    maxacc = vector.new(),
+            attached = self.object,
+		    minexptime = 3,
+		    maxexptime = 5.5,
+		    minsize = 10,
+		    maxsize = 15,
+		    texture = smoke_texture,
+	    })
+    end
+end
+
 function airutils.add_destruction_effects(pos, radius, w_fire)
     if pos == nil then return end
     w_fire = w_fire
@@ -801,8 +837,15 @@ function airutils.start_engine(self)
         self._power_lever = 0 --zero power
         self._last_applied_power = 0 --zero engine
     elseif self._engine_running == false and self._energy > 0 then
-	    self._engine_running = true
-        self._last_applied_power = -1 --send signal to start
+        local curr_health_percent = (self.hp_max * 100)/self._max_plane_hp
+        if curr_health_percent > 20 then
+	        self._engine_running = true
+            self._last_applied_power = -1 --send signal to start
+        else
+            if self.driver_name then
+                minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', " >>> The engine is damaged, start procedure failed."))
+            end
+        end
     end
 end
 
