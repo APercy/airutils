@@ -283,7 +283,9 @@ function airutils.destroy(self, by_name)
     airutils.destroy_inventory(self)
     self.object:remove()
 
-    airutils.add_blast_damage(pos, 5 + 4, 10)
+    if airutils.blast_damage == true and with_fire == true then
+        airutils.add_blast_damage(pos, 7, 10)
+    end
 
     --[[pos.y=pos.y+2
     minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'hidroplane:wings')
@@ -1009,4 +1011,5 @@ function airutils.get_adf_angle(self, pos)
     end
     return adf
 end
+
 

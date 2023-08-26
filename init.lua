@@ -1,5 +1,7 @@
 -- Minetest 5.4.1 : airutils
 
+local storage = minetest.get_mod_storage()
+
 airutils = {}
 
 airutils.colors ={
@@ -19,6 +21,11 @@ airutils.colors ={
     white='#FFFFFF',
     yellow='#ffe400',
 }
+
+local load_blast_damage = storage:get_int("blast_damage")
+airutils.blast_damage = true
+-- 1 == true ---- 2 == false
+if load_blast_damage == 2 then airutils.blast_damage = false end
 
 airutils.is_minetest = minetest.get_modpath("player_api")
 airutils.is_mcl = minetest.get_modpath("mcl_player")
@@ -449,3 +456,20 @@ end
 function airutils.normalize_rotations(rotations)
     return {x = get_norm_angle(rotations.x), y = get_norm_angle(rotations.y), z = get_norm_angle(rotations.z)}
 end
+
+minetest.register_chatcommand("enable_blast_damage", {
+    func = function(name, param)
+        local command = param
+
+        if command == "false" then
+            airutils.blast_damage = false
+            minetest.chat_send_player(name, ">>> Blast damage by explosion is disabled")
+        else
+            airutils.blast_damage = true
+            minetest.chat_send_player(name, ">>> Blast damage by explosion is enabled")
+        end
+        local save = 2
+        if airutils.blast_damage == true then save = 1 end
+        storage:set_int("blast_damage", save)
+    end,
+})
