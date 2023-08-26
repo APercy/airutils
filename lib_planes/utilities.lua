@@ -250,6 +250,13 @@ function airutils.destroy(self, by_name)
     by_name = by_name or ""
     local with_fire = self._enable_fire_explosion
     if by_name == self.owner then with_fire = false end
+    local pos = self.object:get_pos()
+
+    if self.owner and self._vehicle_name then
+        minetest.log("action", "airutils: The player "..self.owner.." had it's "..self._vehicle_name.." destroyed at position x="..pos.x.." y="..pos.y.." z="..pos.z)
+    else
+        minetest.log("action", "airutils: An airplane was destroyed at position x="..pos.x.." y="..pos.y.." z="..pos.z)
+    end
 
     if self.sound_handle then
         minetest.sound_stop(self.sound_handle)
@@ -272,7 +279,6 @@ function airutils.destroy(self, by_name)
         airutils.dettachPlayer(self, player)
     end
 
-    local pos = self.object:get_pos()
     airutils.add_destruction_effects(pos, 5, with_fire)
 
     airutils.seats_destroy(self)
