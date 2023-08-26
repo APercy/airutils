@@ -442,6 +442,12 @@ function airutils.testImpact(self, velocity, position)
             fade = 0.0,
             pitch = 1.0,
         }, true)
+
+        --stop engine
+        if damage > 7 then
+            self._power_lever = 0
+            self._engine_running = false
+        end
         
         airutils.setText(self, self._vehicle_name)
 
