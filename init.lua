@@ -458,6 +458,9 @@ function airutils.normalize_rotations(rotations)
 end
 
 minetest.register_chatcommand("enable_blast_damage", {
+    params = "<true/false>",
+    description = "Enable/disable explosion blast damage",
+    privs = {server=true},
     func = function(name, param)
         local command = param
 
