@@ -508,3 +508,35 @@ minetest.register_chatcommand("transfer_ownership", {
 		end
 	end
 })
+
+minetest.register_chatcommand("eject_from_plane", {
+	params = "",
+	description = "Ejects from a plane",
+	privs = {interact = true},
+	func = function(name, param)
+        local colorstring = core.colorize('#ff0000', " >>> you are not inside a plane")
+        local player = minetest.get_player_by_name(name)
+        local attached_to = player:get_attach()
+
+		if attached_to ~= nil then
+            local seat = attached_to:get_attach()
+            if seat ~= nil then
+                local entity = seat:get_luaentity()
+                if entity then
+                    if entity.on_step == airutils.on_step then
+                        if entity.driver_name == name then
+                            airutils.dettachPlayer(entity, player)
+                        elseif entity._passenger == name then
+                            local passenger = minetest.get_player_by_name(entity._passenger)
+                            airutils.dettach_pax(entity, passenger)
+                        end
+                    else
+			            minetest.chat_send_player(name,colorstring)
+                    end
+                end
+            end
+		else
+			minetest.chat_send_player(name,colorstring)
+		end
+	end
+})

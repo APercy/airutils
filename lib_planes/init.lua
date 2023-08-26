@@ -24,3 +24,4 @@ local function fetch_setting(name)
     return settings and settings:get(sname) or minetest.settings:get(sname)
 end
 
+
