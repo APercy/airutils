@@ -834,6 +834,24 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
 
         end
     end
+    --lets light some bombs
+    if airutils.is_minetest then
+        local pr = PseudoRandom(os.time())
+        for z = -radius, radius do
+            for y = -radius, radius do
+                for x = -radius, radius do
+                    -- remove the nodes
+                    local r = vector.length(vector.new(x, y, z))
+                    if (radius * radius) / (r * r) >= (pr:next(80, 125) / 100) then
+                        local p = {x = pos.x + x, y = pos.y + y, z = pos.z + z}
+	                    local node = minetest.get_node(p).name
+                        if node == "tnt:tnt" then minetest.set_node(p, {name = "tnt:tnt_burning"}) end
+                    end
+                end
+            end
+        end
+    end
+
 end
 
 function airutils.start_engine(self)
