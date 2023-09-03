@@ -313,12 +313,17 @@ function airutils.logic(self)
         newpitch = airutils.get_plane_pitch(velocity, longit_speed, self._min_speed, self._angle_of_attack)
     end
 
+    --for airplanes with cannard or pendulum wing
+    local actuator_angle = self._elevator_angle
+    if self._inverted_pitch_reaction then actuator_angle = -1*self._elevator_angle end
+
     --is an stall, force a recover
     if longit_speed < (self._min_speed+0.5) and climb_rate < -1.5 and is_flying then
         if player and self.driver_name then
             --minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', " >>> STALL"))
         end
         self._elevator_angle = 0
+        actuator_angle = 0
         self._angle_of_attack = -1
         newpitch = math.rad(self._angle_of_attack)
     else
@@ -326,7 +331,7 @@ function airutils.logic(self)
         if longit_speed > self._min_speed then
             local percentage = math.abs(((longit_speed * 100)/(self._min_speed + 5))/100)
             if percentage > 1.5 then percentage = 1.5 end
-            self._angle_of_attack = self._wing_angle_of_attack - ((self._elevator_angle / self._elevator_response_attenuation)*percentage)
+            self._angle_of_attack = self._wing_angle_of_attack - ((actuator_angle / self._elevator_response_attenuation)*percentage)
 
             --set the plane on level
             if airutils.adjust_attack_angle_by_speed then
@@ -336,12 +341,15 @@ function airutils.logic(self)
 
             if self._angle_of_attack < self._min_attack_angle then
                 self._angle_of_attack = self._min_attack_angle
-                self._elevator_angle = self._elevator_angle - 0.2
+                actuator_angle = actuator_angle - 0.2
             end --limiting the negative angle]]--
             --[[if self._angle_of_attack > self._max_attack_angle then
                 self._angle_of_attack = self._max_attack_angle
-                self._elevator_angle = self._elevator_angle + 0.2
+                actuator_angle = actuator_angle + 0.2
             end --limiting the very high climb angle due to strange behavior]]--]]--
+
+            if self._inverted_pitch_reaction then self._elevator_angle = -1*actuator_angle end --revert the reversion
+            
         end
     end
 
