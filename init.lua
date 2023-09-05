@@ -66,17 +66,17 @@ if minetest.get_modpath("player_api") and not minetest.settings:get_bool('airuti
 end
 
 function airutils.remove(pos)
-	local meta = core.get_meta(pos)
-	if meta:get_string("dont_destroy") == "true" then
-		-- when swapping it
-		return
-	end
+    local meta = core.get_meta(pos)
+    if meta:get_string("dont_destroy") == "true" then
+        -- when swapping it
+        return
+    end
 end
 
 function airutils.canDig(pos, player)
-	local meta = core.get_meta(pos)
-	return meta:get_string("dont_destroy") ~= "true"
-		and player:get_player_name() == meta:get_string("owner")
+    local meta = core.get_meta(pos)
+    return meta:get_string("dont_destroy") ~= "true"
+        and player:get_player_name() == meta:get_string("owner")
 end
 
 function airutils.check_node_below(obj, how_low)
@@ -86,7 +86,7 @@ function airutils.check_node_below(obj, how_low)
         local node_below = minetest.get_node(pos_below).name
         local nodedef = minetest.registered_nodes[node_below]
         local touching_ground = not nodedef or -- unknown nodes are solid
-		        nodedef.walkable or false
+                nodedef.walkable or false
         local liquid_below = not touching_ground and nodedef.liquidtype ~= "none"
         return touching_ground, liquid_below
     end
@@ -94,12 +94,12 @@ function airutils.check_node_below(obj, how_low)
 end
 
 function airutils.check_is_under_water(obj)
-	local pos_up = obj:get_pos()
-	pos_up.y = pos_up.y + 0.1
-	local node_up = minetest.get_node(pos_up).name
-	local nodedef = minetest.registered_nodes[node_up]
-	local liquid_up = nodedef.liquidtype ~= "none"
-	return liquid_up
+    local pos_up = obj:get_pos()
+    pos_up.y = pos_up.y + 0.1
+    local node_up = minetest.get_node(pos_up).name
+    local nodedef = minetest.registered_nodes[node_up]
+    local liquid_up = nodedef.liquidtype ~= "none"
+    return liquid_up
 end
 
 function airutils.setText(self, vehicle_name)
@@ -177,10 +177,10 @@ end
 --for 
 function airutils.eval_vertical_interception(initial_pos, end_pos)
     local ret_y = nil
-	local cast = minetest.raycast(initial_pos, end_pos, true, true)
-	local thing = cast:next()
-	while thing do
-		if thing.type == "node" then
+    local cast = minetest.raycast(initial_pos, end_pos, true, true)
+    local thing = cast:next()
+    while thing do
+        if thing.type == "node" then
             local pos = thing.intersection_point
             if pos then
                 local nodename = minetest.get_node(thing.under).name
@@ -198,25 +198,25 @@ end
 
 --lift
 local function pitchroll2pitchyaw(aoa,roll)
-	if roll == 0.0 then return aoa,0 end
-	-- assumed vector x=0,y=0,z=1
-	local p1 = math.tan(aoa)
-	local y = math.cos(roll)*p1
-	local x = math.sqrt(p1^2-y^2)
-	local pitch = math.atan(y)
-	local yaw=math.atan(x)*math.sign(roll)
-	return pitch,yaw
+    if roll == 0.0 then return aoa,0 end
+    -- assumed vector x=0,y=0,z=1
+    local p1 = math.tan(aoa)
+    local y = math.cos(roll)*p1
+    local x = math.sqrt(p1^2-y^2)
+    local pitch = math.atan(y)
+    local yaw=math.atan(x)*math.sign(roll)
+    return pitch,yaw
 end
 
 local function lerp(a, b, c)
-	return a + (b - a) * c
+    return a + (b - a) * c
 end
  
 function airutils.quadBezier(t, p0, p1, p2)
-	local l1 = lerp(p0, p1, t)
-	local l2 = lerp(p1, p2, t)
-	local quad = lerp(l1, l2, t)
-	return quad
+    local l1 = lerp(p0, p1, t)
+    local l2 = lerp(p1, p2, t)
+    local quad = lerp(l1, l2, t)
+    return quad
 end
 
 function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
@@ -303,15 +303,15 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
         --to decrease the lift coefficient at hight altitudes
         local curr_percent_height = (100 - ((curr_pos.y * 100) / max_height))/100
 
-	    local rotation=self.object:get_rotation()
-	    local vrot = airutils.dir_to_rot(velocity,rotation)
-	    
-	    local hpitch,hyaw = pitchroll2pitchyaw(angle_of_attack,roll)
+        local rotation=self.object:get_rotation()
+        local vrot = airutils.dir_to_rot(velocity,rotation)
+        
+        local hpitch,hyaw = pitchroll2pitchyaw(angle_of_attack,roll)
 
-	    local hrot = {x=vrot.x+hpitch,y=vrot.y-hyaw,z=roll}
-	    local hdir = airutils.rot_to_dir(hrot) --(hrot)
-	    local cross = vector.cross(velocity,hdir)
-	    local lift_dir = vector.normalize(vector.cross(cross,hdir))
+        local hrot = {x=vrot.x+hpitch,y=vrot.y-hyaw,z=roll}
+        local hdir = airutils.rot_to_dir(hrot) --(hrot)
+        local cross = vector.cross(velocity,hdir)
+        local lift_dir = vector.normalize(vector.cross(cross,hdir))
 
         local lift_coefficient = (0.24*math.abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
         local lift_val = math.abs((lift*(vector.length(striped_velocity)^2)*lift_coefficient)*curr_percent_height)
@@ -383,7 +383,7 @@ function airutils.set_paint(self, puncher, itmstck, texture_name)
     if item_name == "automobiles_lib:painter" or item_name == "bike:painter" then
         --painting with bike painter
         local meta = itmstck:get_meta()
-	    local colstr = meta:get_string("paint_color")
+        local colstr = meta:get_string("paint_color")
         --minetest.chat_send_all(dump(colstr))
         airutils.paint(self, colstr, texture_name)
         return true
@@ -398,18 +398,18 @@ function airutils.set_paint(self, puncher, itmstck, texture_name)
                 if x then color = clr end
             end]]--
             --lets paint!!!!
-	        local color = (item_name:sub(indx+1)):gsub(":", "")
-	        local colstr = airutils.colors[color]
+            local color = (item_name:sub(indx+1)):gsub(":", "")
+            local colstr = airutils.colors[color]
             --minetest.chat_send_all(color ..' '.. dump(colstr))
-	        if colstr then
+            if colstr then
                 airutils.paint(self, colstr, texture_name)
                 if self._alternate_painting_texture and self._mask_painting_texture then
                     airutils.paint_with_mask(self, colstr, self._alternate_painting_texture, self._mask_painting_texture)
                 end
-		        itmstck:set_count(itmstck:get_count()-1)
+                itmstck:set_count(itmstck:get_count()-1)
                 if puncher ~= nil then puncher:set_wielded_item(itmstck) end
                 return true
-	        end
+            end
             -- end painting
         end
     end
@@ -428,7 +428,7 @@ function airutils.paint(self, colstr, texture_name)
                 l_textures[_] = texture_name.."^[multiply:".. colstr
             end
         end
-	    self.object:set_properties({textures=l_textures})
+        self.object:set_properties({textures=l_textures})
     end
 end
 
@@ -481,12 +481,12 @@ minetest.register_chatcommand("transfer_ownership", {
     params = "<new_owner>",
     description = "Transfer the property of a plane to another player",
     privs = {interact=true},
-	func = function(name, param)
+    func = function(name, param)
         local player = minetest.get_player_by_name(name)
         local target_player = minetest.get_player_by_name(param)
         local attached_to = player:get_attach()
 
-		if attached_to ~= nil then
+        if attached_to ~= nil then
             if target_player ~= nil then
                 local seat = attached_to:get_attach()
                 if seat ~= nil then
@@ -503,22 +503,22 @@ minetest.register_chatcommand("transfer_ownership", {
             else
                 minetest.chat_send_player(name,core.colorize('#ff0000', " >>> the target player must be logged in"))
             end
-		else
-			minetest.chat_send_player(name,core.colorize('#ff0000', " >>> you are not inside a plane to perform the command"))
-		end
-	end
+        else
+            minetest.chat_send_player(name,core.colorize('#ff0000', " >>> you are not inside a plane to perform the command"))
+        end
+    end
 })
 
 minetest.register_chatcommand("eject_from_plane", {
-	params = "",
-	description = "Ejects from a plane",
-	privs = {interact = true},
-	func = function(name, param)
+    params = "",
+    description = "Ejects from a plane",
+    privs = {interact = true},
+    func = function(name, param)
         local colorstring = core.colorize('#ff0000', " >>> you are not inside a plane")
         local player = minetest.get_player_by_name(name)
         local attached_to = player:get_attach()
 
-		if attached_to ~= nil then
+        if attached_to ~= nil then
             local seat = attached_to:get_attach()
             if seat ~= nil then
                 local entity = seat:get_luaentity()
@@ -531,12 +531,12 @@ minetest.register_chatcommand("eject_from_plane", {
                             airutils.dettach_pax(entity, passenger)
                         end
                     else
-			            minetest.chat_send_player(name,colorstring)
+                        minetest.chat_send_player(name,colorstring)
                     end
                 end
             end
-		else
-			minetest.chat_send_player(name,colorstring)
-		end
-	end
+        else
+            minetest.chat_send_player(name,colorstring)
+        end
+    end
 })

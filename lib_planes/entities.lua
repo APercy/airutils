@@ -70,7 +70,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
 
     airutils.param_paint(self, self._color, self._color_2)
 
-	self.object:set_armor_groups({immortal=1})
+    self.object:set_armor_groups({immortal=1})
 
     local start_frame = 1
     local end_frame = self._anim_frames
@@ -84,12 +84,12 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self.wheels:set_animation({x = 1, y = self._anim_frames}, 0, 0, true)
     end
 
-	local inv = minetest.get_inventory({type = "detached", name = self._inv_id})
-	-- if the game was closed the inventories have to be made anew, instead of just reattached
-	if not inv then
+    local inv = minetest.get_inventory({type = "detached", name = self._inv_id})
+    -- if the game was closed the inventories have to be made anew, instead of just reattached
+    if not inv then
         airutils.create_inventory(self, self._trunk_slots)
-	else
-	    self.inv = inv
+    else
+        self.inv = inv
     end
 
     airutils.seats_create(self)
@@ -110,13 +110,13 @@ function airutils.on_step(self,dtime,colinfo)
     local vel = self.object:get_velocity()
     
     if colinfo then 
-	    self.isonground = colinfo.touching_ground
+        self.isonground = colinfo.touching_ground
     else
-	    if self.lastvelocity.y==0 and vel.y==0 then
-		    self.isonground = true
-	    else
-		    self.isonground = false
-	    end
+        if self.lastvelocity.y==0 and vel.y==0 then
+            self.isonground = true
+        else
+            self.isonground = false
+        end
     end
     
     if self.hp_max <= 0 then
@@ -126,7 +126,7 @@ function airutils.on_step(self,dtime,colinfo)
     self:physics()
 
     if self.logic then
-	    self:logic()
+        self:logic()
     end
     
     self.lastvelocity = self.object:get_velocity()
@@ -222,23 +222,23 @@ function airutils.logic(self)
     local accel_y = self.object:get_acceleration().y
     local rotation = self.object:get_rotation()
     local yaw = rotation.y
-	local newyaw=yaw
+    local newyaw=yaw
     local pitch = rotation.x
-	local roll = rotation.z
-	local newroll=roll
+    local roll = rotation.z
+    local newroll=roll
     newroll = math.floor(newroll/360)
     newroll = newroll * 360
 
     local hull_direction = airutils.rot_to_dir(rotation) --minetest.yaw_to_dir(yaw)
-    local nhdir = {x=hull_direction.z,y=0,z=-hull_direction.x}		-- lateral unit vector
+    local nhdir = {x=hull_direction.z,y=0,z=-hull_direction.x}        -- lateral unit vector
 
     local longit_speed = vector.dot(velocity,hull_direction)
     self._longit_speed = longit_speed
     local longit_drag = vector.multiply(hull_direction,longit_speed*
             longit_speed*self._longit_drag_factor*-1*airutils.sign(longit_speed))
-	local later_speed = airutils.dot(velocity,nhdir)
+    local later_speed = airutils.dot(velocity,nhdir)
     --minetest.chat_send_all('later_speed: '.. later_speed)
-	local later_drag = vector.multiply(nhdir,later_speed*later_speed*
+    local later_drag = vector.multiply(nhdir,later_speed*later_speed*
             self._later_drag_factor*-1*airutils.sign(later_speed))
     local accel = vector.add(longit_drag,later_drag)
     local stop = false
@@ -253,7 +253,7 @@ function airutils.logic(self)
     local is_attached = airutils.checkAttach(self, player)
     if self._indicated_speed == nil then self._indicated_speed = 0 end
 
-	if not is_attached then
+    if not is_attached then
         -- for some engine error the player can be detached from the machine, so lets set him attached again
         airutils.checkattachBug(self)
     end
@@ -365,12 +365,12 @@ function airutils.logic(self)
     end
 
     -- new yaw
-	if math.abs(self._rudder_angle)>1.5 then
+    if math.abs(self._rudder_angle)>1.5 then
         local turn_rate = math.rad(self._yaw_turn_rate)
         local yaw_turn = self.dtime * math.rad(self._rudder_angle) * turn_rate *
                 airutils.sign(longit_speed) * math.abs(longit_speed/2)
-		newyaw = yaw + yaw_turn
-	end
+        newyaw = yaw + yaw_turn
+    end
 
     --roll adjust
     ---------------------------------
@@ -378,7 +378,7 @@ function airutils.logic(self)
     if is_flying then
         local roll_reference = newyaw
         local sdir = minetest.yaw_to_dir(roll_reference)
-        local snormal = {x=sdir.z,y=0,z=-sdir.x}	-- rightside, dot is negative
+        local snormal = {x=sdir.z,y=0,z=-sdir.x}    -- rightside, dot is negative
         local prsr = airutils.dot(snormal,nhdir)
         local rollfactor = -90
         local roll_rate = math.rad(10)
@@ -434,8 +434,8 @@ function airutils.logic(self)
     accel.y = accel_y
 
     --lets apply some bob in water
-	if self.isinliquid then
-        local bob = airutils.minmax(airutils.dot(accel,hull_direction),0.02)	-- vertical bobbing
+    if self.isinliquid then
+        local bob = airutils.minmax(airutils.dot(accel,hull_direction),0.02)    -- vertical bobbing
         if bob < 0 then bob = 0 end
         accel.y = accel.y + bob
         local max_pitch = 6
@@ -480,7 +480,7 @@ function airutils.logic(self)
 
     if stop ~= true then --maybe == nil
         self._last_accell = new_accel
-	    self.object:move_to(curr_pos)
+        self.object:move_to(curr_pos)
         --self.object:set_velocity(velocity)
         --[[if player then 
             airutils.attach(self, player, self._instruction_mode)
@@ -548,7 +548,7 @@ function airutils.logic(self)
         local turn_rate = math.rad(30)
         local yaw_turn = self.dtime * math.rad(self._rudder_angle) * turn_rate *
                     airutils.sign(longit_speed) * math.abs(longit_speed/2)
-	    newyaw = yaw + yaw_turn
+        newyaw = yaw + yaw_turn
     end
 
     if player and self._use_camera_relocation then
@@ -600,9 +600,9 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
         local tmp = ttime / (toolcaps.full_punch_interval or 1.4)
 
         if tmp < 0 then
-	        tmp = 0.0
+            tmp = 0.0
         elseif tmp > 1 then
-	        tmp = 1.0
+            tmp = 1.0
         end
 
         damage = damage + (toolcaps.damage_groups[group] or 0) * tmp
@@ -612,7 +612,7 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
 end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
-	local name = puncher:get_player_name()
+    local name = puncher:get_player_name()
     if self.hp_max <= 0 then
         airutils.destroy(self, name)
     end
@@ -627,8 +627,8 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     --end
 
     if not puncher or not puncher:is_player() then
-		return
-	end
+        return
+    end
 
     local is_admin = false
     is_admin = minetest.check_player_privs(puncher, {server=true})
@@ -638,11 +638,11 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if self.owner == nil then
         self.owner = name
     end
-    	
+        
     if self.driver_name and self.driver_name ~= name then
-		-- do not allow other players to remove the object while there is a driver
-		return
-	end
+        -- do not allow other players to remove the object while there is a driver
+        return
+    end
     
     local is_attached = false
     local player_attach = puncher:get_attach()
@@ -687,12 +687,12 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         end
 
         -- deal with painting or destroying
-	    if itmstck then
-		    if airutils.set_param_paint(self, puncher, itmstck, 1) == false then
-			    if not self.driver and toolcaps and toolcaps.damage_groups
+        if itmstck then
+            if airutils.set_param_paint(self, puncher, itmstck, 1) == false then
+                if not self.driver and toolcaps and toolcaps.damage_groups
                         and toolcaps.groupcaps and (toolcaps.groupcaps.choppy or toolcaps.groupcaps.axey_dig) and item_name ~= airutils.fuel then
-				    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)
-				    --airutils.make_sound(self,'hit')
+                    --airutils.hurt(self,toolcaps.damage_groups.fleshy - 1)
+                    --airutils.make_sound(self,'hit')
                     damage_vehicle(self, toolcaps, ttime, damage)
                     minetest.sound_play(self._collision_sound, {
                         object = self.object,
@@ -702,8 +702,8 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
                         pitch = 1.0,
                     })
                     airutils.setText(self, self._vehicle_name)
-			    end
-		    end
+                end
+            end
         end
 
         if self.hp_max <= 0 then
@@ -716,9 +716,9 @@ end
 
 function airutils.on_rightclick(self, clicker)
     local message = ""
-	if not clicker or not clicker:is_player() then
-		return
-	end
+    if not clicker or not clicker:is_player() then
+        return
+    end
 
     local name = clicker:get_player_name()
 
@@ -788,10 +788,10 @@ function airutils.on_rightclick(self, clicker)
             local item_name = ""
             if itmstck then item_name = itmstck:get_name() end
 
-	        if itmstck then
-		        if airutils.set_param_paint(self, clicker, itmstck, 2) == true then
+            if itmstck then
+                if airutils.set_param_paint(self, clicker, itmstck, 2) == true then
                     return
-		        end
+                end
             end
 
             if clicker:get_player_control().aux1 == true then --lets see the inventory

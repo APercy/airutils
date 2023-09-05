@@ -55,6 +55,6 @@ function airutils.consumptionCalc(self, accel)
         self._engine_running = false
         self._autopilot = false
         if self.sound_handle then minetest.sound_stop(self.sound_handle) end
-	    self.object:set_animation_frame_speed(0)
+        self.object:set_animation_frame_speed(0)
     end
 end

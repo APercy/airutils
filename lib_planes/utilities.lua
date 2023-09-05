@@ -14,15 +14,15 @@ function airutils.get_hipotenuse_value(point1, point2)
 end
 
 function airutils.dot(v1,v2)
-	return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
+    return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
 end
 
 function airutils.sign(n)
-	return n>=0 and 1 or -1
+    return n>=0 and 1 or -1
 end
 
 function airutils.minmax(v,m)
-	return math.min(math.abs(v),m)*airutils.sign(v)
+    return math.min(math.abs(v),m)*airutils.sign(v)
 end
 
 function airutils.get_gauge_angle(value, initial_angle)
@@ -30,7 +30,7 @@ function airutils.get_gauge_angle(value, initial_angle)
     local angle = value * 18
     angle = angle - initial_angle
     angle = angle * -1
-	return angle
+    return angle
 end
 
 local function sit_player(player, name)
@@ -38,7 +38,7 @@ local function sit_player(player, name)
         player_api.player_attached[name] = true
         player_api.set_animation(player, "sit")
     elseif airutils.is_mcl then
-		mcl_player.player_attached[name] = true
+        mcl_player.player_attached[name] = true
         mcl_player.player_set_animation(player, "sit" , 30)
         airutils.sit(player)
     end
@@ -297,15 +297,15 @@ function airutils.destroy(self, by_name)
     minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'hidroplane:wings')
 
     for i=1,6 do
-	    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:steel_ingot')
+        minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:steel_ingot')
     end
 
     for i=1,2 do
-	    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'wool:white')
+        minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'wool:white')
     end
 
     for i=1,6 do
-	    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:mese_crystal')
+        minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:mese_crystal')
         minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:diamond')
     end]]--
 
@@ -323,10 +323,10 @@ function airutils.testImpact(self, velocity, position)
     local touch_point = self.initial_properties.collisionbox[2]-0.5
     --lets calculate the vertical speed, to avoid the bug on colliding on floor with hard lag
     if math.abs(velocity.y - self._last_vel.y) > impact_speed then
-		local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
-	    if (noded and noded.drawtype ~= 'airlike') then
-		    collision = true
-	    else
+        local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
+        if (noded and noded.drawtype ~= 'airlike') then
+            collision = true
+        else
             self.object:set_velocity(self._last_vel)
             --self.object:set_acceleration(self._last_accell)
             self.object:set_velocity(vector.add(velocity, vector.multiply(self._last_accell, self.dtime/8)))
@@ -347,7 +347,7 @@ function airutils.testImpact(self, velocity, position)
     if self._last_water_touch <= 3 then self._last_water_touch = self._last_water_touch + self.dtime end
     if impact > 0.2  and self._longit_speed > 0.6 and self._last_water_touch >=3 then
         local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
-	    if (noded and noded.drawtype ~= 'airlike') then
+        if (noded and noded.drawtype ~= 'airlike') then
             if noded.drawtype == 'liquid' then
                 self._last_water_touch = 0
                 minetest.sound_play("airutils_touch_water", {
@@ -360,14 +360,14 @@ function airutils.testImpact(self, velocity, position)
                 }, true)
                 return
             end
-	    end
+        end
     end
 
     if self._last_touch == nil then self._last_touch = 1 end
     if self._last_touch <= 1 then self._last_touch = self._last_touch + self.dtime end
     if vertical_impact > 1.0  and self._longit_speed > self._min_speed/2 and self._last_touch >= 1 then
         local noded = airutils.nodeatpos(airutils.pos_shift(p,{y=touch_point}))
-	    if (noded and noded.drawtype ~= 'airlike') and (noded.drawtype ~= 'liquid') then
+        if (noded and noded.drawtype ~= 'airlike') and (noded.drawtype ~= 'liquid') then
             self._last_touch = 0
             if not self._ground_friction then self._ground_friction = 0.99 end
 
@@ -390,7 +390,7 @@ function airutils.testImpact(self, velocity, position)
                     pitch = 1.0,
                 }, true)
             end
-	    end
+        end
     end
 
     --damage by speed
@@ -461,18 +461,18 @@ function airutils.testImpact(self, velocity, position)
 
             local player = minetest.get_player_by_name(player_name)
             if player then
-		        if player:get_hp() > 0 then
+                if player:get_hp() > 0 then
                     local hurt_by_impact_divisor = 0.5 --less is more
                     if self.hp_max > 0 then hurt_by_impact_divisor = 4 end
-			        player:set_hp(player:get_hp()-(damage/hurt_by_impact_divisor))
-		        end
+                    player:set_hp(player:get_hp()-(damage/hurt_by_impact_divisor))
+                end
             end
             if self._passenger ~= nil then
                 local passenger = minetest.get_player_by_name(self._passenger)
                 if passenger then
-		            if passenger:get_hp() > 0 then
-			            passenger:set_hp(passenger:get_hp()-(damage/2))
-		            end
+                    if passenger:get_hp() > 0 then
+                        passenger:set_hp(passenger:get_hp()-(damage/2))
+                    end
                 end
             end
         end
@@ -486,11 +486,11 @@ function airutils.checkattachBug(self)
         -- attach the driver again
         local player = minetest.get_player_by_name(self.owner)
         if player then
-		    if player:get_hp() > 0 then
+            if player:get_hp() > 0 then
                 airutils.attach(self, player, self._instruction_mode)
             else
                 airutils.dettachPlayer(self, player)
-		    end
+            end
         else
             if self._passenger ~= nil and self._command_is_given == false then
                 self._autopilot = false
@@ -544,7 +544,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
         self._skin = ""
         --painting with bike painter
         local meta = itmstck:get_meta()
-	    local colour = meta:get_string("paint_color")
+        local colour = meta:get_string("paint_color")
 
         local colstr = self._color
         local colstr_2 = self._color_2
@@ -565,7 +565,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
                 if x then color = clr end
             end]]--
             --lets paint!!!!
-	        local color = (item_name:sub(indx+1)):gsub(":", "")
+            local color = (item_name:sub(indx+1)):gsub(":", "")
 
             local colstr = self._color
             local colstr_2 = self._color_2
@@ -574,12 +574,12 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
 
             --minetest.chat_send_all(color ..' '.. dump(colstr))
             --minetest.chat_send_all(dump(airutils.colors))
-	        if colstr then
+            if colstr then
                 airutils.param_paint(self, colstr, colstr_2)
-		        itmstck:set_count(itmstck:get_count()-1)
+                itmstck:set_count(itmstck:get_count()-1)
                 if puncher ~= nil then puncher:set_wielded_item(itmstck) end
                 return true
-	        end
+            end
             -- end painting
         end
     end
@@ -672,7 +672,7 @@ function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
                 l_textures[_] = "("..target_texture.."^[multiply:".. colstr..")^("..target_texture.."^[mask:"..mask_texture..")"
             end
         end
-	    self.object:set_properties({textures=l_textures})
+        self.object:set_properties({textures=l_textures})
     end
 end
 
@@ -712,22 +712,22 @@ function airutils.add_smoke_trail(self, smoke_type)
 
     if self._smoke_spawner == nil then
         local radius = 1
-	    self._smoke_spawner = minetest.add_particlespawner({
-		    amount = 3,
-		    time = 0,
-		    --minpos = vector.subtract(pos, radius / 2),
-		    --maxpos = vector.add(pos, radius / 2),
-		    minvel = {x = -1, y = -1, z = -1},
-		    maxvel = {x = 1, y = 5, z = 1},
-		    minacc = vector.new(),
-		    maxacc = vector.new(),
+        self._smoke_spawner = minetest.add_particlespawner({
+            amount = 3,
+            time = 0,
+            --minpos = vector.subtract(pos, radius / 2),
+            --maxpos = vector.add(pos, radius / 2),
+            minvel = {x = -1, y = -1, z = -1},
+            maxvel = {x = 1, y = 5, z = 1},
+            minacc = vector.new(),
+            maxacc = vector.new(),
             attached = self.object,
-		    minexptime = 3,
-		    maxexptime = 5.5,
-		    minsize = 10,
-		    maxsize = 15,
-		    texture = smoke_texture,
-	    })
+            minexptime = 3,
+            maxexptime = 5.5,
+            minsize = 10,
+            maxsize = 15,
+            texture = smoke_texture,
+        })
     end
 end
 
@@ -735,7 +735,7 @@ function airutils.add_destruction_effects(pos, radius, w_fire)
     if pos == nil then return end
     w_fire = w_fire
     if w_fire == nil then w_fire = true end
-	local node = airutils.nodeatpos(pos)
+    local node = airutils.nodeatpos(pos)
     local is_liquid = false
     if (node.drawtype == 'liquid' or node.drawtype == 'flowingliquid') then is_liquid = true end
 
@@ -747,48 +747,48 @@ function airutils.add_destruction_effects(pos, radius, w_fire)
         pitch = 1.0,
     }, true)
     if is_liquid == false and w_fire == true then
-	    minetest.add_particle({
-		    pos = pos,
-		    velocity = vector.new(),
-		    acceleration = vector.new(),
-		    expirationtime = 0.4,
-		    size = radius * 10,
-		    collisiondetection = false,
-		    vertical = false,
-		    texture = "airutils_boom.png",
-		    glow = 15,
-	    })
-	    minetest.add_particlespawner({
-		    amount = 32,
-		    time = 0.5,
-		    minpos = vector.subtract(pos, radius / 2),
-		    maxpos = vector.add(pos, radius / 2),
-		    minvel = {x = -10, y = -10, z = -10},
-		    maxvel = {x = 10, y = 10, z = 10},
-		    minacc = vector.new(),
-		    maxacc = vector.new(),
-		    minexptime = 1,
-		    maxexptime = 2.5,
-		    minsize = radius * 3,
-		    maxsize = radius * 5,
-		    texture = "airutils_boom.png",
-	    })
+        minetest.add_particle({
+            pos = pos,
+            velocity = vector.new(),
+            acceleration = vector.new(),
+            expirationtime = 0.4,
+            size = radius * 10,
+            collisiondetection = false,
+            vertical = false,
+            texture = "airutils_boom.png",
+            glow = 15,
+        })
+        minetest.add_particlespawner({
+            amount = 32,
+            time = 0.5,
+            minpos = vector.subtract(pos, radius / 2),
+            maxpos = vector.add(pos, radius / 2),
+            minvel = {x = -10, y = -10, z = -10},
+            maxvel = {x = 10, y = 10, z = 10},
+            minacc = vector.new(),
+            maxacc = vector.new(),
+            minexptime = 1,
+            maxexptime = 2.5,
+            minsize = radius * 3,
+            maxsize = radius * 5,
+            texture = "airutils_boom.png",
+        })
     end
-	minetest.add_particlespawner({
-		amount = 64,
-		time = 1.0,
-		minpos = vector.subtract(pos, radius / 2),
-		maxpos = vector.add(pos, radius / 2),
-		minvel = {x = -10, y = -10, z = -10},
-		maxvel = {x = 10, y = 10, z = 10},
-		minacc = vector.new(),
-		maxacc = vector.new(),
-		minexptime = 1,
-		maxexptime = 2.5,
-		minsize = radius * 3,
-		maxsize = radius * 5,
-		texture = "airutils_smoke.png",
-	})
+    minetest.add_particlespawner({
+        amount = 64,
+        time = 1.0,
+        minpos = vector.subtract(pos, radius / 2),
+        maxpos = vector.add(pos, radius / 2),
+        minvel = {x = -10, y = -10, z = -10},
+        maxvel = {x = 10, y = 10, z = 10},
+        minacc = vector.new(),
+        maxacc = vector.new(),
+        minexptime = 1,
+        maxexptime = 2.5,
+        minsize = radius * 3,
+        maxsize = radius * 5,
+        texture = "airutils_smoke.png",
+    })
 end
 
 function airutils.add_blast_damage(pos, radius, damage_cal)
@@ -797,9 +797,9 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
     damage_cal = damage_cal or 4
 
     local objs = minetest.get_objects_inside_radius(pos, radius)
-	for _, obj in pairs(objs) do
-		local obj_pos = obj:get_pos()
-		local dist = math.max(1, vector.distance(pos, obj_pos))
+    for _, obj in pairs(objs) do
+        local obj_pos = obj:get_pos()
+        local dist = math.max(1, vector.distance(pos, obj_pos))
         local damage = (damage_cal / dist) * radius
         
         if obj:is_player() then
@@ -809,28 +809,28 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
 
             -- object might have disappeared somehow
             if luaobj then
-				local do_damage = true
-				local do_knockback = true
-				local entity_drops = {}
-				local objdef = minetest.registered_entities[luaobj.name]
+                local do_damage = true
+                local do_knockback = true
+                local entity_drops = {}
+                local objdef = minetest.registered_entities[luaobj.name]
 
-				if objdef and objdef.on_blast then
-					do_damage, do_knockback, entity_drops = objdef.on_blast(luaobj, damage)
-				end
+                if objdef and objdef.on_blast then
+                    do_damage, do_knockback, entity_drops = objdef.on_blast(luaobj, damage)
+                end
 
-				if do_knockback then
-					local obj_vel = obj:get_velocity()
-				end
-				if do_damage then
+                if do_knockback then
+                    local obj_vel = obj:get_velocity()
+                end
+                if do_damage then
                     obj:punch(obj, 1.0, {
                         full_punch_interval = 1.0,
                         damage_groups = {fleshy = damage},
                     }, nil)
-				end
-				for _, item in pairs(entity_drops) do
-					add_drop(drops, item)
-				end
-			end
+                end
+                for _, item in pairs(entity_drops) do
+                    add_drop(drops, item)
+                end
+            end
 
         end
     end
@@ -844,7 +844,7 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
                     local r = vector.length(vector.new(x, y, z))
                     if (radius * radius) / (r * r) >= (pr:next(80, 125) / 100) then
                         local p = {x = pos.x + x, y = pos.y + y, z = pos.z + z}
-	                    local node = minetest.get_node(p).name
+                        local node = minetest.get_node(p).name
                         if node == "tnt:tnt" then minetest.set_node(p, {name = "tnt:tnt_burning"}) end
                     end
                 end
@@ -856,14 +856,14 @@ end
 
 function airutils.start_engine(self)
     if self._engine_running then
-	    self._engine_running = false
+        self._engine_running = false
         self._autopilot = false
         self._power_lever = 0 --zero power
         self._last_applied_power = 0 --zero engine
     elseif self._engine_running == false and self._energy > 0 then
         local curr_health_percent = (self.hp_max * 100)/self._max_plane_hp
         if curr_health_percent > 20 then
-	        self._engine_running = true
+            self._engine_running = true
             self._last_applied_power = -1 --send signal to start
         else
             if self.driver_name then
@@ -1045,10 +1045,10 @@ function airutils.rescueConnectionFailedPassengers(self)
                     if player:get_attach() == nil then
                     --if player_api.player_attached[self._passengers[i]] == nil then --but isn't attached?
                         --minetest.chat_send_all("okay")
-		                if player:get_hp() > 0 then
+                        if player:get_hp() > 0 then
                             self._passengers[i] = nil --clear the slot first
                             do_attach(self, player, i) --attach
-		                end
+                        end
                     end
                 end
             end

@@ -22,8 +22,8 @@ minetest.register_chatcommand("au_uniform", {
 })
 
 local set_player_textures =
-	minetest.get_modpath("player_api") and player_api.set_textures
-	or default.player_set_textures
+    minetest.get_modpath("player_api") and player_api.set_textures
+    or default.player_set_textures
 
 function airutils.set_player_skin(player, skin)
     local player_properties = player:get_properties()
@@ -54,12 +54,12 @@ function airutils.set_player_skin(player, skin)
             --sets the combined texture
             if texture ~= nil and texture ~= "" then
                 if skinsdb_mod_path then
-		            player:set_properties({
-			            visual = "mesh",
-			            visual_size = {x=0.95, y=1},
-			            mesh = "character.b3d",
-			            textures = {texture},
-		            })
+                    player:set_properties({
+                        visual = "mesh",
+                        visual_size = {x=0.95, y=1},
+                        mesh = "character.b3d",
+                        textures = {texture},
+                    })
                     if armor then
                         armor:update_player_visuals(player)
                     end
@@ -85,12 +85,12 @@ function airutils.set_player_skin(player, skin)
             end
             --minetest.chat_send_all(dump(old_texture))
             if skinsdb_mod_path then
-	            player:set_properties({
-		            visual = "mesh",
-		            visual_size = {x=1, y=1},
-		            mesh = "skinsdb_3d_armor_character_5.b3d",
-		            textures = {texture},
-	            })
+                player:set_properties({
+                    visual = "mesh",
+                    visual_size = {x=1, y=1},
+                    mesh = "skinsdb_3d_armor_character_5.b3d",
+                    textures = {texture},
+                })
                 skins.set_player_skin(player, skins.get_player_skin(player))
                 if armor then
                     armor:set_player_armor(player)
@@ -113,7 +113,7 @@ function airutils.uniform_formspec(name)
     local basic_form = table.concat({
         "formspec_version[5]",
         "size[5,2.9]",
-	}, "")
+    }, "")
 
     --minetest.chat_send_all(dump(airutils.pilot_textures))
 
@@ -123,7 +123,7 @@ function airutils.uniform_formspec(name)
             textures = textures .. v .. ","
         end
 
-	    basic_form = basic_form.."dropdown[0.5,0.5;4,0.8;textures;".. textures ..";0;false]"
+        basic_form = basic_form.."dropdown[0.5,0.5;4,0.8;textures;".. textures ..";0;false]"
         basic_form = basic_form.."button[0.5,1.6;4,0.8;set_texture;Set Player Texture]"
 
         minetest.show_formspec(name, "airutils:change", basic_form)
@@ -135,9 +135,9 @@ end
 minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "airutils:change" then
         local name = player:get_player_name()
-		if fields.textures or fields.set_texture then
+        if fields.textures or fields.set_texture then
             airutils.set_player_skin(player, fields.textures)
-		end
+        end
         minetest.close_formspec(name, "airutils:change")
     end
 end)
@@ -147,10 +147,10 @@ minetest.register_on_joinplayer(function(player)
     local skin = player_meta:get_string("curr_skin")
     --minetest.chat_send_all(">>>"..skin)
 
-	if skin and skin ~= "" and skin ~= nil then
-		-- setting player skin on connect has no effect, so delay skin change
-		minetest.after(3, function(player1, skin1)
+    if skin and skin ~= "" and skin ~= nil then
+        -- setting player skin on connect has no effect, so delay skin change
+        minetest.after(3, function(player1, skin1)
             airutils.set_player_skin(player1, skin1)
-		end, player, skin)
-	end
+        end, player, skin)
+    end
 end)

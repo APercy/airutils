@@ -41,13 +41,13 @@ function airutils.move_target(player, pointed_thing)
 end
 
 minetest.register_tool("airutils:tug", {
-	description = "Tug tool for airport",
-	inventory_image = "airutils_tug.png",
-	stack_max=1,
-	on_use = function(itemstack, player, pointed_thing)
-		if not player then
-			return
-		end
+    description = "Tug tool for airport",
+    inventory_image = "airutils_tug.png",
+    stack_max=1,
+    on_use = function(itemstack, player, pointed_thing)
+        if not player then
+            return
+        end
 
         local is_admin = false
         is_admin = minetest.check_player_privs(player, {server=true})            
@@ -57,12 +57,12 @@ minetest.register_tool("airutils:tug", {
 
         --[[if areas then
             if not areas:canInteract(pos, pname) then
-		        local owners = areas:getNodeOwners(pos)
-		        minetest.chat_send_player(pname,
-			        S("@1 is protected by @2.",
-				        minetest.pos_to_string(pos),
-				        table.concat(owners, ", ")))
-	        else
+                local owners = areas:getNodeOwners(pos)
+                minetest.chat_send_player(pname,
+                    S("@1 is protected by @2.",
+                        minetest.pos_to_string(pos),
+                        table.concat(owners, ", ")))
+            else
                 airutils.move_target(player, pointed_thing)
             end
         end]]--
@@ -79,9 +79,9 @@ minetest.register_tool("airutils:tug", {
             if not is_protected(pos, pname) or pname == owner or is_admin then
                 airutils.move_target(player, pointed_thing)
             else
-		        minetest.chat_send_player(pname,
-			        S("@1 is protected.",
-				        minetest.pos_to_string(pos)))
+                minetest.chat_send_player(pname,
+                    S("@1 is protected.",
+                        minetest.pos_to_string(pos)))
             end
         end
 
@@ -90,16 +90,16 @@ minetest.register_tool("airutils:tug", {
         end
 
 
-	end,
+    end,
 
-	sound = {breaks = "default_tool_breaks"},
+    sound = {breaks = "default_tool_breaks"},
 })
 
 minetest.register_craft({
-	output = "airutils:tug",
-	recipe = {
-		{"", "", "default:steel_ingot"},
-		{"", "default:steel_ingot", ""},
-		{"default:steel_ingot", "default:stick", "default:diamond"},
-	}
+    output = "airutils:tug",
+    recipe = {
+        {"", "", "default:steel_ingot"},
+        {"", "default:steel_ingot", ""},
+        {"default:steel_ingot", "default:stick", "default:diamond"},
+    }
 })
