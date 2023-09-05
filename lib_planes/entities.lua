@@ -77,7 +77,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
     if self._anim_start_frame then
         start_frame = self._anim_start_frame
         end_frame = self._anim_start_frame + self._anim_frames
-    end    
+    end
 
     self.object:set_animation({x = start_frame, y = end_frame}, 0, 0, true)
     if self.wheels then
@@ -105,11 +105,11 @@ function airutils.on_step(self,dtime,colinfo)
     self.dtime = math.min(dtime,0.2)
     self.colinfo = colinfo
     self.height = airutils.get_box_height(self)
-    
+
 --  physics comes first
     local vel = self.object:get_velocity()
-    
-    if colinfo then 
+
+    if colinfo then
         self.isonground = colinfo.touching_ground
     else
         if self.lastvelocity.y==0 and vel.y==0 then
@@ -118,7 +118,7 @@ function airutils.on_step(self,dtime,colinfo)
             self.isonground = false
         end
     end
-    
+
     if self.hp_max <= 0 then
         airutils.destroy(self)
     end
@@ -128,7 +128,7 @@ function airutils.on_step(self,dtime,colinfo)
     if self.logic then
         self:logic()
     end
-    
+
     self.lastvelocity = self.object:get_velocity()
     self.time_total=self.time_total+self.dtime
 end
@@ -159,7 +159,7 @@ local function ground_pitch(self, longit_speed, curr_pitch)
 
         if newpitch > math.rad(self._tail_angle) then newpitch = math.rad(self._tail_angle) end --não queremos arrastar o cauda no chão
     end
-    
+
     return newpitch
 end
 
@@ -349,7 +349,7 @@ function airutils.logic(self)
             end --limiting the very high climb angle due to strange behavior]]--]]--
 
             if self._inverted_pitch_reaction then self._elevator_angle = -1*actuator_angle end --revert the reversion
-            
+
         end
     end
 
@@ -452,7 +452,7 @@ function airutils.logic(self)
     if longit_speed > self._min_speed*0.66 then
         --[[lets do something interesting:
         here I'll fake the longit speed effect for takeoff, to force the airplane
-        to use more runway 
+        to use more runway
         ]]--
         local factorized_longit_speed = longit_speed
         if is_flying == false and airutils.quadBezier then
@@ -482,7 +482,7 @@ function airutils.logic(self)
         self._last_accell = new_accel
         self.object:move_to(curr_pos)
         --self.object:set_velocity(velocity)
-        --[[if player then 
+        --[[if player then
             airutils.attach(self, player, self._instruction_mode)
         end]]--
         airutils.set_acceleration(self.object, new_accel)
@@ -638,12 +638,12 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if self.owner == nil then
         self.owner = name
     end
-        
+
     if self.driver_name and self.driver_name ~= name then
         -- do not allow other players to remove the object while there is a driver
         return
     end
-    
+
     local is_attached = false
     local player_attach = puncher:get_attach()
     if player_attach then
@@ -654,7 +654,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
             is_attached = true
         end
     end
-    
+
     if puncher:get_attach() == self.object then is_attached = true end
     --if puncher:get_attach() == self.pilot_seat_base then is_attached = true end
 
@@ -809,10 +809,10 @@ function airutils.on_rightclick(self, clicker)
 
                 if is_under_water then return end
 
-                --remove the passengers first                
+                --remove the passengers first
                 local max_seats = table.getn(self._seats)
                 for i = max_seats,1,-1
-                do 
+                do
                     if self._passengers[i] then
                         local passenger = minetest.get_player_by_name(self._passengers[i])
                         if passenger then airutils.dettach_pax(self, passenger) end

@@ -82,7 +82,7 @@ function airutils.attach(self, player, instructor_mode)
     if airutils.detect_player_api(player) == 2 then
         eye_y = -4
     end
-    
+
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 1, z = -30})
     sit_player(player, name)
 end
@@ -121,8 +121,8 @@ function airutils.check_passenger_is_attached(self, name)
     if self._passenger == name then is_attached = true end
     if is_attached == false then
         local max_occupants = table.getn(self._seats)
-        for i = max_occupants,1,-1 
-        do 
+        for i = max_occupants,1,-1
+        do
             if self._passengers[i] == name then
                 is_attached = true
                 break
@@ -205,7 +205,7 @@ function airutils.dettach_pax(self, player)
     else
         local max_seats = table.getn(self._seats)
         for i = max_seats,1,-1
-        do 
+        do
             if self._passengers[i] == name then
                 self._passengers[i] = nil
                 break
@@ -263,10 +263,10 @@ function airutils.destroy(self, by_name)
         self.sound_handle = nil
     end
 
-    --remove the passengers first                
+    --remove the passengers first
     local max_seats = table.getn(self._seats)
     for i = max_seats,2,-1
-    do 
+    do
         if self._passengers[i] then
             local passenger = minetest.get_player_by_name(self._passengers[i])
             if passenger then airutils.dettach_pax(self, passenger) end
@@ -448,7 +448,7 @@ function airutils.testImpact(self, velocity, position)
             self._power_lever = 0
             self._engine_running = false
         end
-        
+
         airutils.setText(self, self._vehicle_name)
 
         if self.driver_name then
@@ -539,7 +539,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
     mode = mode or 1
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
-    
+
     if item_name == "automobiles_lib:painter" or item_name == "bike:painter" then
         self._skin = ""
         --painting with bike painter
@@ -589,7 +589,7 @@ end
 local function _paint(self, l_textures, colstr, paint_list, mask_associations)
     paint_list = paint_list or self._painting_texture
     mask_associations = mask_associations or self._mask_painting_associations
-    
+
     for _, texture in ipairs(l_textures) do
         for i, texture_name in ipairs(paint_list) do --textures list
             local indx = texture:find(texture_name)
@@ -801,7 +801,7 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
         local obj_pos = obj:get_pos()
         local dist = math.max(1, vector.distance(pos, obj_pos))
         local damage = (damage_cal / dist) * radius
-        
+
         if obj:is_player() then
             obj:set_hp(obj:get_hp() - damage)
         else
@@ -898,7 +898,7 @@ function airutils.camera_reposition(player, pitch, roll)
         --minetest.chat_send_all("2")
         eye_y = -5
     end
-     
+
     local z, y = airutils.get_xz_from_hipotenuse(0, eye_y, pitch, player_properties.eye_height)
     new_eye_offset.z = z*7
     new_eye_offset.y = y*1.5
@@ -912,7 +912,7 @@ function airutils.seats_create(self)
     if self.object then
         local pos = self.object:get_pos()
         self._passengers_base = {}
-        if self._seats then 
+        if self._seats then
             local max_seats = table.getn(self._seats)
             for i=1, max_seats do
                 self._passengers_base[i] = minetest.add_entity(pos,'airutils:seat_base')
@@ -1037,8 +1037,8 @@ function airutils.rescueConnectionFailedPassengers(self)
     if self._disconnection_check_time > 1 then
         --minetest.chat_send_all(dump(self._passengers))
         self._disconnection_check_time = 0
-        for i = max_seats,1,-1 
-        do 
+        for i = max_seats,1,-1
+        do
             if self._passengers[i] then
                 local player = minetest.get_player_by_name(self._passengers[i])
                 if player then --we have a player!

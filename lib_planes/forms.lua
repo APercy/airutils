@@ -79,7 +79,7 @@ function airutils.pilot_formspec(name)
         ver_pos = ver_pos + 0.5
         expand_form = true
     end
-    
+
     if ent._have_copilot and name == ent.driver_name then
         basic_form = basic_form.."button[6,"..ver_pos..";4,1;copilot_form;Co-pilot Manager]"
         ver_pos = ver_pos + 1.25
@@ -311,10 +311,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     --minetest.chat_send_all(dump(noded))
                     if is_on_ground then --or clicker:get_player_control().sneak then
                         --minetest.chat_send_all(dump("is on ground"))
-                        --remove the passengers first                
+                        --remove the passengers first
                         local max_seats = table.getn(ent._seats)
                         for i = max_seats,1,-1
-                        do 
+                        do
                             --minetest.chat_send_all("index: "..i.." - "..dump(ent._passengers[i]))
                             if ent._passengers[i] then
                                 local passenger = minetest.get_player_by_name(ent._passengers[i])
@@ -405,8 +405,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         if fields.copilot then
             --look for a free seat first
             local is_there_a_free_seat = false
-            for i = 2,1,-1 
-            do 
+            for i = 2,1,-1
+            do
                 if ent._passengers[i] == nil then
                     is_there_a_free_seat = true
                     break

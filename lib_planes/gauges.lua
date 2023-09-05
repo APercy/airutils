@@ -9,7 +9,7 @@ local function get_pointer(pointer_angle, gauge_center_x, gauge_center_y, full_p
     local pos_x = math.sin(pointer_rad) * dim
     local pos_y = math.cos(pointer_rad) * dim
     retval = retval..(gauge_center_x+pos_x)..","..(gauge_center_y+pos_y).."="..ind_pixel..":"
-    
+
     dim = 4*(pointer_img_size/2)
     pos_x = math.sin(pointer_rad) * dim
     pos_y = math.cos(pointer_rad) * dim
@@ -36,7 +36,7 @@ end
 
 function airutils.plot_altimeter_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
-    local pointer_img = 8   
+    local pointer_img = 8
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
     local gauge_center_x = place_x + gauge_center
     local gauge_center_y = place_y + gauge_center
@@ -76,7 +76,7 @@ end
 
 function airutils.plot_fuel_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
-    local pointer_img = 8   
+    local pointer_img = 8
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
     local gauge_center_x = place_x + gauge_center
     local gauge_center_y = place_y + gauge_center
@@ -95,7 +95,7 @@ end
 
 function airutils.plot_speed_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
-    local pointer_img = 8   
+    local pointer_img = 8
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
     local gauge_center_x = place_x + gauge_center
     local gauge_center_y = place_y + gauge_center
@@ -114,7 +114,7 @@ end
 
 function airutils.plot_power_gauge(self, scale, place_x, place_y)
     local bg_width_height = 100
-    local pointer_img = 8   
+    local pointer_img = 8
     local gauge_center =  (bg_width_height / 2) - (pointer_img/2)
     local gauge_center_x = place_x + gauge_center
     local gauge_center_y = place_y + gauge_center

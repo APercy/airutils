@@ -54,7 +54,7 @@ function airutils.physics(self)
         -- bounciness
         if self.springiness and self.springiness > 0 and self.buoyancy >= 1 then
             local vnew = vector.new(new_velocity)
-            
+
             if not self.collided then                        -- ugly workaround for inconsistent collisions
                 for _,k in ipairs({'y','z','x'}) do
                     if new_velocity[k]==0 and math.abs(self.lastvelocity[k])> 0.1 then
@@ -62,7 +62,7 @@ function airutils.physics(self)
                     end
                 end
             end
-            
+
             if not vector.equals(new_velocity,vnew) then
                 self.collided = true
             else

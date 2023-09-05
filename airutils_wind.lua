@@ -53,7 +53,7 @@ end
 minetest.register_entity("airutils:wind_indicator",{
                                             -- common props
     physical = true,
-    stepheight = 0.5,                
+    stepheight = 0.5,
     collide_with_objects = true,
     collisionbox = {-0.5, 0, -0.5, 0.5, 5.0, 0.5},
     visual = "mesh",
@@ -111,14 +111,14 @@ minetest.register_entity("airutils:wind_indicator",{
     on_punch=function(self, puncher)
         return
     end,
-                                            
+
     on_rightclick = function(self, clicker)
         local wind = airutils.get_wind(pos, 2.0)
         local wind_yaw = minetest.dir_to_yaw(wind)
         minetest.chat_send_player(clicker:get_player_name(),core.colorize('#00ff00', " >>> The wind direction now is "..math.deg(wind_yaw)))
         return
     end,
-                                            
+
 })
 
 
@@ -139,13 +139,13 @@ minetest.register_node("airutils:wind",{
                 {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
                 {-0.1,  0.5, -0.1, 0.1, 2.0, 0.1}
         }
-    },          
-    
+    },
+
     node_dig_prediction = "default:dirt",
     node_placement_prediction = "airutils:wind",
-    
+
     on_place = function(itemstack, placer, pointed_thing)
-                                                
+
         local pos = pointed_thing.above
 
             local player_name = placer:get_player_name()
@@ -166,7 +166,7 @@ minetest.register_node("airutils:wind",{
 
         return itemstack
     end,
-    
+
     on_destruct = function(pos)
         local meta=minetest.get_meta(pos)
         if meta then

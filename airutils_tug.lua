@@ -50,8 +50,8 @@ minetest.register_tool("airutils:tug", {
         end
 
         local is_admin = false
-        is_admin = minetest.check_player_privs(player, {server=true})            
-            
+        is_admin = minetest.check_player_privs(player, {server=true})
+
         local pos = player:get_pos()
         local pname = player:get_player_name()
 

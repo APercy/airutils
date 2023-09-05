@@ -28,7 +28,7 @@ function airutils.loadFuel(self, player_name)
             local energy_indicator_angle = airutils.get_gauge_angle(self._energy)
             --self.fuel_gauge:set_attach(self.object,'',self._gauge_fuel_position,{x=0,y=0,z=energy_indicator_angle})
         end
-        
+
         return true
     end
 

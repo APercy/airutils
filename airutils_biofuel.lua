@@ -75,7 +75,7 @@ local ferment_groups = {'flora', 'leaves', 'flower', 'sapling', 'tree', 'wood', 
 local biofueldistiller_formspec = "size[8,9]"
     .. "list[current_name;src;2,1;1,1;]" .. airutils.get_itemslot_bg(2, 1, 1, 1)
     .. "list[current_name;dst;5,1;1,1;]" .. airutils.get_itemslot_bg(5, 1, 1, 1)
-    .. "list[current_player;main;0,5;8,4;]" .. airutils.get_itemslot_bg(0, 5, 8, 4) 
+    .. "list[current_player;main;0,5;8,4;]" .. airutils.get_itemslot_bg(0, 5, 8, 4)
     .. "listring[current_name;dst]"
     .. "listring[current_player;main]"
     .. "listring[current_name;src]"

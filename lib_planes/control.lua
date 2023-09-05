@@ -45,7 +45,7 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
 
         if ctrl.aux1 and self._last_time_command > 0.5 then
             self._last_time_command = 0
-            
+
         end
         ----------------------------------
         -- flap operation
@@ -203,7 +203,7 @@ end
 function airutils.set_yaw_by_mouse(self, dir)
     local rotation = self.object:get_rotation()
     local rot_y = math.deg(rotation.y)
-    
+
     local total = math.abs(math.floor(rot_y/360))
 
     if rot_y < 0 then rot_y = rot_y + (360*total) end
@@ -213,7 +213,7 @@ function airutils.set_yaw_by_mouse(self, dir)
 
     local intensity = self._yaw_intensity / 10
     local command = (rot_y - dir) * intensity
-    if command < -90 then command = -90 
+    if command < -90 then command = -90
     elseif command > 90 then command = 90 end
     --minetest.chat_send_all("rotation y: "..rot_y.." - dir: "..dir.." - command: "..command)
 
