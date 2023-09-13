@@ -308,10 +308,7 @@ function airutils.logic(self)
     end
 
     -- pitch
-    local newpitch = math.rad(0)
-    if airutils.get_plane_pitch then
-        newpitch = airutils.get_plane_pitch(velocity, longit_speed, self._min_speed, self._angle_of_attack)
-    end
+    local newpitch = airutils.get_plane_pitch(velocity, longit_speed, self._min_speed, self._angle_of_attack)
 
     --for airplanes with cannard or pendulum wing
     local actuator_angle = self._elevator_angle
