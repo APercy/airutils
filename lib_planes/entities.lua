@@ -331,13 +331,11 @@ function airutils.logic(self)
         if longit_speed > self._min_speed then
             local percentage = math.abs(((longit_speed * 100)/(self._min_speed + 5))/100)
             if percentage > 1.5 then percentage = 1.5 end
+
             self._angle_of_attack = self._wing_angle_of_attack - ((actuator_angle / self._elevator_response_attenuation)*percentage)
 
-            --set the plane on level
-            if airutils.adjust_attack_angle_by_speed then
-                --airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_angle, limit, longit_speed, ideal_step, dtime)
-                self._angle_of_attack = airutils.adjust_attack_angle_by_speed(self._angle_of_attack, self._min_attack_angle, self._max_attack_angle, 40, longit_speed, airutils.ideal_step, self.dtime)
-            end
+            --airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_angle, limit, longit_speed, ideal_step, dtime)
+            --self._angle_of_attack = airutils.adjust_attack_angle_by_speed(self._angle_of_attack, self._min_attack_angle, self._max_attack_angle, 40, longit_speed, airutils.ideal_step, self.dtime)
 
             if self._angle_of_attack < self._min_attack_angle then
                 self._angle_of_attack = self._min_attack_angle
