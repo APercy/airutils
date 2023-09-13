@@ -43,7 +43,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self.driver_name = data.stored_driver_name
         self._last_accell = data.stored_last_accell
         self._inv_id = data.stored_inv_id
-        self._flap = data.stored_flap
+        if self._wing_angle_extra_flaps then self._flap = data.stored_flap end
         self._passengers = data.stored_passengers or {}
         self._adf_destiny = data.stored_adf_destiny or vector.new()
         self._skin = data.stored_skin
