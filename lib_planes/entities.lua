@@ -262,9 +262,6 @@ function airutils.logic(self)
         self._custom_step_additional_function(self)
     end
 
-    --fix for old planes on map
-    if not self._wing_angle_of_attack then self._wing_angle_of_attack = 2 end
-
     if self._wing_configuration == self._wing_angle_of_attack and self._flap then
         airutils.flap_on(self)
     end
@@ -491,6 +488,7 @@ function airutils.logic(self)
         airutils.set_acceleration(self.object, new_accel)
     else
         if stop == true then
+            self._last_accell = self.object:get_acceleration()
             self.object:set_acceleration({x=0,y=0,z=0})
             self.object:set_velocity({x=0,y=0,z=0})
         end
