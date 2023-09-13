@@ -335,7 +335,7 @@ function airutils.logic(self)
             self._angle_of_attack = self._wing_angle_of_attack - ((actuator_angle / self._elevator_response_attenuation)*percentage)
 
             --airutils.adjust_attack_angle_by_speed(angle_of_attack, min_angle, max_angle, limit, longit_speed, ideal_step, dtime)
-            --self._angle_of_attack = airutils.adjust_attack_angle_by_speed(self._angle_of_attack, self._min_attack_angle, self._max_attack_angle, 40, longit_speed, airutils.ideal_step, self.dtime)
+            self._angle_of_attack = airutils.adjust_attack_angle_by_speed(self._angle_of_attack, self._min_attack_angle, self._max_attack_angle, 40, longit_speed, airutils.ideal_step, self.dtime)
 
             if self._angle_of_attack < self._min_attack_angle then
                 self._angle_of_attack = self._min_attack_angle
