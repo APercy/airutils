@@ -262,6 +262,11 @@ function airutils.logic(self)
         self._custom_step_additional_function(self)
     end
 
+    --fix old planes
+    if not self._flap then self._flap = false end
+    if not self._wing_configuration then self._wing_configuration = self._wing_angle_of_attack end
+
+
     if self._wing_configuration == self._wing_angle_of_attack and self._flap then
         airutils.flap_on(self)
     end
