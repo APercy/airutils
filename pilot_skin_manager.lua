@@ -26,6 +26,7 @@ local set_player_textures =
 	or default.player_set_textures
 
 function airutils.set_player_skin(player, skin)
+    if not player then return end
     local player_properties = player:get_properties()
     local texture = player_properties.textures
     local name = player:get_player_name()
