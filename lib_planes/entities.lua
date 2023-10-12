@@ -481,11 +481,12 @@ function airutils.logic(self)
     if stop ~= true then --maybe == nil
         self._last_accell = new_accel
 	    self.object:move_to(curr_pos)
-        --self.object:set_velocity(velocity)
-        --[[if player then 
-            airutils.attach(self, player, self._instruction_mode)
-        end]]--
-        airutils.set_acceleration(self.object, new_accel)
+        --airutils.set_acceleration(self.object, new_accel)
+        local limit = 100
+        local vel_to_add = vector.multiply(new_accel,self.dtime)
+        vel_to_add.y = 0
+        self.object:add_velocity(vel_to_add)
+        self.object:set_acceleration({x=0,y=new_accel.y, z=0})
     else
         if stop == true then
             self._last_accell = self.object:get_acceleration()
