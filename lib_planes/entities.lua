@@ -120,6 +120,10 @@ function airutils.on_step(self,dtime,colinfo)
         props.show_on_minimap = true
         self.object:set_properties(props)
     end
+    if self.isonground  and props.show_on_minimap then
+        props.show_on_minimap = false
+        self.object:set_properties(plane_properties)
+    end
     
     if colinfo then 
 	    self.isonground = colinfo.touching_ground
@@ -188,19 +192,6 @@ function airutils.logic(self)
     if self.driver_name then player = minetest.get_player_by_name(self.driver_name) end
     local co_pilot = nil
     if self.co_pilot and self._have_copilot then co_pilot = minetest.get_player_by_name(self.co_pilot) end
-
-    local plane_properties = self.object:get_properties()
-    if self.isonground then
-        if plane_properties.show_on_minimap == true then
-            plane_properties.show_on_minimap = false
-            self.object:set_properties(plane_properties)
-        end
-    else
-        if plane_properties.show_on_minimap == false then
-            plane_properties.show_on_minimap = true
-            self.object:set_properties(plane_properties)
-        end
-    end
 
     if player then
         local ctrl = player:get_player_control()
