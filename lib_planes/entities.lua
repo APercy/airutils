@@ -108,6 +108,22 @@ function airutils.on_step(self,dtime,colinfo)
     
 --  physics comes first
     local vel = self.object:get_velocity()
+    local pos = self.object:get_pos()
+    local props = self.object:get_properties()
+
+-- handle visibility on radar
+    if (pos and pos.y < airutils.radarMinHeight and props.show_on_minimap) then
+        props.show_on_minimap = false
+        self.object:set_properties(props)
+    end
+    if (pos and pos.y >= airutils.radarMinHeight and not props.show_on_minimap) then
+        props.show_on_minimap = true
+        self.object:set_properties(props)
+    end
+    if self.isonground  and props.show_on_minimap then
+        props.show_on_minimap = false
+        self.object:set_properties(plane_properties)
+    end
     
     if colinfo then 
 	    self.isonground = colinfo.touching_ground
@@ -176,19 +192,6 @@ function airutils.logic(self)
     if self.driver_name then player = minetest.get_player_by_name(self.driver_name) end
     local co_pilot = nil
     if self.co_pilot and self._have_copilot then co_pilot = minetest.get_player_by_name(self.co_pilot) end
-
-    local plane_properties = self.object:get_properties()
-    if self.isonground then
-        if plane_properties.show_on_minimap == true then
-            plane_properties.show_on_minimap = false
-            self.object:set_properties(plane_properties)
-        end
-    else
-        if plane_properties.show_on_minimap == false then
-            plane_properties.show_on_minimap = true
-            self.object:set_properties(plane_properties)
-        end
-    end
 
     if player then
         local ctrl = player:get_player_control()
@@ -611,19 +614,16 @@ function airutils.logic(self)
 end
 
 local function damage_vehicle(self, toolcaps, ttime, damage)
-    for group,_ in pairs( (toolcaps.damage_groups or {}) ) do
-        local tmp = ttime / (toolcaps.full_punch_interval or 1.4)
-
-        if tmp < 0 then
-	        tmp = 0.0
-        elseif tmp > 1 then
-	        tmp = 1.0
-        end
-
-        damage = damage + (toolcaps.damage_groups[group] or 0) * tmp
-        self.hp_max = self.hp_max - damage
-        airutils.setText(self, self._vehicle_name)
+    if (not toolcaps) then
+        return
     end
+    value = toolcaps.damage_groups.fleshy or 0
+    if (toolcaps.damage_groups.vehicle) then
+        value = toolcaps.damage_groups.vehicle
+    end
+    damage = damage + value / 10
+    self.hp_max = self.hp_max - damage
+    airutils.setText(self, self._vehicle_name)
 end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
@@ -633,13 +633,11 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     end
     airutils.setText(self, self._vehicle_name)
 
-    -- lets permit destroying on the air
-    local is_flying = not self.colinfo.touching_ground
-    --if is_flying and not puncher:is_player() then
-    if not puncher:is_player() then
+    if (puncher and puncher:is_player() and 
+        (string.find(puncher:get_wielded_item():get_name(), "rayweapon") or 
+        toolcaps.damage_groups.vehicle)) then
         damage_vehicle(self, toolcaps, ttime, damage)
     end
-    --end
 
     if not puncher or not puncher:is_player() then
 		return
