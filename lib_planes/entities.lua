@@ -108,6 +108,18 @@ function airutils.on_step(self,dtime,colinfo)
     
 --  physics comes first
     local vel = self.object:get_velocity()
+    local pos = self.object:get_pos()
+    local props = self.object:get_properties()
+
+-- handle visibility on radar
+    if (pos and pos.y < airutils.radarMinHeight and props.show_on_minimap) then
+        props.show_on_minimap = false
+        self.object:set_properties(props)
+    end
+    if (pos and pos.y >= airutils.radarMinHeight and not props.show_on_minimap) then
+        props.show_on_minimap = true
+        self.object:set_properties(props)
+    end
     
     if colinfo then 
 	    self.isonground = colinfo.touching_ground
