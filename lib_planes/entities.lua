@@ -498,8 +498,9 @@ function airutils.logic(self)
         self._last_accell = new_accel
 	    self.object:move_to(curr_pos)
         --airutils.set_acceleration(self.object, new_accel)
-        local limit = 100
+        local limit = (self._max_speed/self.dtime) * 2
         local vel_to_add = vector.multiply(new_accel,self.dtime)
+        if new_accel.y > limit then new_accel.y = limit end --it isn't a rocket :/
         vel_to_add.y = 0
         self.object:add_velocity(vel_to_add)
         self.object:set_acceleration({x=0,y=new_accel.y, z=0})
