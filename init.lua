@@ -291,7 +291,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     if self._min_speed then min_speed = self._min_speed end
     min_speed = min_speed / 2
 
-    if longit_speed > min_speed then
+    --if longit_speed > min_speed then
         local striped_velocity = {x=velocity.x, y=velocity.y, z=velocity.z}
         local cut_velocity = (min_speed * 1)/longit_speed
         striped_velocity.x = striped_velocity.x - (striped_velocity.x * cut_velocity)
@@ -324,7 +324,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
         --lift_acc=vector.add(vector.multiply(minetest.yaw_to_dir(rotation.y),acc),lift_acc)
 
         retval = vector.add(retval,lift_acc)
-    end
+    --end
     -----------------------------------------------------------
     -- end lift
 
@@ -335,10 +335,10 @@ function airutils.get_plane_pitch(velocity, longit_speed, min_speed, angle_of_at
     local v_speed_factor = 0
     if longit_speed > min_speed then v_speed_factor = (velocity.y * math.rad(2)) end --the pitch for climbing or descenting
     local min_rotation_speed = min_speed/2
-    local scale_pitch_graph = ((longit_speed-min_rotation_speed)*1)/min_rotation_speed --lets use the min rotation speed for reference to when we will start the control work
-    if scale_pitch_graph > 1 then scale_pitch_graph = 1 end --normalize to 100%
     local pitch_by_longit_speed = 0
     if longit_speed > min_rotation_speed then --just start the rotation after the rotation speed
+        local scale_pitch_graph = ((longit_speed-min_rotation_speed)*1)/min_rotation_speed --lets use the min rotation speed for reference to when we will start the control work
+        if scale_pitch_graph > 1 then scale_pitch_graph = 1 end --normalize to 100%
         pitch_by_longit_speed = airutils.quadBezier(scale_pitch_graph, 0, angle_of_attack, angle_of_attack) --here the magic happens using a bezier curve
     end
     return math.rad(pitch_by_longit_speed) + v_speed_factor
