@@ -32,7 +32,8 @@ function airutils.physics(self)
         local height = self.height
 		local submergence = math.min(surface-spos.y,height)/height
 --		local balance = self.buoyancy*self.height
-		local buoyacc = airutils.gravity*(self.buoyancy-submergence)
+		--local buoyacc = airutils.gravity*(self.buoyancy-submergence)
+        local buoyacc = airutils.gravity*(self.buoyancy-submergence)
         --local buoyacc = self._baloon_buoyancy*(self.buoyancy-submergence)
         accell = {x=-vel.x*self.water_drag,y=buoyacc-(vel.y*math.abs(vel.y)*0.4),z=-vel.z*self.water_drag}
         if self.buoyancy >= 1 then self._engine_running = false end
@@ -41,7 +42,7 @@ function airutils.physics(self)
         self.object:move_to(self.object:get_pos())
         return
 	else
-        airutils.set_acceleration(self.object,{x=0,y=airutils.gravity,z=0})
+        --airutils.set_acceleration(self.object,{x=0,y=airutils.gravity,z=0})
 		self.isinliquid = false
         --new_velocity = vector.add(new_velocity, {x=0,y=airutils.gravity * self.dtime,z=0})
 	end

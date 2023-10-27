@@ -331,9 +331,9 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     return retval
 end
 
-function airutils.get_plane_pitch(velocity, longit_speed, min_speed, angle_of_attack)
+function airutils.get_plane_pitch(y_velocity, longit_speed, min_speed, angle_of_attack)
     local v_speed_factor = 0
-    if longit_speed > 0 then v_speed_factor = (velocity.y * math.rad(2)) end --the pitch for climbing or descenting
+    if longit_speed > 0 then v_speed_factor = (y_velocity * math.rad(2)) end --the pitch for climbing or descenting
     local min_rotation_speed = min_speed/2
     local pitch_by_longit_speed = 0
     if longit_speed > min_rotation_speed then --just start the rotation after the rotation speed

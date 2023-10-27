@@ -322,14 +322,16 @@ function airutils.logic(self)
     end
 
     --adjust climb indicator
-    local climb_rate = velocity.y
+    local y_velocity = 0
+    if self._engine_running or is_flying then y_velocity = velocity.y end
+    local climb_rate =  y_velocity
     if climb_rate > 5 then climb_rate = 5 end
     if climb_rate < -5 then
         climb_rate = -5
     end
 
     -- pitch
-    local newpitch = airutils.get_plane_pitch(velocity, longit_speed, self._min_speed, self._angle_of_attack)
+    local newpitch = airutils.get_plane_pitch(y_velocity, longit_speed, self._min_speed, self._angle_of_attack)
 
     --for airplanes with cannard or pendulum wing
     local actuator_angle = self._elevator_angle
@@ -499,11 +501,16 @@ function airutils.logic(self)
 	    self.object:move_to(curr_pos)
         --airutils.set_acceleration(self.object, new_accel)
         local limit = (self._max_speed/self.dtime)
-        local vel_to_add = vector.multiply(new_accel,self.dtime)
         if new_accel.y > limit then new_accel.y = limit end --it isn't a rocket :/
-        vel_to_add.y = 0
+
+        if not self.isinliquid then --why? because whe work water movements in the phisics code
+            new_accel.y = new_accel.y + airutils.gravity --gravity here
+        end
+
+        local vel_to_add = vector.multiply(new_accel,self.dtime)
+        --vel_to_add.y = 0
         self.object:add_velocity(vel_to_add)
-        self.object:set_acceleration({x=0,y=new_accel.y, z=0})
+        --self.object:set_acceleration({x=0,y=new_accel.y, z=0})
     else
         if stop == true then
             self._last_accell = self.object:get_acceleration()
