@@ -122,7 +122,7 @@ function airutils.on_step(self,dtime,colinfo)
     end
     if self.isonground  and props.show_on_minimap then
         props.show_on_minimap = false
-        self.object:set_properties(plane_properties)
+        self.object:set_properties(props)
     end
     
     if colinfo then 
