@@ -110,6 +110,7 @@ function airutils.on_step(self,dtime,colinfo)
     local vel = self.object:get_velocity()
     local pos = self.object:get_pos()
     local props = self.object:get_properties()
+    if type( self.hp_max ) != "number" then self.hp_max = 0.1 end --strange error when hpmax is NaN
 
 -- handle visibility on radar
     if (pos and pos.y < airutils.radarMinHeight and props.show_on_minimap) then
