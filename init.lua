@@ -107,6 +107,7 @@ end
 function airutils.setText(self, vehicle_name)
     local properties = self.object:get_properties()
     local formatted = ""
+    if type( self.hp_max ) != "number" then self.hp_max = 0.1 end --strange error when hpmax is NaN
     if self.hp_max then
         formatted = " Current hp: " .. string.format(
            "%.2f", self.hp_max
