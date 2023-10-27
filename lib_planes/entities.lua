@@ -183,6 +183,7 @@ function airutils.logic(self)
     local velocity = self.object:get_velocity()
     local curr_pos = self.object:get_pos()
     self._curr_pos = curr_pos --shared
+    self._last_accel = self.object:get_acceleration()
 
     self._last_time_command = self._last_time_command + self.dtime
 
@@ -503,14 +504,6 @@ function airutils.logic(self)
         local limit = (self._max_speed/self.dtime)
         if new_accel.y > limit then new_accel.y = limit end --it isn't a rocket :/
 
-        if not self.isinliquid then --why? because whe work water movements in the phisics code
-            new_accel.y = new_accel.y + airutils.gravity --gravity here
-        end
-
-        local vel_to_add = vector.multiply(new_accel,self.dtime)
-        --vel_to_add.y = 0
-        self.object:add_velocity(vel_to_add)
-        --self.object:set_acceleration({x=0,y=new_accel.y, z=0})
     else
         if stop == true then
             self._last_accell = self.object:get_acceleration()
@@ -614,6 +607,7 @@ function airutils.logic(self)
     airutils.testImpact(self, velocity, curr_pos)
 
     --saves last velocity for collision detection (abrupt stop)
+    self._last_accel = new_accel
     self._last_vel = self.object:get_velocity()
     self._last_longit_speed = longit_speed
     self._yaw = newyaw

@@ -1,7 +1,7 @@
 function airutils.physics(self)
     local friction = self._ground_friction or 0.99
 	local vel=self.object:get_velocity()
-    local new_velocity = vel
+    local new_velocity = vector.new()
 
 	--buoyancy
 	local surface = nil
@@ -24,6 +24,7 @@ function airutils.physics(self)
 	if surface then				-- standing in liquid
         self.isinliquid = true
     end
+    local last_accel = self._last_accel
 
     if self.isinliquid then
         local accell = {x=0, y=0, z=0}
@@ -37,14 +38,22 @@ function airutils.physics(self)
         --local buoyacc = self._baloon_buoyancy*(self.buoyancy-submergence)
         accell = {x=-vel.x*self.water_drag,y=buoyacc-(vel.y*math.abs(vel.y)*0.4),z=-vel.z*self.water_drag}
         if self.buoyancy >= 1 then self._engine_running = false end
-        airutils.set_acceleration(self.object,accell)
-        --new_velocity = vector.add(new_velocity, vector.multiply(accell, self.dtime))
-        self.object:move_to(self.object:get_pos())
-        return
+        if last_accel then
+            accell = vector.add(accell,last_accel)
+        end
+        new_velocity = vector.multiply(accell,self.dtime)
+        --airutils.set_acceleration(self.object,accell)
+        --self.object:move_to(self.object:get_pos())
 	else
         --airutils.set_acceleration(self.object,{x=0,y=airutils.gravity,z=0})
 		self.isinliquid = false
-        --new_velocity = vector.add(new_velocity, {x=0,y=airutils.gravity * self.dtime,z=0})
+        
+        if self._last_accel then
+            last_accel.y = last_accel.y + airutils.gravity --gravity here
+
+            new_velocity = vector.multiply(last_accel,self.dtime)
+        end
+        --self.object:set_acceleration({x=0,y=new_accel.y, z=0})
 	end
 
     if self.isonground and not self.isinliquid then
@@ -85,10 +94,10 @@ function airutils.physics(self)
         end
 
         --self.object:set_velocity(new_velocity)
-        local vel_sum = vector.subtract(new_velocity,vel)
-		self.object:add_velocity(vel_sum)
-
+        --new_velocity = vector.subtract(new_velocity,vel)
     end
+
+    self.object:add_velocity(new_velocity)
 
 end
 
