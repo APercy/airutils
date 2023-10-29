@@ -318,7 +318,8 @@ function airutils.logic(self)
     end
 
 
-    if longit_speed == 0 and is_flying == false and is_attached == false and self._engine_running == false then
+    if (math.abs(velocity.x) < 0.1 and math.abs(velocity.z) < 0.1) and is_flying == false and is_attached == false and self._engine_running == false then
+        self.object:set_velocity({x=0,y=airutils.gravity*self.dtime,z=0})
         return
     end
 
