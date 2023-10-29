@@ -317,6 +317,17 @@ function airutils.logic(self)
         end
     end
 
+    --adjust elevator pitch (3d model)
+    self.object:set_bone_position("elevator", self._elevator_pos, {x=-self._elevator_angle*2 - 90, y=0, z=0})
+    --adjust rudder
+    self.object:set_bone_position("rudder", self._rudder_pos, {x=0,y=self._rudder_angle,z=0})
+    --adjust ailerons
+    if self._aileron_r_pos and self._aileron_l_pos then
+        local ailerons = self._rudder_angle
+        if self._invert_ailerons then ailerons = ailerons * -1 end
+        self.object:set_bone_position("aileron.r", self._aileron_r_pos, {x=-ailerons - 90,y=0,z=0})
+        self.object:set_bone_position("aileron.l", self._aileron_l_pos, {x=ailerons - 90,y=0,z=0})
+    end
 
     if (math.abs(velocity.x) < 0.1 and math.abs(velocity.z) < 0.1) and is_flying == false and is_attached == false and self._engine_running == false then
         if self._ground_friction then
@@ -589,19 +600,6 @@ function airutils.logic(self)
             minetest.chat_send_player(self.driver_name, core.colorize('#ff0000', " >>> Flaps retracted due for overspeed"))
         end
         self._flap = false
-    end
-
-
-    --adjust elevator pitch (3d model)
-    self.object:set_bone_position("elevator", self._elevator_pos, {x=-self._elevator_angle*2 - 90, y=0, z=0})
-    --adjust rudder
-    self.object:set_bone_position("rudder", self._rudder_pos, {x=0,y=self._rudder_angle,z=0})
-    --adjust ailerons
-    if self._aileron_r_pos and self._aileron_l_pos then
-        local ailerons = self._rudder_angle
-        if self._invert_ailerons then ailerons = ailerons * -1 end
-        self.object:set_bone_position("aileron.r", self._aileron_r_pos, {x=-ailerons - 90,y=0,z=0})
-        self.object:set_bone_position("aileron.l", self._aileron_l_pos, {x=ailerons - 90,y=0,z=0})
     end
 
     -- calculate energy consumption --
