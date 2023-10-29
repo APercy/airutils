@@ -24,7 +24,10 @@ function airutils.physics(self)
 	if surface then				-- standing in liquid
         self.isinliquid = true
     end
-    local last_accel = self._last_accel
+    local last_accel = nil
+    if self._last_accel then
+        last_accel = airutils.properties_copy(self._last_accel)
+    end
 
     if self.isinliquid then
         local accell = {x=0, y=0, z=0}
@@ -48,7 +51,7 @@ function airutils.physics(self)
         --airutils.set_acceleration(self.object,{x=0,y=airutils.gravity,z=0})
 		self.isinliquid = false
         
-        if self._last_accel then
+        if last_accel then
             last_accel.y = last_accel.y + airutils.gravity --gravity here
 
             new_velocity = vector.multiply(last_accel,self.dtime)
@@ -95,9 +98,12 @@ function airutils.physics(self)
 
         --self.object:set_velocity(new_velocity)
         --new_velocity = vector.subtract(new_velocity,vel)
-    end
 
-    self.object:add_velocity(new_velocity)
+        --fix to stop planes moving by itself when at airports
+        self.object:set_velocity(vector.add(new_velocity,vel))
+    else
+        self.object:add_velocity(new_velocity)
+    end
 
 end
 
