@@ -506,7 +506,7 @@ function airutils.logic(self)
 
     else
         if stop == true then
-            self._last_accell = self.object:get_acceleration()
+            self._last_accell = vector.new() --self.object:get_acceleration()
             self.object:set_acceleration({x=0,y=0,z=0})
             self.object:set_velocity({x=0,y=0,z=0})
         end

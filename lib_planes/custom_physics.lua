@@ -98,12 +98,8 @@ function airutils.physics(self)
 
         --self.object:set_velocity(new_velocity)
         --new_velocity = vector.subtract(new_velocity,vel)
-
-        --fix to stop planes moving by itself when at airports
-        self.object:set_velocity(vector.add(new_velocity,vel))
-    else
-        self.object:add_velocity(new_velocity)
     end
 
+    self.object:add_velocity(new_velocity)
 end
 
