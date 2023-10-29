@@ -515,7 +515,8 @@ function airutils.logic(self)
     if self.wheels then
         if is_flying == false then --isn't flying?
             --animate wheels
-            if math.abs(longit_speed) > 0.1 then
+            local min_speed_animation = 0.1
+            if math.abs(velocity.x) > min_speed_animation or math.abs(velocity.z) > min_speed_animation then
                 self.wheels:set_animation_frame_speed(longit_speed * 10)
             else
                 self.wheels:set_animation_frame_speed(0)
