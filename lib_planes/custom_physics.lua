@@ -98,8 +98,11 @@ function airutils.physics(self)
 
         --self.object:set_velocity(new_velocity)
         --new_velocity = vector.subtract(new_velocity,vel)
-        if not self.driver_name and math.abs(vel.x) < 0.1 and math.abs(vel.z) < 0.1 then
+
+        --fix bug with unexpe3cted moving
+        if not self.driver_name and math.abs(vel.x) < 0.2 and math.abs(vel.z) < 0.2 then
             self.object:set_velocity({x=0,y=airutils.gravity*self.dtime,z=0})
+            if self.wheels then self.wheels:set_animation_frame_speed(0) end
             return
         end
     end
