@@ -133,6 +133,7 @@ function airutils.check_passenger_is_attached(self, name)
 end
 
 local function attach_copilot(self, name, player, eye_y)
+    if not self.co_pilot_seat_base then return end
     self.co_pilot = name
     self._passengers[2] = name
     -- attach the driver
