@@ -120,7 +120,7 @@ function airutils.on_step(self,dtime,colinfo)
         props.show_on_minimap = true
         self.object:set_properties(props)
     end
-    if self.isonground  and props.show_on_minimap then
+    if self.isonground and props.show_on_minimap then
         props.show_on_minimap = false
         self.object:set_properties(props)
     end
@@ -150,7 +150,7 @@ function airutils.on_step(self,dtime,colinfo)
 end
 
 local function ground_pitch(self, longit_speed, curr_pitch)
-    newpitch = curr_pitch
+    local newpitch = curr_pitch
     if self._last_longit_speed == nil then self._last_longit_speed = 0 end
 
     -- Estado atual do sistema
@@ -621,7 +621,7 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
     if (not toolcaps) then
         return
     end
-    value = toolcaps.damage_groups.fleshy or 0
+    local value = toolcaps.damage_groups.fleshy or 0
     if (toolcaps.damage_groups.vehicle) then
         value = toolcaps.damage_groups.vehicle
     end
