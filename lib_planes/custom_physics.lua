@@ -36,10 +36,13 @@ function airutils.physics(self)
         local height = self.height
 		local submergence = math.min(surface-spos.y,height)/height
 --		local balance = self.buoyancy*self.height
-		--local buoyacc = airutils.gravity*(self.buoyancy-submergence)
         local buoyacc = airutils.gravity*(self.buoyancy-submergence)
         --local buoyacc = self._baloon_buoyancy*(self.buoyancy-submergence)
-        accell = {x=-vel.x*self.water_drag,y=buoyacc-(vel.y*math.abs(vel.y)*0.4),z=-vel.z*self.water_drag}
+        accell = {
+                    x=-vel.x*self.water_drag,
+                    y=buoyacc-(vel.y*math.abs(vel.y)*0.4),
+                    z=-vel.z*self.water_drag
+                }
         if self.buoyancy >= 1 then self._engine_running = false end
         if last_accel then
             accell = vector.add(accell,last_accel)
