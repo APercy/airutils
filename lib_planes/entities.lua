@@ -331,7 +331,7 @@ function airutils.logic(self)
 
     if (math.abs(velocity.x) < 0.1 and math.abs(velocity.z) < 0.1) and is_flying == false and is_attached == false and self._engine_running == false then
         if self._ground_friction then
-            if self._ground_friction > 0.97 and self.buoyancy >= 1 then self.object:set_velocity({x=0,y=airutils.gravity*self.dtime,z=0}) end
+            if not self.isinliquid then self.object:set_velocity({x=0,y=airutils.gravity*self.dtime,z=0}) end
         end
         return
     end
