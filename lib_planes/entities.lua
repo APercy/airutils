@@ -631,21 +631,31 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
 end
 
 function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
-	local name = puncher:get_player_name()
+    local name = ""
+    local ppos = {}
+
+    if not puncher or not puncher:is_player() then
+		return
+	end
+
+    if (puncher:is_player()) then
+	    name = puncher:get_player_name()
+        ppos = puncher:get_pos()
+        if (minetest.is_protected(ppos, name) and
+            airutils.protect_in_areas) then
+            return
+        end
+    end
+
     if self.hp_max <= 0 then
         airutils.destroy(self, name)
     end
     airutils.setText(self, self._vehicle_name)
 
-    if (puncher and puncher:is_player() and 
-        (string.find(puncher:get_wielded_item():get_name(), "rayweapon") or 
-        toolcaps.damage_groups.vehicle)) then
-        damage_vehicle(self, toolcaps, ttime, damage)
+    if (string.find(puncher:get_wielded_item():get_name(), "rayweapon") or 
+        toolcaps.damage_groups.vehicle) then
+            damage_vehicle(self, toolcaps, ttime, damage)
     end
-
-    if not puncher or not puncher:is_player() then
-		return
-	end
 
     local is_admin = false
     is_admin = minetest.check_player_privs(puncher, {server=true})
