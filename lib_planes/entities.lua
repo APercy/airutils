@@ -641,7 +641,8 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if (puncher:is_player()) then
 	    name = puncher:get_player_name()
         ppos = puncher:get_pos()
-        if (minetest.is_protected(ppos, name)) then
+        if (minetest.is_protected(ppos, name) and
+            airutils.protect_in_areas) then
             return
         end
     end

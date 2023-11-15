@@ -1,8 +1,7 @@
 -- Minetest 5.4.1 : airutils
+airutils = {}
 
-airutils = {
-    storage = minetest.get_mod_storage()
-}
+airutils.storage = minetest.get_mod_storage()
 
 local storage = airutils.storage
 
@@ -36,13 +35,15 @@ airutils.fuel = {['biofuel:biofuel'] = 1,['biofuel:bottle_fuel'] = 1,
                 ['biofuel:phial_fuel'] = 0.25, ['biofuel:fuel_can'] = 10,
                 ['airutils:biofuel'] = 1,}
 
-if not minetest.settings:get_bool('airutils.disable_papi') then
+airutils.protect_in_areas = minetest.settings:get_bool('airutils_protect_in_areas')
+
+if not minetest.settings:get_bool('airutils_disable_papi') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_papi.lua")
 end
-if not minetest.settings:get_bool('airutils.disable_tug') then
+if not minetest.settings:get_bool('airutils_disable_tug') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_tug.lua")
 end
-if not minetest.settings:get_bool('airutils.disable_repair') then
+if not minetest.settings:get_bool('airutils_disable_repair') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
 end
 
