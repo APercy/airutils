@@ -259,12 +259,10 @@ function airutils.destroy(self, by_name)
     if by_name == self.owner then with_fire = false end
     local pos = self.object:get_pos()
 
-    minetest.log("action","destroying: "..self._vehicle_name.." from "..self.owner.." at position "..pos.x..","..pos.y..","..pos.z)
-
     if self.owner and self._vehicle_name then
-        minetest.log("action", "airutils: The player "..self.owner.." had it's "..self._vehicle_name.." destroyed at position x="..pos.x.." y="..pos.y.." z="..pos.z)
+        minetest.log("action", "airutils: The player "..self.owner.." had it's "..self._vehicle_name.." destroyed at position x="..math.floor(pos.x).." y="..math.floor(pos.y).." z="..math.floor(pos.z))
     else
-        minetest.log("action", "airutils: An airplane was destroyed at position x="..pos.x.." y="..pos.y.." z="..pos.z)
+        minetest.log("action", "airutils: An airplane was destroyed at position x="..math.floor(pos.x).." y="..math.floor(pos.y).." z="..math.floor(pos.z))
     end
 
     if self.sound_handle then

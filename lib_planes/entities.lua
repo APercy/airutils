@@ -28,7 +28,7 @@ function airutils.on_deactivate(self)
     airutils.save_inventory(self)
     local pos = self.object:get_pos()
     if airutils.debug_log then
-        minetest.log("action","deactivating: "..self._vehicle_name.." from "..self.owner.." at position "..pos.x..","..pos.y..","..pos.z)
+        minetest.log("action","deactivating: "..self._vehicle_name.." from "..self.owner.." at position "..math.floor(pos.x)..","..math.floor(pos.y)..","..math.floor(pos.z))
     end
 end
 
@@ -70,7 +70,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
     self._pitch = 0
 
     if airutils.debug_log then
-        minetest.log("action","activating: "..self._vehicle_name.." from "..self.owner.." at position "..pos.x..","..pos.y..","..pos.z)
+        minetest.log("action","activating: "..self._vehicle_name.." from "..self.owner.." at position "..math.floor(pos.x)..","..math.floor(pos.y)..","..math.floor(pos.z))
     end
 
     if self._register_parts_method then
