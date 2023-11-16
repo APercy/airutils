@@ -36,6 +36,7 @@ airutils.fuel = {['biofuel:biofuel'] = 1,['biofuel:bottle_fuel'] = 1,
                 ['airutils:biofuel'] = 1,}
 
 airutils.protect_in_areas = minetest.settings:get_bool('airutils_protect_in_areas')
+airutils.debug_log = minetest.settings:get_bool('airutils_debug_log')
 
 if not minetest.settings:get_bool('airutils_disable_papi') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_papi.lua")

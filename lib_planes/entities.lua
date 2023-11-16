@@ -26,9 +26,14 @@ end
 
 function airutils.on_deactivate(self)
     airutils.save_inventory(self)
+    local pos = self.object:get_pos()
+    if airutils.debug_log then
+        minetest.log("action","deactivating: "..self._vehicle_name.." from "..self.owner.." at position "..pos.x..","..pos.y..","..pos.z)
+    end
 end
 
 function airutils.on_activate(self, staticdata, dtime_s)
+    local pos = self.object:get_pos()
     airutils.actfunc(self, staticdata, dtime_s)
     self._flap = false
 
@@ -63,6 +68,10 @@ function airutils.on_activate(self, staticdata, dtime_s)
     self._yaw = 0
     self._roll = 0
     self._pitch = 0
+
+    if airutils.debug_log then
+        minetest.log("action","activating: "..self._vehicle_name.." from "..self.owner.." at position "..pos.x..","..pos.y..","..pos.z)
+    end
 
     if self._register_parts_method then
         self._register_parts_method(self)

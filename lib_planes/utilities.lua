@@ -259,6 +259,8 @@ function airutils.destroy(self, by_name)
     if by_name == self.owner then with_fire = false end
     local pos = self.object:get_pos()
 
+    minetest.log("action","destroying: "..self._vehicle_name.." from "..self.owner.." at position "..pos.x..","..pos.y..","..pos.z)
+
     if self.owner and self._vehicle_name then
         minetest.log("action", "airutils: The player "..self.owner.." had it's "..self._vehicle_name.." destroyed at position x="..pos.x.." y="..pos.y.." z="..pos.z)
     else
@@ -299,24 +301,6 @@ function airutils.destroy(self, by_name)
     if airutils.blast_damage == true and with_fire == true then
         airutils.add_blast_damage(pos, 7, 10)
     end
-
-    --[[pos.y=pos.y+2
-    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'hidroplane:wings')
-
-    for i=1,6 do
-	    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:steel_ingot')
-    end
-
-    for i=1,2 do
-	    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'wool:white')
-    end
-
-    for i=1,6 do
-	    minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:mese_crystal')
-        minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'default:diamond')
-    end]]--
-
-    --minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},'hidroplane:hidro')
 end
 
 function airutils.testImpact(self, velocity, position)

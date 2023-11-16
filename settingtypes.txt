@@ -12,3 +12,6 @@ airutils_disable_tug (disable tug tool) bool false
 
 # disable repair tool for planes
 airutils_disable_repair (planes cannot be repaired) bool false
+
+# enable debug od activation and deactivation of the vehicle entity
+airutils_debug_log (log of entity activation) bool false
