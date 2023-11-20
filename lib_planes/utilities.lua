@@ -253,6 +253,17 @@ function airutils.checkAttach(self, player)
     return false
 end
 
+local function spawn_drops(self, pos)
+    if self._drops then
+        for k,v in pairs(self._drops) do
+            --print(k,v)
+            for i=1,v do
+                minetest.add_item({x=pos.x+math.random()-0.5,y=pos.y,z=pos.z+math.random()-0.5},k)
+            end
+        end
+    end
+end
+
 function airutils.destroy(self, by_name)
     by_name = by_name or ""
     local with_fire = self._enable_fire_explosion
@@ -306,9 +317,11 @@ function airutils.destroy(self, by_name)
     --if dont have a destroyed version, destroy the inventory
     if not destroyed_ent then
         airutils.destroy_inventory(self)
+        spawn_drops(self, pos)
     else
-        if not with_fire then
+        if not with_fire then --or by the owner itself
             airutils.destroy_inventory(self)
+            spawn_drops(self, pos)
         end
     end
 
@@ -1186,6 +1199,7 @@ function airutils.destroyed_on_punch(self, puncher, ttime, toolcaps, dir, damage
 
     local name = puncher:get_player_name()
     local shared_by_time = check_shared_by_time(self)
+    local pos = self.object:get_pos()
 
     local is_admin = false
     is_admin = minetest.check_player_privs(puncher, {server=true})
@@ -1202,6 +1216,9 @@ function airutils.destroyed_on_punch(self, puncher, ttime, toolcaps, dir, damage
         fade = 0.0,
         pitch = 1.0,
     })
+
+    spawn_drops(self, pos)
+
     airutils.destroy_inventory(self)
     self.object:remove()
 end
