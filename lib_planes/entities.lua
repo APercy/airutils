@@ -98,7 +98,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
 	if not inv then
         airutils.create_inventory(self, self._trunk_slots)
 	else
-	    self.inv = inv
+	    self._inv = inv
     end
 
     airutils.seats_create(self)
@@ -202,6 +202,9 @@ function airutils.logic(self)
     if self.driver_name then player = minetest.get_player_by_name(self.driver_name) end
     local co_pilot = nil
     if self.co_pilot and self._have_copilot then co_pilot = minetest.get_player_by_name(self.co_pilot) end
+
+    --test collision
+    airutils.testImpact(self, velocity, curr_pos)
 
     if player then
         local ctrl = player:get_player_control()
@@ -614,9 +617,6 @@ function airutils.logic(self)
     -- calculate energy consumption --
     airutils.consumptionCalc(self, accel)
 
-    --test collision
-    airutils.testImpact(self, velocity, curr_pos)
-
     --saves last velocity for collision detection (abrupt stop)
     self._last_accel = new_accel
     self._last_vel = self.object:get_velocity()
@@ -658,6 +658,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 
     if self.hp_max <= 0 then
         airutils.destroy(self, name)
+        return
     end
     airutils.setText(self, self._vehicle_name)
 
