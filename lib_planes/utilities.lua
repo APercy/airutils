@@ -34,6 +34,7 @@ function airutils.get_gauge_angle(value, initial_angle)
 end
 
 local function sit_player(player, name)
+    if not player then return end
     if airutils.is_minetest then
         player_api.player_attached[name] = true
         player_api.set_animation(player, "sit")
@@ -55,6 +56,7 @@ end
 
 -- attach player
 function airutils.attach(self, player, instructor_mode)
+    if not player then return end
     if self._needed_licence then
         local can_fly = minetest.check_player_privs(player, self._needed_licence)
         if not can_fly then
@@ -133,7 +135,7 @@ function airutils.check_passenger_is_attached(self, name)
 end
 
 local function attach_copilot(self, name, player, eye_y)
-    if not self.co_pilot_seat_base then return end
+    if not self.co_pilot_seat_base or not player then return end
     self.co_pilot = name
     self._passengers[2] = name
     -- attach the driver
@@ -145,6 +147,7 @@ end
 
 -- attach passenger
 function airutils.attach_pax(self, player, is_copilot)
+    if not player then return end
     local is_copilot = is_copilot or false
     local name = player:get_player_name()
 
@@ -197,6 +200,7 @@ function airutils.attach_pax(self, player, is_copilot)
 end
 
 function airutils.dettach_pax(self, player, is_flying)
+    if not player then return end
     is_flying = is_flying or false
     local name = player:get_player_name() --self._passenger
 
