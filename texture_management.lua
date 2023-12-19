@@ -83,10 +83,11 @@ function listLoadedTextures()
     return loadedTextures
 end
 
-airutils.all_game_textures = listLoadedTextures()
-
 -- Function to check if a texture is in the list of loaded textures
 function airutils.isTextureLoaded(textureToFind)
+    if not airutils.all_game_textures then
+        airutils.all_game_textures = listLoadedTextures()
+    end
     local textures = airutils.all_game_textures
 
     for _, texture in pairs(textures) do
