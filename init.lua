@@ -55,6 +55,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lu
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "init.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "texture_management.lua")
 
 local is_biofuel_installed = false
 if biomass then
