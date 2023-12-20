@@ -47,10 +47,26 @@ local function getTexturesFromItem(itemDef)
     return textures
 end
 
+--function to remove duplicates and invalid for textlist
+function filter_texture_names(list_to_test)
+    local hash = {}
+    local result = {}
+    for _,v in ipairs(list_to_test) do
+        if not string.find(v, ",") then
+           if (not hash[v]) then
+               result[#result+1] = v
+               hash[v] = true
+           end
+        end
+    end
+    return result
+end
+
 -- Function to list all loaded textures
 function listLoadedTextures()
     local loadedTextures = {}
 
+    --nodes
     for name, node in pairs(minetest.registered_nodes) do
         local textures = getTexturesFromNode(node)
 
@@ -58,7 +74,10 @@ function listLoadedTextures()
             table.insert(loadedTextures, texture)
         end
     end
+    airutils.all_game_textures = filter_texture_names(loadedTextures)
 
+    --entities
+    loadedTextures = {}
     for name, entityDef in pairs(minetest.registered_entities) do
         local textures = getTexturesFromEntity(entityDef)
 
@@ -66,7 +85,10 @@ function listLoadedTextures()
             table.insert(loadedTextures, texture)
         end
     end
+    airutils.all_entities_textures = filter_texture_names(loadedTextures)
 
+    --items
+    loadedTextures = {}
     for name, itemDef in pairs(minetest.registered_items) do
         local textures = getTexturesFromItem(itemDef)
 
@@ -79,16 +101,31 @@ function listLoadedTextures()
         table.insert(loadedTextures,'bubble.png')
         table.insert(loadedTextures,'heart.png')
     end
-
-    return loadedTextures
+    airutils.all_items_textures = filter_texture_names(loadedTextures)
 end
 
 -- Function to check if a texture is in the list of loaded textures
 function airutils.isTextureLoaded(textureToFind)
     if not airutils.all_game_textures then
-        airutils.all_game_textures = listLoadedTextures()
+        listLoadedTextures()
     end
     local textures = airutils.all_game_textures
+
+    for _, texture in pairs(textures) do
+        if texture == textureToFind then
+            return true
+        end
+    end
+
+    textures = airutils.all_entities_textures
+
+    for _, texture in pairs(textures) do
+        if texture == textureToFind then
+            return true
+        end
+    end
+
+    textures = airutils.all_items_textures
 
     for _, texture in pairs(textures) do
         if texture == textureToFind then
