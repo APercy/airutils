@@ -330,8 +330,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
 
     if airutils.show_lift then
-        --yes, I limited it to singleplayer only, it is just for dev purposes
-        minetest.chat_send_player("singleplayer",core.colorize('#ffff00', " >>> lift: "..lift_val))
+        minetest.chat_send_player(airutils.show_lift,core.colorize('#ffff00', " >>> lift: "..lift_val))
     end
 
     local lift_acc = vector.multiply(lift_dir,lift_val)
@@ -583,7 +582,7 @@ minetest.register_chatcommand("show_lift", {
         local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
             if param == "on" or param == "" then
-                airutils.show_lift = true
+                airutils.show_lift = name
                 minetest.chat_send_player(name,core.colorize('#0000ff', " >>> Lift printing turned on."))
             elseif param == "off" then
                 airutils.show_lift = nil
