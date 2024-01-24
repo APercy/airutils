@@ -7,20 +7,20 @@ end
 function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
     return minetest.serialize({
         --stored_sound_handle = self.sound_handle,
-        stored_energy = self._energy,
-        stored_owner = self.owner,
-        stored_hp = self.hp_max,
-        stored_color = self._color,
-        stored_color_2 = self._color_2,
-        stored_power_lever = self._power_lever,
-        stored_driver_name = self.driver_name,
-        stored_last_accell = self._last_accell,
-        stored_inv_id = self._inv_id,
-        stored_flap = self._flap,
-        stored_passengers = self._passengers,
-        stored_adf_destiny = self._adf_destiny,
-        stored_skin = self._skin,
-        stored_vehicle_custom_data = self._vehicle_custom_data
+        stored_energy = self._energy or 0,
+        stored_owner = self.owner or "",
+        stored_hp = self.hp_max or 10,
+        stored_color = self._color or "#FFFFFF",
+        stored_color_2 = self._color_2 or "#FFFFFF",
+        stored_power_lever = self._power_lever or 0,
+        stored_driver_name = self.driver_name or nil,
+        stored_last_accell = self._last_accell or vector.new(),
+        stored_inv_id = self._inv_id or nil,
+        stored_flap = self._flap or false,
+        stored_passengers = self._passengers or {},
+        stored_adf_destiny = self._adf_destiny or vector.new(),
+        stored_skin = self._skin or "",
+        stored_vehicle_custom_data = self._vehicle_custom_data or nil
     })
 end
 
@@ -39,20 +39,20 @@ function airutils.on_activate(self, staticdata, dtime_s)
 
     if staticdata ~= "" and staticdata ~= nil then
         local data = minetest.deserialize(staticdata) or {}
-        self._energy = data.stored_energy
-        self.owner = data.stored_owner
-        self.hp_max = data.stored_hp
-        self._color = data.stored_color
+        self._energy = data.stored_energy or 0
+        self.owner = data.stored_owner or ""
+        self.hp_max = data.stored_hp or 10
+        self._color = data.stored_color or "#FFFFFF"
         self._color_2 = data.stored_color_2 or data.stored_color --if it has no color 2, now it have!
-        self._power_lever = data.stored_power_lever
-        self.driver_name = data.stored_driver_name
-        self._last_accell = data.stored_last_accell
-        self._inv_id = data.stored_inv_id
-        if self._wing_angle_extra_flaps then self._flap = data.stored_flap end
+        self._power_lever = data.stored_power_lever or 0
+        self.driver_name = data.stored_driver_name or nil
+        self._last_accell = data.stored_last_accell or vector.new()
+        self._inv_id = data.stored_inv_id or nil
+        if self._wing_angle_extra_flaps then self._flap = data.stored_flap or false end
         self._passengers = data.stored_passengers or {}
         self._adf_destiny = data.stored_adf_destiny or vector.new()
-        self._skin = data.stored_skin
-        local custom_data = data.stored_vehicle_custom_data
+        self._skin = data.stored_skin or ""
+        local custom_data = data.stored_vehicle_custom_data or nil
         if custom_data then
             self._vehicle_custom_data = custom_data
         else
@@ -64,6 +64,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
             self._last_applied_power = -1 --signal to start
         end
     end
+    
     self._climb_rate = 0
     self._yaw = 0
     self._roll = 0
@@ -93,7 +94,10 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self.wheels:set_animation({x = 1, y = self._anim_frames}, 0, 0, true)
     end
 
-	local inv = minetest.get_inventory({type = "detached", name = self._inv_id})
+	local inv = nil
+    if self._inv_id then
+        inv = minetest.get_inventory({type = "detached", name = self._inv_id})
+    end
 	-- if the game was closed the inventories have to be made anew, instead of just reattached
 	if not inv then
         airutils.create_inventory(self, self._trunk_slots)
@@ -107,7 +111,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
 
     if self._flap then airutils.flap_on(self) end
 
-    airutils.setText(self, self._vehicle_name)
+    if self._vehicle_name then airutils.setText(self, self._vehicle_name) end
 end
 
 function airutils.on_step(self,dtime,colinfo)
@@ -660,7 +664,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
         airutils.destroy(self, name)
         return
     end
-    airutils.setText(self, self._vehicle_name)
+    if self._vehicle_name then airutils.setText(self, self._vehicle_name) end
 
     if (string.find(puncher:get_wielded_item():get_name(), "rayweapon") or 
         toolcaps.damage_groups.vehicle) then
@@ -669,11 +673,11 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
 
     local is_admin = false
     is_admin = minetest.check_player_privs(puncher, {server=true})
-    if self.owner and self.owner ~= name and self.owner ~= "" then
-        if is_admin == false then return end
-    end
     if self.owner == nil then
         self.owner = name
+    end
+    if self.owner and self.owner ~= name and self.owner ~= "" then
+        if is_admin == false then return end
     end
     	
     if self.driver_name and self.driver_name ~= name then

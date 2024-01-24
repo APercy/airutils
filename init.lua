@@ -55,6 +55,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "inventory_management.lu
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "light.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "init.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_copter" .. DIR_DELIM .. "init.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "texture_management.lua")
 
 local is_biofuel_installed = false
@@ -228,6 +229,7 @@ end
 function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
     local half_wingspan = wingspan/2
     local lower_collision = self.initial_properties.collisionbox[2]
+    if not self._ground_effect_ammount_percent then self._ground_effect_ammount_percent = 0.5 end
     local initial_pos = {x=curr_pos.x, y=curr_pos.y + lower_collision, z=curr_pos.z} --lets make my own table to avoid interferences
 
     if self._extra_lift == nil then self._extra_lift = 0 end
@@ -254,7 +256,7 @@ function airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
         end
 
         local lift_factor = ((effect_factor) * 1) / (half_wingspan) --agora isso é um percentual
-        local max_extra_lift_percent = 0.5 * lift  --e aqui o maximo extra de sustentação
+        local max_extra_lift_percent = self._ground_effect_ammount_percent * lift  --e aqui o maximo extra de sustentação
         local extra_lift = max_extra_lift_percent * lift_factor
         self._extra_lift = extra_lift
     end
@@ -271,18 +273,23 @@ end
 -- lift: lift factor (very simplified)
 -- max_height: the max ceilling for the airplane
 -- wingspan: for ground effect calculation
-function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, lift, max_height, wingspan)
-    --add wind to the lift calcs
-    local wind = airutils.get_wind(curr_pos, 5)
-    local accel_wind = vector.subtract(accel, wind)  --why? because I need to fake more speed when against the wind to gain lift
-    local vel_wind = vector.multiply(accel_wind, self.dtime)
-    local new_velocity = vector.add(velocity, vel_wind)
+function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, in_lift, max_height, wingspan)
+    local new_velocity = vector.new(velocity)
+    if not self._min_collective then --ignore if it is an helicopter
+        --add wind to the lift calcs
+        local wind = airutils.get_wind(curr_pos, 5)
+        local accel_wind = vector.subtract(accel, wind)  --why? because I need to fake more speed when against the wind to gain lift
+        local vel_wind = vector.multiply(accel_wind, self.dtime)
+        new_velocity = vector.add(new_velocity, vel_wind)
+    end
 
     if longit_speed == nil then longit_speed = 0 end
     wingspan = wingspan or 10
-    local ground_effect_extra_lift = airutils.get_ground_effect_lift(self, curr_pos, lift, wingspan)
-    --minetest.chat_send_all('lift: '.. lift ..' - extra lift: '.. ground_effect_extra_lift)
-    lift = lift + ground_effect_extra_lift
+    local lift = in_lift
+    if not airutils.ground_effect_is_disabled then
+        local ground_effect_extra_lift = airutils.get_ground_effect_lift(self, curr_pos, in_lift, wingspan)
+        lift = lift + ground_effect_extra_lift
+    end
 
     --lift calculations
     -----------------------------------------------------------
@@ -295,43 +302,45 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     if self._min_speed then min_speed = self._min_speed end
     min_speed = min_speed / 2
 
-    --if longit_speed > min_speed then
-        local striped_velocity = {x=velocity.x, y=velocity.y, z=velocity.z}
-        local cut_velocity = (min_speed * 1)/longit_speed
-        striped_velocity.x = striped_velocity.x - (striped_velocity.x * cut_velocity)
-        striped_velocity.z = striped_velocity.z - (striped_velocity.z * cut_velocity)
+    local striped_velocity = vector.new(velocity)
+    local cut_velocity = (min_speed * 1)/longit_speed
+    striped_velocity.x = striped_velocity.x - (striped_velocity.x * cut_velocity)
+    striped_velocity.z = striped_velocity.z - (striped_velocity.z * cut_velocity)
 
-        local angle_of_attack = math.rad(self._angle_of_attack + wing_config)
-        --local acc = 0.8
-        local daoa = math.deg(angle_of_attack)
-        --minetest.chat_send_all(dump(daoa))
+    local angle_of_attack = math.rad(self._angle_of_attack + wing_config)
+    --local acc = 0.8
+    local daoa = math.deg(angle_of_attack)
+    --minetest.chat_send_all(dump(daoa))
 
-        --to decrease the lift coefficient at hight altitudes
-        local curr_percent_height = (100 - ((curr_pos.y * 100) / max_height))/100
+    --to decrease the lift coefficient at hight altitudes
+    local curr_percent_height = (100 - ((curr_pos.y * 100) / max_height))/100
 
-	    local rotation=self.object:get_rotation()
-	    local vrot = airutils.dir_to_rot(velocity,rotation)
+    local rotation=self.object:get_rotation()
+    local vrot = airutils.dir_to_rot(velocity,rotation)
 
-	    local hpitch,hyaw = pitchroll2pitchyaw(angle_of_attack,roll)
+    local hpitch,hyaw = pitchroll2pitchyaw(angle_of_attack,roll)
 
-	    local hrot = {x=vrot.x+hpitch,y=vrot.y-hyaw,z=roll}
-	    local hdir = airutils.rot_to_dir(hrot) --(hrot)
-	    local cross = vector.cross(velocity,hdir)
-	    local lift_dir = vector.normalize(vector.cross(cross,hdir))
+    local hrot = {x=vrot.x+hpitch,y=vrot.y-hyaw,z=roll}
+    local hdir = airutils.rot_to_dir(hrot) --(hrot)
+    local cross = vector.cross(velocity,hdir)
+    local lift_dir = vector.normalize(vector.cross(cross,hdir))
 
-        local lift_coefficient = (0.24*math.abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
-        local lift_val = math.abs((lift*(vector.length(striped_velocity)^2)*lift_coefficient)*curr_percent_height)
-        if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
-        --minetest.chat_send_all('lift: '.. lift_val)
+    local lift_coefficient = (0.24*math.abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
+    local lift_val = math.abs((lift*(vector.length(striped_velocity)^2)*lift_coefficient)*curr_percent_height)
+    if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
 
-        local lift_acc = vector.multiply(lift_dir,lift_val)
-        --lift_acc=vector.add(vector.multiply(minetest.yaw_to_dir(rotation.y),acc),lift_acc)
+    if airutils.show_lift then
+        --yes, I limited it to singleplayer only, it is just for dev purposes
+        minetest.chat_send_player("singleplayer",core.colorize('#ffff00', " >>> lift: "..lift_val))
+    end
 
-        retval = vector.add(retval,lift_acc)
-    --end
+    local lift_acc = vector.multiply(lift_dir,lift_val)
+    --lift_acc=vector.add(vector.multiply(minetest.yaw_to_dir(rotation.y),acc),lift_acc)
+
+    retval = vector.add(retval,lift_acc)
     -----------------------------------------------------------
     -- end lift
-
+    
     return retval
 end
 
@@ -546,3 +555,44 @@ minetest.register_chatcommand("eject_from_plane", {
 		end
 	end
 })
+
+minetest.register_chatcommand("ground_effect", {
+    params = "<on/off>",
+    description = "Enables/disables the ground effect (for debug purposes)",
+    privs = {interact=true},
+	func = function(name, param)
+        local player = minetest.get_player_by_name(name)
+        if minetest.check_player_privs(name, {server=true}) then
+            if param == "on" or param == "" then
+                airutils.ground_effect_is_disabled = nil
+                minetest.chat_send_player(name,core.colorize('#00ff00', " >>> Ground effect was turned on."))
+            elseif param == "off" then
+                airutils.ground_effect_is_disabled = true
+                minetest.chat_send_player(name,core.colorize('#0000ff', " >>> Ground effect was turned off."))
+            end
+        else
+            minetest.chat_send_player(name,core.colorize('#ff0000', " >>> You need 'server' priv to run this command."))
+        end
+	end
+})
+
+minetest.register_chatcommand("show_lift", {
+    params = "<on/off>",
+    description = "Enables/disables the lift printing (for debug purposes)",
+    privs = {interact=true},
+	func = function(name, param)
+        local player = minetest.get_player_by_name(name)
+        if minetest.check_player_privs(name, {server=true}) then
+            if param == "on" or param == "" then
+                airutils.show_lift = true
+                minetest.chat_send_player(name,core.colorize('#0000ff', " >>> Lift printing turned on."))
+            elseif param == "off" then
+                airutils.show_lift = nil
+                minetest.chat_send_player(name,core.colorize('#00ff00', " >>> Lift printing turned off."))
+            end
+        else
+            minetest.chat_send_player(name,core.colorize('#ff0000', " >>> You need 'server' priv to run this command."))
+        end
+	end
+})
+

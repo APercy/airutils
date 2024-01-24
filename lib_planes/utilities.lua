@@ -411,7 +411,7 @@ function airutils.testImpact(self, velocity, position)
             self._last_touch = 0
             if not self._ground_friction then self._ground_friction = 0.99 end
 
-            if self._ground_friction > 0.97 then
+            if self._ground_friction > 0.97 and self.wheels then
                 minetest.sound_play("airutils_touch", {
                     --to_player = self.driver_name,
                     object = self.object,
