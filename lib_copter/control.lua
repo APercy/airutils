@@ -26,28 +26,6 @@ local function floating_auto_correction(self, dtime)
     --minetest.chat_send_all(dump(self._wing_configuration))
 end
 
-local function set_pitch_by_mouse(self, player)
-    local vehicle_rot = self.object:get_rotation()
-    local rot_x = player:get_look_vertical()-vehicle_rot.x
-	self._elevator_angle = -(rot_x * self._elevator_limit)*(self._pitch_intensity*10)
-    if self._elevator_angle > self._elevator_limit then self._elevator_angle = self._elevator_limit end
-    if self._elevator_angle < -self._elevator_limit then self._elevator_angle = -self._elevator_limit end
-end
-
-function set_pitch(self, dir, dtime)
-    local pitch_factor = self._pitch_intensity or 0.6
-    local multiplier = pitch_factor*(dtime/airutils.ideal_step)
-	if dir == -1 then
-        --minetest.chat_send_all("cabrando")
-        if self._elevator_angle > 0 then pitch_factor = pitch_factor * 2 end
-		self._elevator_angle = math.max(self._elevator_angle-multiplier,-self._elevator_limit)
-	elseif dir == 1 then
-        --minetest.chat_send_all("picando")
-        if self._angle_of_attack < 0 then pitch_factor = 1 end --lets reduce the command power to avoid accidents
-		self._elevator_angle = math.min(self._elevator_angle+multiplier,self._elevator_limit)
-	end
-end
-
 local function set_yaw_by_mouse(self, dir)
     local rotation = self.object:get_rotation()
     local rot_y = math.deg(rotation.y)
@@ -127,6 +105,7 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
             self._wing_configuration = self._stable_collective or 1
         end
 
+        local yaw_cmd = 0
         if is_flying or self.wheels then
             local acc_fraction = (self._max_engine_acc / 10)*time_correction
             if ctrl.up then
@@ -140,11 +119,12 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
 
             if is_flying then --why double check? because I dont want lateral movement when landed
                 if ctrl.right then
-                    if later_speed < self._max_speed then self._lat_acceleration = self._lat_acceleration + acc_fraction end
+                    yaw_cmd = 1
+                    if later_speed < self._max_speed and self._yaw_by_mouse then self._lat_acceleration = self._lat_acceleration + acc_fraction end
                 elseif ctrl.left then
-                    if later_speed > -self._max_speed then self._lat_acceleration = self._lat_acceleration + (-acc_fraction) end
+                    yaw_cmd = -1
+                    if later_speed > -self._max_speed and self._yaw_by_mouse then self._lat_acceleration = self._lat_acceleration + (-acc_fraction) end
                 end
-                --set_yaw(self, yaw_cmd, dtime)
             end
         else
             self._acceleration = 0
@@ -161,19 +141,13 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
         retval_accel=vector.add(retval_accel,hull_acc)
         retval_accel=vector.add(retval_accel,lat_hull_acc)
 
-        --pitch
-        local pitch_cmd = 0
-        if self._yaw_by_mouse == true then
-            set_pitch_by_mouse(self, player)
-        else
-            if ctrl.up then pitch_cmd = 1 elseif ctrl.down then pitch_cmd = -1 end
-            set_pitch(self, pitch_cmd, dtime)
-        end
-
 		-- yaw
-        local rot_y = math.deg(player:get_look_horizontal())
-        set_yaw_by_mouse(self, rot_y)
-
+        if self._yaw_by_mouse then
+            local rot_y = math.deg(player:get_look_horizontal())
+            set_yaw_by_mouse(self, rot_y)
+        else
+            set_yaw(self, yaw_cmd, dtime)
+        end
 
         --I'm desperate, center all!
         if ctrl.right and ctrl.left then
