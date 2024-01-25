@@ -5,11 +5,18 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELI
 
 local function floating_auto_correction(self, dtime)
     local factor = 1
+    local range = 0.03 --above and bellow
+
+    if self._wing_configuration > self._stable_collective + range or
+        self._wing_configuration < self._stable_collective - range then
+        return
+    end
+
     --minetest.chat_send_player(self.driver_name, "antes: " .. self._air_float)
     if self._wing_configuration > self._stable_collective then factor = -1 end
     local time_correction = (dtime/airutils.ideal_step)
     if time_correction < 1 then time_correction = 1 end
-    local intensity = 0.01
+    local intensity = 1
     local correction = (intensity*factor) * time_correction
 
     local new_wing_configuration = self._wing_configuration + correction
@@ -101,7 +108,7 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
             --control lift
             local collective_up_max = 1.2
             local min_angle = self._min_collective
-            local collective_up = collective_up_max -- / 10
+            local collective_up = collective_up_max / 10
 		    if ctrl.jump then
                 self._wing_configuration = self._wing_configuration + collective_up
                 --end

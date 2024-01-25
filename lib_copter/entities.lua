@@ -1,5 +1,27 @@
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 
+local function engine_set_sound_and_animation(self, is_flying)
+    is_flying = is_flying or false
+    --minetest.chat_send_all('test1 ' .. dump(self._engine_running) )
+    if self._engine_running or is_flying then
+        self.object:set_animation_frame_speed(100)
+        if self.sound_handle == nil then
+            self.sound_handle = minetest.sound_play({name = self._engine_sound},
+                {object = self.object, gain = 2.0,
+                    pitch = 1.0,
+                    max_hear_distance = 32,
+                    loop = true,})
+
+        end
+    else
+        if self.sound_handle then
+            minetest.sound_stop(self.sound_handle)
+            self.sound_handle = nil
+            self.object:set_animation_frame_speed(0)
+        end
+    end
+end
+
 local function ground_pitch(self, longit_speed, curr_pitch)
     local newpitch = curr_pitch
     if self._last_longit_speed == nil then self._last_longit_speed = 0 end
@@ -220,13 +242,20 @@ function airutils.logic_heli(self)
 
     local ceiling = 5000
     local blade_speed = self._rotor_speed or 15
-    local limit = 10
-    if self._engine_running == false then blade_speed = self._rotor_idle_speed or 12 end
+    local limit = (self._max_speed)
+    if self._engine_running == false then
+        if is_flying then
+            blade_speed = self._rotor_idle_speed or 12
+            if math.abs(longit_speed) > 0.5 then blade_speed = self._rotor_idle_speed + (self._rotor_speed - self._rotor_idle_speed) / 2 end
+        else
+            blade_speed = 1 --to avoid division by 0
+        end
+    end
     local new_accel = airutils.getLiftAccel(self, {x=0, y=velocity.y, z=blade_speed}, {x=0, y=accel.y, z=blade_speed/self.dtime}, blade_speed, roll, curr_pos, self._lift, ceiling, self._wing_span)
     local y_accell = new_accel.y
     new_accel = vector.new(accel)
     new_accel.y = y_accell
-    if new_accel.y > limit then new_accel.y = limit end --it isn't a rocket :/
+    if velocity.y > limit then new_accel.y = 0 end --it isn't a rocket :/
 
     --wind effects
     if airutils.wind and is_flying == true then
@@ -271,7 +300,7 @@ function airutils.logic_heli(self)
     ------------------------------------------------------
     -- sound and animation
     ------------------------------------------------------
-    airutils.engine_set_sound_and_animation(self)
+    engine_set_sound_and_animation(self, is_flying)
 
     ------------------------------------------------------
 
