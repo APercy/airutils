@@ -1,55 +1,49 @@
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 
-local function engine_set_sound_and_animation(self, is_flying)
+function engineSoundPlay(self, increment)
+    increment = increment or 0.0
+    --sound
+    if self.sound_handle then minetest.sound_stop(self.sound_handle) end
+    if self.object then
+        local pitch_adjust = 0.9 + increment
+        self.sound_handle = minetest.sound_play({name = self._engine_sound},
+            {object = self.object, gain = 2.0,
+                pitch = pitch_adjust,
+                max_hear_distance = 32,
+                loop = true,})
+    end
+end
+
+local function engine_set_sound_and_animation(self, is_flying, newpitch, newroll)
     is_flying = is_flying or false
     --minetest.chat_send_all('test1 ' .. dump(self._engine_running) )
     if self._engine_running or is_flying then
+
+        if self._snd_last_roll ~= newroll or self._snd_last_pitch ~= newpitch then
+            local increment = 0.0
+            self._snd_last_roll = newroll
+            self._snd_last_pitch = newpitch
+            if newroll ~= 0.0 or newpitch ~= 0.0 then increment = 0.1 else increment = 0.0 end
+            engineSoundPlay(self, increment)
+        end
+
         self.object:set_animation_frame_speed(100)
-        if self.sound_handle == nil then
+        --[[if self.sound_handle == nil then
             self.sound_handle = minetest.sound_play({name = self._engine_sound},
                 {object = self.object, gain = 2.0,
                     pitch = 1.0,
                     max_hear_distance = 32,
                     loop = true,})
-
-        end
+        end]]--
     else
         if self.sound_handle then
+            self._snd_last_roll = nil
+            self._snd_last_pitch = nil
             minetest.sound_stop(self.sound_handle)
             self.sound_handle = nil
             self.object:set_animation_frame_speed(0)
         end
     end
-end
-
-local function ground_pitch(self, longit_speed, curr_pitch)
-    local newpitch = curr_pitch
-    if self._last_longit_speed == nil then self._last_longit_speed = 0 end
-
-    -- Estado atual do sistema
-    if self._current_value == nil then self._current_value = 0 end -- Valor atual do sistema
-    if self._last_error == nil then self._last_error = 0 end -- Último erro registrado
-
-    -- adjust pitch at ground
-    if math.abs(longit_speed) < self._tail_lift_max_speed then
-        local speed_range = self._tail_lift_max_speed - self._tail_lift_min_speed
-        local percentage = 1-((math.abs(longit_speed) - self._tail_lift_min_speed)/speed_range)
-        if percentage > 1 then percentage = 1 end
-        if percentage < 0 then percentage = 0 end
-        local angle = self._tail_angle * percentage
-        local rad_angle = math.rad(angle)
-
-        if newpitch < rad_angle then newpitch = rad_angle end --ja aproveita o pitch atual se ja estiver cerrto
-        --[[self._current_value = curr_pitch
-        local kp = (longit_speed - self._tail_lift_min_speed)/10
-        local output, last_error = airutils.pid_controller(self._current_value, rad_angle, self._last_error, self.dtime, kp)
-        self._last_error = last_error
-        newpitch = output]]--
-
-        if newpitch > math.rad(self._tail_angle) then newpitch = math.rad(self._tail_angle) end --não queremos arrastar o cauda no chão
-    end
-    
-    return newpitch
 end
 
 function airutils.logic_heli(self)
@@ -300,11 +294,9 @@ function airutils.logic_heli(self)
     ------------------------------------------------------
     -- sound and animation
     ------------------------------------------------------
-    engine_set_sound_and_animation(self, is_flying)
+    engine_set_sound_and_animation(self, is_flying, newpitch, newroll)
 
     ------------------------------------------------------
-
-    --self.object:get_luaentity() --hack way to fix jitter on climb
 
     --GAUGES
     --minetest.chat_send_all('rate '.. climb_rate)
