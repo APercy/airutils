@@ -5,7 +5,9 @@ function engineSoundPlay(self, increment)
     --sound
     if self.sound_handle then minetest.sound_stop(self.sound_handle) end
     if self.object then
-        local pitch_adjust = 0.9 + increment
+        local base_pitch = 0.9
+        if self._engine_running == false then base_pitch = 0.6 end
+        local pitch_adjust = base_pitch + increment
         self.sound_handle = minetest.sound_play({name = self._engine_sound},
             {object = self.object, gain = 2.0,
                 pitch = pitch_adjust,
@@ -309,7 +311,9 @@ function airutils.logic_heli(self)
     local speed_angle = airutils.get_gauge_angle(indicated_speed, -45)
 
     --adjust power indicator
-    local power_indicator_angle = airutils.get_gauge_angle(self._power_lever/10) + 90
+    local fixed_power = 60
+    if self._engine_running == false then fixed_power = 0 end
+    local power_indicator_angle = airutils.get_gauge_angle(fixed_power/10) + 90
     local fuel_in_percent = (self._energy * 1)/self._max_fuel
     local energy_indicator_angle = (180*fuel_in_percent)-180    --(airutils.get_gauge_angle((self._max_fuel - self._energy)*2)) - 90
 
