@@ -45,9 +45,17 @@ function airutils.pilot_formspec(name)
     local yaw = "false"
     if ent._yaw_by_mouse then yaw = "true" end
 
+    local eng_status = "false"
+    local eng_status_color = "#ff0000"
+    if ent._engine_running then
+        eng_status = "true"
+        eng_status_color = "#00ff00"
+    end
+
     local ver_pos = 1.0
     local basic_form = ""
-	basic_form = basic_form.."button[1,"..ver_pos..";4,1;turn_on;Start/Stop Engines]"
+	--basic_form = basic_form.."button[1,"..ver_pos..";4,1;turn_on;Start/Stop Engines]"
+    basic_form = basic_form.."checkbox[1,"..ver_pos..";turn_on;"..core.colorize(eng_status_color, "Start/Stop Engines")..";"..eng_status.."]"
     ver_pos = ver_pos + 1.1
 	basic_form = basic_form.."button[1,"..ver_pos..";4,1;hud;Show/Hide Gauges]"
     ver_pos = ver_pos + 1.1
