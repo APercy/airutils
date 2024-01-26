@@ -156,7 +156,7 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
             --self._rudder_angle = 0
         end
 
-        if ctrl.up and ctrl.down and self._last_time_command > 0.5 then
+        if ctrl.up and ctrl.down and self._last_time_command >= 0.5 then
             self._last_time_command = 0
             local name = player:get_player_name()
             if self._yaw_by_mouse == true then
