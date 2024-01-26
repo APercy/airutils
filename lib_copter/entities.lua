@@ -176,7 +176,7 @@ function airutils.logic_heli(self)
     local newroll = 0
     local newpitch = 0
     if ctrl and is_flying then
-        local command_angle = math.rad(8)
+        local command_angle = math.rad(self._tilt_angle or 0)
         if ctrl.up then newpitch = -command_angle end
         if ctrl.down then newpitch = command_angle end
         if ctrl.left then newroll = -command_angle end
@@ -242,7 +242,7 @@ function airutils.logic_heli(self)
             blade_speed = self._rotor_idle_speed or 12
             if math.abs(longit_speed) > 0.5 then blade_speed = self._rotor_idle_speed + (self._rotor_speed - self._rotor_idle_speed) / 2 end
         else
-            blade_speed = 1 --to avoid division by 0
+            blade_speed = 0.001 --to avoid division by 0
         end
     end
     local new_accel = airutils.getLiftAccel(self, {x=0, y=velocity.y, z=blade_speed}, {x=0, y=accel.y, z=blade_speed/self.dtime}, blade_speed, roll, curr_pos, self._lift, ceiling, self._wing_span)
