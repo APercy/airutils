@@ -1,6 +1,8 @@
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "hud.lua")
 
+local S = airutils.S
+
 function airutils.properties_copy(origin_table)
     local tablecopy = {}
     for k, v in pairs(origin_table) do
@@ -60,7 +62,7 @@ function airutils.attach(self, player, instructor_mode)
     if self._needed_licence then
         local can_fly = minetest.check_player_privs(player, self._needed_licence)
         if not can_fly then
-            minetest.chat_send_player(player:get_player_name(), core.colorize('#ff0000', ' >>> You need trhe priv "'..self._needed_licence..'" to fly this plane.'))
+            minetest.chat_send_player(player:get_player_name(), core.colorize('#ff0000', S(' >>> You need the priv') .. '"'..self._needed_licence..'" ' .. S('to fly this plane.')))
             return
         end
     end
@@ -907,7 +909,7 @@ function airutils.start_engine(self)
             self._last_applied_power = -1 --send signal to start
         else
             if self.driver_name then
-                minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', " >>> The engine is damaged, start procedure failed."))
+                minetest.chat_send_player(self.driver_name,core.colorize('#ff0000', S(" >>> The engine is damaged, start procedure failed.")))
             end
         end
     end
@@ -1033,7 +1035,7 @@ end
 
 function airutils.flap_operate(self, player)
     if self._flap == false then
-        minetest.chat_send_player(player:get_player_name(), ">>> Flap down")
+        minetest.chat_send_player(player:get_player_name(), S(">>> Flap down"))
         self._flap = true
         airutils.flap_on(self)
         minetest.sound_play("airutils_collision", {
@@ -1044,7 +1046,7 @@ function airutils.flap_operate(self, player)
             pitch = 0.5,
         }, true)
     else
-        minetest.chat_send_player(player:get_player_name(), ">>> Flap up")
+        minetest.chat_send_player(player:get_player_name(), S(">>> Flap up"))
         self._flap = false
         airutils.flap_off(self)
         minetest.sound_play("airutils_collision", {
@@ -1192,7 +1194,7 @@ function airutils.destroyed_open_inventory(self, clicker)
         end
         airutils.show_vehicle_trunk_formspec(self, clicker, self._trunk_slots)
     else
-        minetest.chat_send_player(name, core.colorize('#ff0000', '>>> You cannot claim this scrap yet, wait some minutes.'))
+        minetest.chat_send_player(name, core.colorize('#ff0000', S('>>> You cannot claim this scrap yet, wait some minutes.')))
     end
 end
 

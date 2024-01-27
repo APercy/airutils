@@ -1,4 +1,4 @@
-local S = minetest.get_translator("airutils")
+local S = airutils.S
 
 function airutils.move_target(player, pointed_thing)
     local pos = player:get_pos()
@@ -42,7 +42,7 @@ function airutils.move_target(player, pointed_thing)
 end
 
 minetest.register_tool("airutils:tug", {
-	description = "Tug tool for airport",
+	description = S("Tug tool for airport"),
 	inventory_image = "airutils_tug.png",
 	stack_max=1,
 	on_use = function(itemstack, player, pointed_thing)
