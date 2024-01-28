@@ -1,12 +1,11 @@
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 
-function engineSoundPlay(self, increment)
+function engineSoundPlay(self, increment, base)
     increment = increment or 0.0
     --sound
     if self.sound_handle then minetest.sound_stop(self.sound_handle) end
     if self.object then
-        local base_pitch = 0.9
-        if self._engine_running == false then base_pitch = 0.6 end
+        local base_pitch = base
         local pitch_adjust = base_pitch + increment
         self.sound_handle = minetest.sound_play({name = self._engine_sound},
             {object = self.object, gain = 2.0,
@@ -18,32 +17,37 @@ end
 
 local function engine_set_sound_and_animation(self, is_flying, newpitch, newroll)
     is_flying = is_flying or false
-    --minetest.chat_send_all('test1 ' .. dump(self._engine_running) )
-    if self._engine_running or is_flying then
+    
+    if self._engine_running then --engine running
 
         if self._snd_last_roll ~= newroll or self._snd_last_pitch ~= newpitch then
             local increment = 0.0
             self._snd_last_roll = newroll
             self._snd_last_pitch = newpitch
             if newroll ~= 0.0 or newpitch ~= 0.0 then increment = 0.1 else increment = 0.0 end
-            engineSoundPlay(self, increment)
+            engineSoundPlay(self, increment, 0.9)
         end
 
         self.object:set_animation_frame_speed(100)
-        --[[if self.sound_handle == nil then
-            self.sound_handle = minetest.sound_play({name = self._engine_sound},
-                {object = self.object, gain = 2.0,
-                    pitch = 1.0,
-                    max_hear_distance = 32,
-                    loop = true,})
-        end]]--
     else
-        if self.sound_handle then
-            self._snd_last_roll = nil
-            self._snd_last_pitch = nil
-            minetest.sound_stop(self.sound_handle)
-            self.sound_handle = nil
-            self.object:set_animation_frame_speed(0)
+        if is_flying then --autorotation here
+            if self._snd_last_roll ~= newroll or self._snd_last_pitch ~= newpitch then
+                local increment = 0.0
+                self._snd_last_roll = newroll
+                self._snd_last_pitch = newpitch
+                if newroll ~= 0.0 or newpitch ~= 0.0 then increment = 0.1 else increment = 0.0 end
+                engineSoundPlay(self, increment, 0.6)
+            end
+
+            self.object:set_animation_frame_speed(70)
+        else --stop all
+            if self.sound_handle then
+                self._snd_last_roll = nil
+                self._snd_last_pitch = nil
+                minetest.sound_stop(self.sound_handle)
+                self.sound_handle = nil
+                self.object:set_animation_frame_speed(0)
+            end
         end
     end
 end
@@ -118,6 +122,7 @@ function airutils.logic_heli(self)
     if self.colinfo then
         is_flying = (not self.colinfo.touching_ground) and (self.isinliquid == false)
     end
+    --if self.isonground then is_flying = false end
     --if is_flying then minetest.chat_send_all('is flying') end
 
     local is_attached = airutils.checkAttach(self, player)
@@ -162,6 +167,7 @@ function airutils.logic_heli(self)
         if self._ground_friction then
             if not self.isinliquid then self.object:set_velocity({x=0,y=airutils.gravity*self.dtime,z=0}) end
         end
+        engine_set_sound_and_animation(self, false, 0, 0)
         return
     end
 
