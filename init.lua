@@ -23,6 +23,18 @@ airutils.colors ={
     yellow='#ffe400',
 }
 
+airutils.S = nil
+
+if(minetest.get_translator ~= nil) then
+    airutils.S = minetest.get_translator(minetest.get_current_modname())
+
+else
+    airutils.S = function ( s ) return s end
+
+end
+
+local S = airutils.S
+
 local load_blast_damage = storage:get_int("blast_damage")
 airutils.blast_damage = true
 -- 1 == true ---- 2 == false
@@ -113,12 +125,12 @@ function airutils.setText(self, vehicle_name)
     local formatted = ""
     if type(self.hp_max) ~= "number" then self.hp_max = 0.1 end --strange error when hpmax is NaN
     if self.hp_max then
-        formatted = " Current hp: " .. string.format(
+        formatted = S(" Current hp: ") .. string.format(
            "%.2f", self.hp_max
         )
     end
     if properties then
-        properties.infotext = "Nice ".. vehicle_name .." of " .. self.owner .. "." .. formatted
+        properties.infotext = S("Nice @1 of @2.@3", vehicle_name, self.owner, formatted)
         self.object:set_properties(properties)
     end
 end
@@ -129,19 +141,19 @@ function airutils.transfer_control(self, status)
         self._command_is_given = false
         if self.co_pilot then
             minetest.chat_send_player(self.co_pilot,
-                core.colorize('#ff0000', " >>> The captain got the control."))
+                core.colorize('#ff0000', S(" >>> The captain got the control.")))
         end
         if self.driver_name then
             minetest.chat_send_player(self.driver_name,
-                core.colorize('#00ff00', " >>> The control is with you now."))
+                core.colorize('#00ff00', S(" >>> The control is with you now.")))
         end
     else
         self._command_is_given = true
         if self.co_pilot then
             minetest.chat_send_player(self.co_pilot,
-                core.colorize('#00ff00', " >>> The control is with you now."))
+                core.colorize('#00ff00', S(" >>> The control is with you now.")))
         end
-        if self.driver_name then minetest.chat_send_player(self.driver_name," >>> The control was given.") end
+        if self.driver_name then minetest.chat_send_player(self.driver_name,S(" >>> The control was given.")) end
     end
 end
 
@@ -472,17 +484,17 @@ end
 
 minetest.register_chatcommand("enable_blast_damage", {
     params = "<true/false>",
-    description = "Enable/disable explosion blast damage",
+    description = S("Enable/disable explosion blast damage"),
     privs = {server=true},
     func = function(name, param)
         local command = param
 
         if command == "false" then
             airutils.blast_damage = false
-            minetest.chat_send_player(name, ">>> Blast damage by explosion is disabled")
+            minetest.chat_send_player(name, S(">>> Blast damage by explosion is disabled"))
         else
             airutils.blast_damage = true
-            minetest.chat_send_player(name, ">>> Blast damage by explosion is enabled")
+            minetest.chat_send_player(name, S(">>> Blast damage by explosion is enabled"))
         end
         local save = 2
         if airutils.blast_damage == true then save = 1 end
@@ -492,7 +504,7 @@ minetest.register_chatcommand("enable_blast_damage", {
 
 minetest.register_chatcommand("transfer_ownership", {
     params = "<new_owner>",
-    description = "Transfer the property of a plane to another player",
+    description = S("Transfer the property of a plane to another player"),
     privs = {interact=true},
 	func = function(name, param)
         local player = minetest.get_player_by_name(name)
@@ -507,27 +519,27 @@ minetest.register_chatcommand("transfer_ownership", {
                     if entity then
                         if entity.owner == name or minetest.check_player_privs(name, {protection_bypass=true}) then
                             entity.owner = param
-                            minetest.chat_send_player(name,core.colorize('#00ff00', " >>> This plane now is property of: "..param))
+                            minetest.chat_send_player(name,core.colorize('#00ff00', S(" >>> This plane now is property of: ")..param))
                         else
-                            minetest.chat_send_player(name,core.colorize('#ff0000', " >>> only the owner or moderators can transfer this airplane"))
+                            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> only the owner or moderators can transfer this airplane")))
                         end
                     end
                 end
             else
-                minetest.chat_send_player(name,core.colorize('#ff0000', " >>> the target player must be logged in"))
+                minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> the target player must be logged in")))
             end
 		else
-			minetest.chat_send_player(name,core.colorize('#ff0000', " >>> you are not inside a plane to perform the command"))
+			minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> you are not inside a plane to perform the command")))
 		end
 	end
 })
 
 minetest.register_chatcommand("eject_from_plane", {
 	params = "",
-	description = "Ejects from a plane",
+	description = S("Ejects from a plane"),
 	privs = {interact = true},
 	func = function(name, param)
-        local colorstring = core.colorize('#ff0000', " >>> you are not inside a plane")
+        local colorstring = core.colorize('#ff0000', S(" >>> you are not inside a plane"))
         local player = minetest.get_player_by_name(name)
         local attached_to = player:get_attach()
 
@@ -556,40 +568,40 @@ minetest.register_chatcommand("eject_from_plane", {
 
 minetest.register_chatcommand("ground_effect", {
     params = "<on/off>",
-    description = "Enables/disables the ground effect (for debug purposes)",
+    description = S("Enables/disables the ground effect (for debug purposes)"),
     privs = {interact=true},
 	func = function(name, param)
         local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
             if param == "on" or param == "" then
                 airutils.ground_effect_is_disabled = nil
-                minetest.chat_send_player(name,core.colorize('#00ff00', " >>> Ground effect was turned on."))
+                minetest.chat_send_player(name,core.colorize('#00ff00', S(" >>> Ground effect was turned on.")))
             elseif param == "off" then
                 airutils.ground_effect_is_disabled = true
-                minetest.chat_send_player(name,core.colorize('#0000ff', " >>> Ground effect was turned off."))
+                minetest.chat_send_player(name,core.colorize('#0000ff', S(">>> Ground effect was turned off.")))
             end
         else
-            minetest.chat_send_player(name,core.colorize('#ff0000', " >>> You need 'server' priv to run this command."))
+            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> You need 'server' priv to run this command.")))
         end
 	end
 })
 
 minetest.register_chatcommand("show_lift", {
     params = "<on/off>",
-    description = "Enables/disables the lift printing (for debug purposes)",
+    description = S("Enables/disables the lift printing (for debug purposes)"),
     privs = {interact=true},
 	func = function(name, param)
         local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
             if param == "on" or param == "" then
                 airutils.show_lift = name
-                minetest.chat_send_player(name,core.colorize('#0000ff', " >>> Lift printing turned on."))
+                minetest.chat_send_player(name,core.colorize('#0000ff', S(" >>> Lift printing turned on.")))
             elseif param == "off" then
                 airutils.show_lift = nil
-                minetest.chat_send_player(name,core.colorize('#00ff00', " >>> Lift printing turned off."))
+                minetest.chat_send_player(name,core.colorize('#00ff00', S(" >>> Lift printing turned off.")))
             end
         else
-            minetest.chat_send_player(name,core.colorize('#ff0000', " >>> You need 'server' priv to run this command."))
+            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> You need 'server' priv to run this command.")))
         end
 	end
 })

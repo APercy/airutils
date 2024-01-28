@@ -5,6 +5,7 @@ airutils.ideal_step = 0.02
 airutils.elevator_limit = 40]]--
 
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "utilities.lua")
+local S = airutils.S
 
 function airutils.powerAdjust(self,dtime,factor,dir,max_power)
     local max = max_power or 100
@@ -138,10 +139,10 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
             self._last_time_command = 0
             local name = player:get_player_name()
             if self._yaw_by_mouse == true then
-                minetest.chat_send_player(name, core.colorize('#0000ff', " >>> Mouse control disabled."))
+                minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control disabled.")))
                 self._yaw_by_mouse = false
             else
-                minetest.chat_send_player(name, core.colorize('#0000ff', " >>> Mouse control enabled."))
+                minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control enabled.")))
                 self._yaw_by_mouse = true
             end
         end

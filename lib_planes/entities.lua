@@ -1,5 +1,7 @@
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 
+local S = airutils.S
+
 function lib_change_color(self, colstr)
     airutils.param_paint(self, colstr)
 end
@@ -238,14 +240,14 @@ function airutils.logic(self)
                 if ctrl.sneak or ctrl.jump or ctrl.up or ctrl.down or ctrl.right or ctrl.left then
                     self._last_time_command = 0
                     self._autopilot = false
-                    minetest.chat_send_player(self.driver_name," >>> Autopilot deactivated")
+                    minetest.chat_send_player(self.driver_name,S(" >>> Autopilot deactivated"))
                 end
             else
                 if ctrl.sneak == true and ctrl.jump == true and self._have_auto_pilot then
                     self._last_time_command = 0
                     self._autopilot = true
                     self._auto_pilot_altitude = curr_pos.y
-                    minetest.chat_send_player(self.driver_name,core.colorize('#00ff00', " >>> Autopilot on"))
+                    minetest.chat_send_player(self.driver_name,core.colorize('#00ff00', S(" >>> Autopilot on")))
                 end
             end
         end
@@ -613,7 +615,7 @@ function airutils.logic(self)
 
     if (longit_speed / 2) > self._max_speed and self._flap == true then
         if is_attached and self.driver_name then
-            minetest.chat_send_player(self.driver_name, core.colorize('#ff0000', " >>> Flaps retracted due for overspeed"))
+            minetest.chat_send_player(self.driver_name, core.colorize('#ff0000', S(" >>> Flaps retracted due for overspeed")))
         end
         self._flap = false
     end
@@ -721,7 +723,7 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
                     if self.hp_max > self._max_plane_hp then self.hp_max = self._max_plane_hp end
                     airutils.setText(self, self._vehicle_name)
                 else
-                    minetest.chat_send_player(puncher:get_player_name(), "You need steel ingots in your inventory to perform this repair.")
+                    minetest.chat_send_player(puncher:get_player_name(), S("You need steel ingots in your inventory to perform this repair."))
                 end
             end
             return
@@ -878,7 +880,7 @@ function airutils.on_rightclick(self, clicker)
             end
         else
             airutils.dettach_pax(self, clicker)
-            minetest.chat_send_player(name, core.colorize('#ff0000', " >>> You aren't the owner of this "..self.infotext.."."))
+            minetest.chat_send_player(name, core.colorize('#ff0000', S(" >>> You aren't the owner of this "..self.infotext..".")))
         end
 
     --=========================
