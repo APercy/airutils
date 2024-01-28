@@ -321,7 +321,7 @@ function airutils.logic_heli(self)
     if self._engine_running == false then fixed_power = 0 end
     local power_indicator_angle = airutils.get_gauge_angle(fixed_power/10) + 90
     local fuel_in_percent = (self._energy * 1)/self._max_fuel
-    local energy_indicator_angle = (180*fuel_in_percent)-180    --(airutils.get_gauge_angle((self._max_fuel - self._energy)*2)) - 90
+    local energy_indicator_angle = (180*fuel_in_percent)-180
 
     if is_attached then
         if self._show_hud then
