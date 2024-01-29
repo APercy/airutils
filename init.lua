@@ -340,6 +340,9 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     local lift_coefficient = (0.24*math.abs(daoa)*(1/(0.025*daoa+3))^4*math.sign(daoa))
     local lift_val = math.abs((lift*(vector.length(striped_velocity)^2)*lift_coefficient)*curr_percent_height)
     if lift_val < 1 then lift_val = 1 end -- hipotetical aerodinamic wing will have no "lift" for down
+    if self._climb_speed then --for helicopters
+        if (velocity.y) > self._climb_speed then lift_val = math.abs(airutils.gravity) end
+    end
 
     if airutils.show_lift then
         minetest.chat_send_player(airutils.show_lift,core.colorize('#ffff00', " >>> lift: "..lift_val))
