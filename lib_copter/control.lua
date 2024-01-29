@@ -108,7 +108,7 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
 
         local yaw_cmd = 0
         if is_flying or self.wheels then
-            local acc_fraction = (self._max_engine_acc / 20)*time_correction
+            local acc_fraction = (self._max_engine_acc / 40)*time_correction
             if ctrl.up then
                 if longit_speed < self._max_speed then self._acceleration = self._acceleration + acc_fraction end
             elseif ctrl.down then
