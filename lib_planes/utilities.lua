@@ -440,7 +440,7 @@ function airutils.testImpact(self, velocity, position)
         if self._last_speed_damage_time == nil then self._last_speed_damage_time = 0 end
         self._last_speed_damage_time = self._last_speed_damage_time + self.dtime
         if self._last_speed_damage_time > 2 then self._last_speed_damage_time = 2 end
-        if self._longit_speed > self._speed_not_exceed and self._last_speed_damage_time >= 2 then
+        if math.abs(self._longit_speed) > self._speed_not_exceed and self._last_speed_damage_time >= 2 then
             self._last_speed_damage_time = 0
             minetest.sound_play("airutils_collision", {
                 --to_player = self.driver_name,

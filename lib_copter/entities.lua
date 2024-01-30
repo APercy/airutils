@@ -19,23 +19,24 @@ local function engine_set_sound_and_animation(self, is_flying, newpitch, newroll
     is_flying = is_flying or false
     
     if self._engine_running then --engine running
-
-        if self._snd_last_roll ~= newroll or self._snd_last_pitch ~= newpitch then
+        if not self.sound_handle then
+            engineSoundPlay(self, 0.0, 0.9)
+        end
+        --self._cmd_snd
+        if self._snd_last_cmd ~= self._cmd_snd then
             local increment = 0.0
-            self._snd_last_roll = newroll
-            self._snd_last_pitch = newpitch
-            if newroll ~= 0.0 or newpitch ~= 0.0 then increment = 0.1 else increment = 0.0 end
+            self._snd_last_cmd = self._cmd_snd
+            if self._cmd_snd then increment = 0.1 else increment = 0.0 end
             engineSoundPlay(self, increment, 0.9)
         end
 
         self.object:set_animation_frame_speed(100)
     else
         if is_flying then --autorotation here
-            if self._snd_last_roll ~= newroll or self._snd_last_pitch ~= newpitch then
+            if self._snd_last_cmd ~= self._cmd_snd then
                 local increment = 0.0
-                self._snd_last_roll = newroll
-                self._snd_last_pitch = newpitch
-                if newroll ~= 0.0 or newpitch ~= 0.0 then increment = 0.1 else increment = 0.0 end
+                self._snd_last_cmd = self._cmd_snd
+                if self._cmd_snd then increment = 0.1 else increment = 0.0 end
                 engineSoundPlay(self, increment, 0.6)
             end
 
@@ -184,11 +185,28 @@ function airutils.logic_heli(self)
     local newroll = 0
     local newpitch = 0
     if ctrl and is_flying then
-        local command_angle = math.rad(self._tilt_angle or 0)
-        if ctrl.up then newpitch = -command_angle end
-        if ctrl.down then newpitch = command_angle end
-        if ctrl.left then newroll = -command_angle end
-        if ctrl.right then newroll = command_angle end
+        local command_angle = self._tilt_angle or 0
+        local max_acc = self._max_engine_acc
+
+        local pitch_ammount = (math.abs(self._vehicle_acc or 0) * command_angle) / max_acc
+        if math.abs(longit_speed) >= self._max_speed then pitch_ammount = command_angle end --gambiarra pra continuar com angulo
+        pitch_ammount = math.rad(math.min(pitch_ammount, command_angle))
+
+        if ctrl.up then newpitch = -pitch_ammount end
+        if ctrl.down then newpitch = pitch_ammount end
+
+        local roll_ammount = (math.abs(self._lat_acc or 0) * command_angle) / max_acc
+        if math.abs(later_speed) >= self._max_speed then roll_ammount = command_angle end --gambiarra pra continuar com angulo
+        roll_ammount = math.rad(math.min(roll_ammount, command_angle))
+
+        if ctrl.left then newroll = -roll_ammount end
+        if ctrl.right then newroll = roll_ammount end
+
+        if ctrl.up or ctrl.down or ctrl.left or ctrl.right then
+            self._cmd_snd = true
+        else
+            self._cmd_snd = false
+        end
     end
 
     -- new yaw

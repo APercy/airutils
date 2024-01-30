@@ -76,9 +76,9 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
             self._last_time_command = 0.5
         end
 
-        self._acceleration = 0
-        self._lat_acceleration = 0
-        local acc = 0
+        if not self._acceleration then self._acceleration = 0 end
+        if not self._lat_acceleration then self._lat_acceleration = 0 end
+        
         if self._engine_running then
             --engine acceleration calc
 
@@ -110,21 +110,39 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
         if is_flying or self.wheels then
             local acc_fraction = (self._max_engine_acc / 40)*time_correction
             if ctrl.up then
-                if longit_speed < self._max_speed then self._acceleration = self._acceleration + acc_fraction end
+                if longit_speed < self._max_speed then
+                    self._acceleration = self._acceleration + acc_fraction
+                else
+                    self._acceleration = 0
+                end
             elseif ctrl.down then
-                if longit_speed > -1.0 then self._acceleration = self._acceleration + (-acc_fraction) end
+                if longit_speed > -1.0 then
+                    self._acceleration = self._acceleration + (-acc_fraction)
+                else
+                    self._acceleration = 0
+                end
             else
-                acc = 0
+                self._acceleration = 0
             end
             self._acceleration = math.min(self._acceleration,self._max_engine_acc)
 
             if is_flying then --why double check? because I dont want lateral movement when landed
                 if ctrl.right then
                     yaw_cmd = 1
-                    if later_speed < self._max_speed and self._yaw_by_mouse then self._lat_acceleration = self._lat_acceleration + acc_fraction end
+                    if later_speed < self._max_speed and self._yaw_by_mouse then
+                        self._lat_acceleration = self._lat_acceleration + acc_fraction
+                    else
+                        self._lat_acceleration = 0
+                    end
                 elseif ctrl.left then
                     yaw_cmd = -1
-                    if later_speed > -self._max_speed and self._yaw_by_mouse then self._lat_acceleration = self._lat_acceleration + (-acc_fraction) end
+                    if later_speed > -self._max_speed and self._yaw_by_mouse then 
+                        self._lat_acceleration = self._lat_acceleration + (-acc_fraction)
+                    else
+                        self._lat_acceleration = 0
+                    end
+                else
+                    self._lat_acceleration = 0
                 end
             end
         else
@@ -153,8 +171,6 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
         --I'm desperate, center all!
         if ctrl.right and ctrl.left then
             self._wing_configuration = self._stable_collective
-            --self._elevator_angle = 0
-            --self._rudder_angle = 0
         end
 
         if ctrl.up and ctrl.down and self._last_time_command >= 0.5 then
@@ -170,11 +186,6 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
         end
 	end
     
-    if is_flying then
-        --floating_auto_correction(self, self.dtime)
-    end
-    --minetest.chat_send_all(dump(self._wing_configuration))
-
     return retval_accel, stop
 end
 
