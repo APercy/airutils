@@ -555,6 +555,10 @@ function airutils.checkattachBug(self)
     local have_driver = (self.driver_name ~= nil)
     if have_driver then
         -- attach the driver again
+        if self.driver_name ~= self.owner then
+            self.driver_name = nil
+            return
+        end
         local player = minetest.get_player_by_name(self.driver_name)
         if player then
 		    if player:get_hp() > 0 then
