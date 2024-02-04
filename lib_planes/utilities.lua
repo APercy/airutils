@@ -522,14 +522,47 @@ function airutils.testImpact(self, velocity, position)
     end
 end
 
+--this method checks for a disconected player who comes back
+function airutils.rescueConnectionFailedPassengers(self)
+    if self._disconnection_check_time == nil then self._disconnection_check_time = 1 end
+    self._disconnection_check_time = self._disconnection_check_time + self.dtime
+    if not self._passengers_base then return end
+    local max_seats = table.getn(self._passengers_base)
+    if self._disconnection_check_time > 1 then
+        --minetest.chat_send_all(dump(self._passengers))
+        self._disconnection_check_time = 0
+        for i = max_seats,1,-1 
+        do 
+            if self._passengers[i] then
+                local player = minetest.get_player_by_name(self._passengers[i])
+                if player then --we have a player!
+                    if player:get_attach() == nil then
+                    --if player_api.player_attached[self._passengers[i]] == nil then --but isn't attached?
+                        --minetest.chat_send_all("okay")
+		                if player:get_hp() > 0 then
+                            self._passengers[i] = nil --clear the slot first
+                            do_attach(self, player, i) --attach
+		                end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function airutils.checkattachBug(self)
     -- for some engine error the player can be detached from the submarine, so lets set him attached again
-    if self.owner and self.driver_name then
+    local have_driver = (self.driver_name ~= nil)
+    if have_driver then
         -- attach the driver again
-        local player = minetest.get_player_by_name(self.owner)
+        local player = minetest.get_player_by_name(self.driver_name)
         if player then
 		    if player:get_hp() > 0 then
-                airutils.attach(self, player, self._instruction_mode)
+                if player:get_attach() == nil then
+                    airutils.attach(self, player, self._instruction_mode)
+                else
+                    self.driver_name = nil
+                end
             else
                 airutils.dettachPlayer(self, player)
 		    end
@@ -1073,34 +1106,6 @@ local function do_attach(self, player, slot)
         end
         player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 3, z = -30})
         sit_player(player, name)
-    end
-end
-
---this method checks for a disconected player who comes back
-function airutils.rescueConnectionFailedPassengers(self)
-    if self._disconnection_check_time == nil then self._disconnection_check_time = 1 end
-    self._disconnection_check_time = self._disconnection_check_time + self.dtime
-    if not self._passengers_base then return end
-    local max_seats = table.getn(self._passengers_base)
-    if self._disconnection_check_time > 1 then
-        --minetest.chat_send_all(dump(self._passengers))
-        self._disconnection_check_time = 0
-        for i = max_seats,1,-1 
-        do 
-            if self._passengers[i] then
-                local player = minetest.get_player_by_name(self._passengers[i])
-                if player then --we have a player!
-                    if player:get_attach() == nil then
-                    --if player_api.player_attached[self._passengers[i]] == nil then --but isn't attached?
-                        --minetest.chat_send_all("okay")
-		                if player:get_hp() > 0 then
-                            self._passengers[i] = nil --clear the slot first
-                            do_attach(self, player, i) --attach
-		                end
-                    end
-                end
-            end
-        end
     end
 end
 
