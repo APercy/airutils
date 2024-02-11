@@ -633,6 +633,7 @@ function airutils.logic(self)
 end
 
 local function damage_vehicle(self, toolcaps, ttime, damage)
+    damage = damage or 0
     if (not toolcaps) then
         return
     end
