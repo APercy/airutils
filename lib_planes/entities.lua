@@ -22,7 +22,8 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_passengers = self._passengers or {},
         stored_adf_destiny = self._adf_destiny or vector.new(),
         stored_skin = self._skin or "",
-        stored_vehicle_custom_data = self._vehicle_custom_data or nil
+        stored_vehicle_custom_data = self._vehicle_custom_data or nil,
+        stored_ship_name = self._ship_name or "",
     })
 end
 
@@ -54,6 +55,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._passengers = data.stored_passengers or {}
         self._adf_destiny = data.stored_adf_destiny or vector.new()
         self._skin = data.stored_skin or ""
+        self._ship_name = data.stored_ship_name or ""
         local custom_data = data.stored_vehicle_custom_data or nil
         if custom_data then
             self._vehicle_custom_data = custom_data
