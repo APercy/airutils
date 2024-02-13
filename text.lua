@@ -176,6 +176,7 @@ local function make_text_texture(text, default_color, line_width, line_height, c
 end
 
 function airutils.convert_text_to_texture(text, default_color, horizontal_aligment)
+    text = text or ""
     default_color = default_color or 0
     horizontal_aligment = horizontal_aligment or 3
 	local font_size
