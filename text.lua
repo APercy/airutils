@@ -67,7 +67,7 @@ local function make_text_texture(text, default_color, line_width, line_height, c
 	local width = 0
 	local maxw = 0
 	local font_name = "signs_lib_font_"..font_size.."px"
-    local text_ansi = Utf8ToAnsi(text)
+    local text_ansi = signs_lib.Utf8ToAnsi(text)
     local text_splited = split(text_ansi)[1]
 
 	local words = { }
@@ -142,7 +142,7 @@ local function make_text_texture(text, default_color, line_width, line_height, c
 
 	local xpos = start_xpos
 	local ypos = line_height
-    if line_height == signs_lib.lineheight31 then ypos = line_height/4 end
+    if line_height == signs_lib.lineheight32 then ypos = line_height/4 end
 
 	cur_color = nil
 
@@ -177,32 +177,32 @@ end
 
 function airutils.convert_text_to_texture(text, default_color, horizontal_aligment)
     default_color = default_color or 0
-    horizontal_aligment = horizontal_aligment or 3.4
+    horizontal_aligment = horizontal_aligment or 3
 	local font_size
 	local line_width
 	local line_height
 	local char_width
 	local colorbgw
     local chars_per_line
-	local widemult = 0.5
+	local widemult
     text = string.sub(text,1,20)
 
     if string.len(text) <= 10 then
-        widemult = widemult + (widemult/2)
-        horizontal_aligment = horizontal_aligment
-	    font_size = 31
+        widemult = 0.75
+	    font_size = 32
         chars_per_line = 10
-	    line_width = math.floor(signs_lib.avgwidth31 * chars_per_line) * (horizontal_aligment * widemult)
-	    line_height = signs_lib.lineheight31
-	    char_width = signs_lib.charwidth31
-	    colorbgw = signs_lib.colorbgw31
+	    line_width = math.floor(signs_lib.avgwidth32 * chars_per_line) * (horizontal_aligment * widemult)
+	    line_height = signs_lib.lineheight32
+	    char_width = signs_lib.charwidth32
+	    colorbgw = signs_lib.colorbgw32
     else
-	    font_size = 15
-        chars_per_line = 20
-	    line_width = math.floor(signs_lib.avgwidth15 * chars_per_line) * (horizontal_aligment * widemult)
-	    line_height = signs_lib.lineheight15
-	    char_width = signs_lib.charwidth15
-	    colorbgw = signs_lib.colorbgw15
+        widemult = 0.5
+	    font_size = 16
+        chars_per_line = 21
+	    line_width = math.floor(signs_lib.avgwidth16 * chars_per_line) * (horizontal_aligment * widemult)
+	    line_height = signs_lib.lineheight16
+	    char_width = signs_lib.charwidth16
+	    colorbgw = signs_lib.colorbgw16
     end
 
 	local texture = { ("[combine:%dx%d"):format(line_width, line_height) }
