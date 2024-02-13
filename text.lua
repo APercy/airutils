@@ -142,6 +142,7 @@ local function make_text_texture(text, default_color, line_width, line_height, c
 
 	local xpos = start_xpos
 	local ypos = line_height
+    if line_height == signs_lib.lineheight31 then ypos = line_height/4 end
 
 	cur_color = nil
 
@@ -176,26 +177,33 @@ end
 
 function airutils.convert_text_to_texture(text, default_color, horizontal_aligment)
     default_color = default_color or 0
-    horizontal_aligment = horizontal_aligment or 0.8
+    horizontal_aligment = horizontal_aligment or 3.4
 	local font_size
 	local line_width
 	local line_height
 	local char_width
 	local colorbgw
-	local widemult = 1
+    local chars_per_line
+	local widemult = 0.5
     text = string.sub(text,1,20)
 
-	--[[font_size = 31
-	line_width = math.floor(signs_lib.avgwidth31 * 20) * (1 * widemult)
-	line_height = signs_lib.lineheight31
-	char_width = signs_lib.charwidth31
-	colorbgw = signs_lib.colorbgw31]]--
-
-	font_size = 15
-	line_width = math.floor(signs_lib.avgwidth15 * 40) * (horizontal_aligment * widemult)
-	line_height = signs_lib.lineheight15
-	char_width = signs_lib.charwidth15
-	colorbgw = signs_lib.colorbgw15
+    if string.len(text) <= 10 then
+        widemult = widemult + (widemult/2)
+        horizontal_aligment = horizontal_aligment
+	    font_size = 31
+        chars_per_line = 10
+	    line_width = math.floor(signs_lib.avgwidth31 * chars_per_line) * (horizontal_aligment * widemult)
+	    line_height = signs_lib.lineheight31
+	    char_width = signs_lib.charwidth31
+	    colorbgw = signs_lib.colorbgw31
+    else
+	    font_size = 15
+        chars_per_line = 20
+	    line_width = math.floor(signs_lib.avgwidth15 * chars_per_line) * (horizontal_aligment * widemult)
+	    line_height = signs_lib.lineheight15
+	    char_width = signs_lib.charwidth15
+	    colorbgw = signs_lib.colorbgw15
+    end
 
 	local texture = { ("[combine:%dx%d"):format(line_width, line_height) }
 	local linetex = make_text_texture(text, default_color, line_width, line_height, char_width, font_size, colorbgw)
