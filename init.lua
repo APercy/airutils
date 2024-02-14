@@ -594,7 +594,7 @@ minetest.register_chatcommand("eject_from_plane", {
 minetest.register_chatcommand("ground_effect", {
     params = "<on/off>",
     description = S("Enables/disables the ground effect (for debug purposes)"),
-    privs = {interact=true},
+    privs = {server=true},
 	func = function(name, param)
         local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
@@ -614,7 +614,7 @@ minetest.register_chatcommand("ground_effect", {
 minetest.register_chatcommand("show_lift", {
     params = "<on/off>",
     description = S("Enables/disables the lift printing (for debug purposes)"),
-    privs = {interact=true},
+    privs = {server=true},
 	func = function(name, param)
         local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
@@ -632,36 +632,46 @@ minetest.register_chatcommand("show_lift", {
 })
 
 if airutils._use_signs_api then
-    minetest.register_chatcommand("set_vehicle_name", {
-	    params = "<name>",
-	    description = S("Sets the vehicle name (when supported by the vehicle)"),
-	    privs = {interact = true},
-	    func = function(name, param)
-            local colorstring = core.colorize('#ff0000', S(" >>> you are not inside a vehicle"))
-            local player = minetest.get_player_by_name(name)
-            local attached_to = player:get_attach()
+    local function prefix_change(name, param)
+        local colorstring = core.colorize('#ff0000', S(" >>> you are not inside a vehicle"))
+        local player = minetest.get_player_by_name(name)
+        if not player then return end
+        local attached_to = player:get_attach()
 
-		    if attached_to ~= nil then
-                local seat = attached_to:get_attach()
-                if seat ~= nil then
-                    local entity = seat:get_luaentity()
-                    if entity then
-                        if entity.owner == name or minetest.check_player_privs(name, {protection_bypass=true}) then
-                            if param then
-                                entity._ship_name = string.sub(param, 1, 40)
-                            else
-                                entity._ship_name = ""
-                            end
-                            airutils._set_name(entity)
-                            minetest.chat_send_player(name,core.colorize('#00ff00', S(" >>> the vehicle name was changed")))
+        if attached_to ~= nil then
+            local seat = attached_to:get_attach()
+            if seat ~= nil then
+                local entity = seat:get_luaentity()
+                if entity then
+                    if entity.owner == name or minetest.check_player_privs(name, {protection_bypass=true}) then
+                        if param then
+                            entity._ship_name = string.sub(param, 1, 40)
                         else
-                            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> only the owner or moderators can name this vehicle")))
+                            entity._ship_name = ""
                         end
+                        airutils._set_name(entity)
+                        minetest.chat_send_player(name,core.colorize('#00ff00', S(" >>> the vehicle name was changed")))
+                    else
+                        minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> only the owner or moderators can name this vehicle")))
                     end
                 end
-		    else
-			    minetest.chat_send_player(name,colorstring)
-		    end
-	    end
+            end
+        else
+	        minetest.chat_send_player(name,colorstring)
+        end
+    end
+
+    minetest.register_chatcommand("set_vehicle_name", {
+	    params = "<name>",
+	    description = S("this command is an aliasfor /set_prefix"),
+	    privs = {interact = true},
+	    func = prefix_change,
+    })
+
+    minetest.register_chatcommand("set_prefix", {
+	    params = "<name>",
+	    description = S("Sets the vehicle prefix"),
+	    privs = {interact = true},
+	    func = prefix_change,
     })
 end
