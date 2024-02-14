@@ -663,7 +663,7 @@ if airutils._use_signs_api then
 
     minetest.register_chatcommand("set_vehicle_name", {
 	    params = "<name>",
-	    description = S("this command is an aliasfor /set_prefix"),
+	    description = S("this command is an alias for /set_prefix"),
 	    privs = {interact = true},
 	    func = prefix_change,
     })
