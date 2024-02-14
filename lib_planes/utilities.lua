@@ -701,6 +701,19 @@ local function _set_skin(self, l_textures, paint_list, target_texture, skin)
     return l_textures
 end
 
+local function set_prefix(self, l_textures)
+    --to reduce cpu processing, put the prefix here
+    if airutils._use_signs_api then
+        for _, texture in ipairs(l_textures) do
+            local indx = texture:find('airutils_name_canvas.png')
+            if indx then
+                l_textures[_] = "airutils_name_canvas.png^"..airutils.convert_text_to_texture(self._ship_name, self._name_color or 0, self._name_hor_aligment or 3.0)
+            end
+        end
+    end
+    return l_textures
+end
+
 --painting
 function airutils.param_paint(self, colstr, colstr_2)
     colstr_2 = colstr_2 or colstr
@@ -708,6 +721,10 @@ function airutils.param_paint(self, colstr, colstr_2)
     if self._skin ~= nil and self._skin ~= "" then
         local l_textures = self.initial_properties.textures
         l_textures = _set_skin(self, l_textures, self._painting_texture, self._skin_target_texture, self._skin)
+
+        --to reduce cpu processing, put the prefix here
+        l_textures = set_prefix(self, l_textures)
+
         self.object:set_properties({textures=l_textures})
 
         if self._paintable_parts then --paint individual parts
@@ -726,14 +743,7 @@ function airutils.param_paint(self, colstr, colstr_2)
         local l_textures = self.initial_properties.textures
 
         --to reduce cpu processing, put the prefix here
-        if airutils._use_signs_api then
-            for _, texture in ipairs(l_textures) do
-                local indx = texture:find('airutils_name_canvas.png')
-                if indx then
-                    l_textures[_] = "airutils_name_canvas.png^"..airutils.convert_text_to_texture(self._ship_name, self._name_color or 0, self._name_hor_aligment or 3.0)
-                end
-            end
-        end
+        l_textures = set_prefix(self, l_textures)
 
         l_textures = _paint(self, l_textures, colstr) --paint the main plane
         l_textures = _paint(self, l_textures, colstr_2, self._painting_texture_2) --paint the main plane
