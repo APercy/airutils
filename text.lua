@@ -14,6 +14,7 @@ local TP = signs_lib.path .. "/textures"
 local CHAR_FILE = "%s_%02x.png"
 -- Fonts path
 local CHAR_PATH = TP .. "/" .. CHAR_FILE
+local max_lenght = 20
 
 -- Initialize character texture cache
 local ctexcache = {}
@@ -25,6 +26,60 @@ local function fill_line(x, y, w, c, font_size, colorbgw)
 		table.insert(tex, (":%d,%d=signs_lib_color_"..font_size.."px_%s.png"):format(x + xx, y, c))
 	end
 	return table.concat(tex)
+end
+
+local function clamp_characters(text, max_lenght)
+    text = text or ""
+    max_lenght = max_lenght or 20
+    local control_chars = {"##","#0","#1","#2","#3","#4","#5","#6","#7","#8","#9","#a","#b","#c","#d","#e","#f"}
+    local control_order = {}
+    local new_string = text
+
+    --first creates a memory of each control code
+    for i = 1, #new_string do
+        local c = new_string:sub(i,i+1)
+        for i, item in pairs(control_chars) do
+            if c == item then
+                table.insert(control_order, item)
+                break
+            end
+        end
+    end
+
+    --create control spaces (the order was saved in "control_order"
+    local control_char = "\001"
+    for i, item in pairs(control_chars) do
+        new_string = string.gsub(new_string, item, control_char)
+    end
+
+    --now make another string counting it outside and breaking when reachs 20
+    local count = 0
+    local curr_index = 0
+    local c = ""
+    for i = 1, #new_string, 1 do
+        c = string.sub(new_string,i,i)
+        if not (c == control_char) then
+            count = count + 1
+        end
+        curr_index = i
+        if count == max_lenght then break end
+    end
+    local cutstring = string.sub(new_string,1,curr_index)
+    
+    --now reconstruct the string
+    local outputstring = ""
+    local control_order_curr_intex = 0
+    for i = 1, #cutstring, 1 do
+        c = string.sub(cutstring,i,i)
+        if not (c == control_char) then
+            outputstring = outputstring .. (c or "")
+        else
+            control_order_curr_intex = control_order_curr_intex + 1
+            outputstring = outputstring .. (control_order[control_order_curr_intex] or "")
+        end
+    end
+
+    return outputstring, count
 end
 
 -- check if a file does exist
@@ -116,7 +171,7 @@ local function make_text_texture(text, default_color, line_width, line_height, c
 					else
 						maxw = math.max(width, maxw)
 					end
-                    local max_input_chars = 20
+                    local max_input_chars = max_lenght
 					if #chars < max_input_chars then
 						table.insert(chars, {
 							off = ch_offs,
@@ -186,9 +241,11 @@ function airutils.convert_text_to_texture(text, default_color, horizontal_aligme
 	local colorbgw
     local chars_per_line
 	local widemult
-    text = string.sub(text,1,20)
+    local count = 0
+    --text = string.sub(text,1,max_lenght)
+    text, count = clamp_characters(text, max_lenght)
 
-    if string.len(text) <= 10 then
+    if count <= 10 then
         widemult = 0.75
 	    font_size = 32
         chars_per_line = 10

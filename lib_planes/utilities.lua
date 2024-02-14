@@ -680,12 +680,6 @@ local function _paint(self, l_textures, colstr, paint_list, mask_associations)
                     l_textures[_] = "("..l_textures[_]..")^("..texture_name.."^[mask:"..mask_texture..")" --add the mask
                 end
             end
-            if airutils._use_signs_api then
-                indx = texture:find('airutils_name_canvas.png')
-                if indx then
-                    l_textures[_] = "airutils_name_canvas.png^"..airutils.convert_text_to_texture(self._ship_name, self._name_color or 0, self._name_hor_aligment or 0.8)
-                end
-            end
         end
     end
     return l_textures
@@ -730,6 +724,17 @@ function airutils.param_paint(self, colstr, colstr_2)
         self._color = colstr
         self._color_2 = colstr_2
         local l_textures = self.initial_properties.textures
+
+        --to reduce cpu processing, put the prefix here
+        if airutils._use_signs_api then
+            for _, texture in ipairs(l_textures) do
+                local indx = texture:find('airutils_name_canvas.png')
+                if indx then
+                    l_textures[_] = "airutils_name_canvas.png^"..airutils.convert_text_to_texture(self._ship_name, self._name_color or 0, self._name_hor_aligment or 3.0)
+                end
+            end
+        end
+
         l_textures = _paint(self, l_textures, colstr) --paint the main plane
         l_textures = _paint(self, l_textures, colstr_2, self._painting_texture_2) --paint the main plane
         self.object:set_properties({textures=l_textures})

@@ -648,7 +648,7 @@ if airutils._use_signs_api then
                     if entity then
                         if entity.owner == name or minetest.check_player_privs(name, {protection_bypass=true}) then
                             if param then
-                                entity._ship_name = string.sub(param, 1,20)
+                                entity._ship_name = string.sub(param, 1, 40)
                             else
                                 entity._ship_name = ""
                             end
