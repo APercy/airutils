@@ -647,11 +647,12 @@ minetest.register_chatcommand("remove_hook", {
                 local entity = seat:get_luaentity()
                 if entity then
                     if entity.on_step == airutils.on_step then
-                        local rem_ent = entity.object:get_attach():get_luaentity()
-                        if not rem_ent then
-                            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> the hook is stuck!!!")))
+                        local rem_obj = entity.object:get_attach()
+                        if not rem_obj then
+                            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> no hook found")))
                             return
                         end
+                        local rem_ent = rem_obj:get_luaentity()
 
                         local pos = rem_ent.object:get_pos()
                         local rotation = rem_ent.object:get_rotation()
