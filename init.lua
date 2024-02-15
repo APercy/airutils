@@ -72,6 +72,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "physics_lib.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "init.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_copter" .. DIR_DELIM .. "init.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "texture_management.lua")
+dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "attach_extern_ent.lua")
 if airutils._use_signs_api then dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "text.lua") end
 
 local is_biofuel_installed = false
@@ -628,6 +629,55 @@ minetest.register_chatcommand("show_lift", {
         else
             minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> You need 'server' priv to run this command.")))
         end
+	end
+})
+
+minetest.register_chatcommand("remove_hook", {
+    params = "",
+    description = S("Dettach current vehicle from another"),
+    privs = {interact=true},
+	func = function(name, param)
+        local colorstring = core.colorize('#ff0000', S(" >>> you are not inside a plane"))
+        local player = minetest.get_player_by_name(name)
+        local attached_to = player:get_attach()
+
+		if attached_to ~= nil then
+            local seat = attached_to:get_attach()
+            if seat ~= nil then
+                local entity = seat:get_luaentity()
+                if entity then
+                    if entity.on_step == airutils.on_step then
+                        local rem_ent = entity.object:get_attach():get_luaentity()
+                        if not rem_ent then
+                            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> the hook is stuck!!!")))
+                            return
+                        end
+
+                        local pos = rem_ent.object:get_pos()
+                        local rotation = rem_ent.object:get_rotation()
+                        local direction = rotation.y
+                        local velocity = rem_ent.object:get_velocity()
+
+                        local move = -1*rem_ent._vehicle_custom_data.simple_external_attach_pos.z/10
+                        pos.x = pos.x + move * math.sin(direction)
+                        pos.z = pos.z + move * math.cos(direction)
+                        pos.y = pos.y + rem_ent.initial_properties.collisionbox[2] - entity.initial_properties.collisionbox[2]
+                        entity.object:set_detach()
+                        entity.object:set_pos(pos)
+                        entity.object:set_rotation(rotation)
+                        entity.object:set_velocity(velocity)
+                        --clear
+                        rem_ent._vehicle_custom_data.simple_external_attach_entity = nil
+                        rem_ent._vehicle_custom_data.simple_external_attach_pos = nil
+                        rem_ent._vehicle_custom_data.simple_external_attach_invid = nil
+                    else
+			            minetest.chat_send_player(name,colorstring)
+                    end
+                end
+            end
+		else
+			minetest.chat_send_player(name,colorstring)
+		end
 	end
 })
 

@@ -371,7 +371,7 @@ function airutils.testImpact(self, velocity, position)
 	    else
             self.object:set_velocity(self._last_vel)
             --self.object:set_acceleration(self._last_accell)
-            self.object:set_velocity(vector.add(velocity, vector.multiply(self._last_accell, self.dtime/8)))
+            --self.object:set_velocity(vector.add(velocity, vector.multiply(self._last_accell, self.dtime/8)))
         end
     end
     local impact = math.abs(airutils.get_hipotenuse_value(velocity, self._last_vel))
@@ -466,13 +466,20 @@ function airutils.testImpact(self, velocity, position)
         if self._hard_damage then
             damage = impact*3
             --check if the impact was on landing gear area
-            if math.abs(impact - vertical_impact) < (impact*0.1) and --vert speed difference less than 10% of total
+            --[[if math.abs(impact - vertical_impact) < (impact*0.1) and --vert speed difference less than 10% of total
                  math.abs(math.deg(self.object:get_rotation().x)) < 20 and --nose angle between +20 and -20 degrees
-                self._longit_speed < (self._min_speed*2) and  --longit speed less than the double of min speed
+                self._longit_speed < (self._min_speed*2) then  --longit speed less than the double of min speed
                 self._longit_speed > (self._min_speed/2) then --longit speed bigger than the half of min speed
                 damage = impact / 2 --if the plane was landing, the damage is mainly on landing gear, so lets reduce the damage
-            end
+            end]]--
             --end check
+            if math.abs(math.deg(self.object:get_rotation().x)) < 20 and --nose angle between +20 and -20 degrees
+                self._longit_speed < (self._min_speed*2) then  --longit speed less than the double of min speed
+                damage = impact / 2 --if the plane was landing, the damage is mainly on landing gear, so lets reduce the damage
+                local new_vel = self.object:get_velocity()
+                new_vel.y = 0
+                self.object:set_velocity(new_vel) --TODO something is causing the plane to explode after a shaking, so I'm reseting the speed until I discover the bug
+            end
         end
 
         self.hp_max = self.hp_max - damage --subtract the impact value directly to hp meter
