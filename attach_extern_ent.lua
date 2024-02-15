@@ -5,11 +5,17 @@ local function attach_entity(self, target_obj, dest_pos, relative_pos, entity_na
     if self.object then
         local ent = target_obj:get_luaentity()
         if self._vehicle_custom_data then
+            local y = self.initial_properties.collisionbox[2] - ent.initial_properties.collisionbox[2]
+            dest_pos.y = dest_pos.y + y
             target_obj:set_pos(dest_pos)
-            target_obj:set_attach(self.object,'',relative_pos,{x=0,y=0,z=0})
-            self._vehicle_custom_data.simple_external_attach_entity = entity_name
-            self._vehicle_custom_data.simple_external_attach_pos = relative_pos
-            self._vehicle_custom_data.simple_external_attach_invid = inv_id --why?! Because I can identify the target entity by it's inventory ;)
+            local ent = target_obj:get_luaentity()
+            if ent then
+                relative_pos.y = y*10
+                target_obj:set_attach(self.object,'',relative_pos,{x=0,y=0,z=0})
+                self._vehicle_custom_data.simple_external_attach_entity = entity_name
+                self._vehicle_custom_data.simple_external_attach_pos = relative_pos
+                self._vehicle_custom_data.simple_external_attach_invid = inv_id --why?! Because I can identify the target entity by it's inventory ;)
+            end
         end
     end
 end
@@ -64,7 +70,9 @@ function airutils.simple_external_attach(self, relative_pos, entity_name, radius
             if ent then
                 if ent.name == entity_name then
                     local dest_pos = vector.new(pos)
-                    dest_pos = vector.add(dest_pos, relative_pos)
+                    local rel_pos = vector.new(relative_pos)
+                    rel_pos.y = 0
+                    dest_pos = vector.add(dest_pos, rel_pos)
                     attach_entity(self, nearby_objects[i], dest_pos, relative_pos, entity_name, ent._inv_id)
                     return
                 end
