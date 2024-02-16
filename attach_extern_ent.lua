@@ -40,7 +40,7 @@ function airutils.dettach_entity(self)
 
                     local move = -1*relative_pos.z/10
                     pos.x = pos.x + move * math.sin(direction)
-                    pos.z = pos.z + move * math.cos(direction)
+                    pos.z = pos.z - move * math.cos(direction)
                     pos.y = pos.y + self.initial_properties.collisionbox[2] - ent.initial_properties.collisionbox[2]
                     obj:set_detach()
                     obj:set_pos(pos)
