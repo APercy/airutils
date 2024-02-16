@@ -20,41 +20,50 @@ local function attach_entity(self, target_obj, dest_pos, relative_pos, entity_na
     end
 end
 
-function airutils.dettach_entity(self)
-    if not self._vehicle_custom_data then return end
-    if not self._vehicle_custom_data.simple_external_attach_entity then return end
+function airutils.get_attached_entity(self)
+    if not self._vehicle_custom_data then return nil, nil end
+    if not self._vehicle_custom_data.simple_external_attach_entity then return nil, nil end
+
     local entity_name = self._vehicle_custom_data.simple_external_attach_entity
-    local relative_pos = self._vehicle_custom_data.simple_external_attach_pos
     local inv_id = self._vehicle_custom_data.simple_external_attach_invid
 
     local pos = self.object:get_pos()
-    local velocity = self.object:get_velocity()
     local nearby_objects = minetest.get_objects_inside_radius(pos, 32)
 	for i,obj in ipairs(nearby_objects) do	
         local ent = obj:get_luaentity()
         if ent then
             if ent._inv_id then
                 if ent._inv_id == inv_id then
-                    local rotation = self.object:get_rotation()
-                    local direction = rotation.y
-
-                    local move = -1*relative_pos.z/10
-                    pos.x = pos.x + move * math.sin(direction)
-                    pos.z = pos.z - move * math.cos(direction)
-                    pos.y = pos.y + self.initial_properties.collisionbox[2] - ent.initial_properties.collisionbox[2]
-                    obj:set_detach()
-                    obj:set_pos(pos)
-                    obj:set_rotation(rotation)
-                    obj:set_velocity(velocity)
-                    --clear
-                    self._vehicle_custom_data.simple_external_attach_entity = nil
-                    self._vehicle_custom_data.simple_external_attach_pos = nil
-                    self._vehicle_custom_data.simple_external_attach_invid = nil
-                    break
+                    return ent, obj
                 end
             end
         end
-	end
+    end
+    return nil, nil
+end
+
+function airutils.dettach_entity(self)
+    local ent, obj = airutils.get_attached_entity(self)
+    if ent and obj then
+        local relative_pos = self._vehicle_custom_data.simple_external_attach_pos
+        local pos = self.object:get_pos()
+        local rotation = self.object:get_rotation()
+        local direction = rotation.y
+        local velocity = self.object:get_velocity()
+
+        local move = -1*relative_pos.z/10
+        pos.x = pos.x + move * math.sin(direction)
+        pos.z = pos.z - move * math.cos(direction)
+        pos.y = pos.y + self.initial_properties.collisionbox[2] - ent.initial_properties.collisionbox[2]
+        obj:set_detach()
+        obj:set_pos(pos)
+        obj:set_rotation(rotation)
+        obj:set_velocity(velocity)
+        --clear
+        self._vehicle_custom_data.simple_external_attach_entity = nil
+        self._vehicle_custom_data.simple_external_attach_pos = nil
+        self._vehicle_custom_data.simple_external_attach_invid = nil
+    end
 end
 
 function airutils.simple_external_attach(self, relative_pos, entity_name, radius)
