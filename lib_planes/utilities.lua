@@ -100,6 +100,13 @@ function airutils.dettachPlayer(self, player)
 
     --self._engine_running = false
 
+    --check for external attachment of the vehicle
+    local extern_attach = self.object:get_attach()
+    local extern_ent = nil
+    if extern_attach then
+        extern_ent = extern_attach:get_luaentity()
+    end
+
     -- driver clicked the object => driver gets off the vehicle
     self.driver_name = nil
 
@@ -118,6 +125,11 @@ function airutils.dettachPlayer(self, player)
     end
     self.driver = nil
     --remove_physics_override(player, {speed=1,gravity=1,jump=1})
+
+    --move the player to the parent ship if any
+    if extern_ent then
+        extern_ent.on_rightclick(extern_ent, player)
+    end
 end
 
 function airutils.check_passenger_is_attached(self, name)
@@ -206,6 +218,13 @@ function airutils.dettach_pax(self, player, is_flying)
     is_flying = is_flying or false
     local name = player:get_player_name() --self._passenger
 
+    --check for external attachment of the vehicle
+    local extern_attach = self.object:get_attach()
+    local extern_ent = nil
+    if extern_attach then
+        extern_ent = extern_attach:get_luaentity()
+    end
+
     -- passenger clicked the object => driver gets off the vehicle
     if self.co_pilot == name then
         self.co_pilot = nil
@@ -240,6 +259,11 @@ function airutils.dettach_pax(self, player, is_flying)
 
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
         --remove_physics_override(player, {speed=1,gravity=1,jump=1})
+
+        --move the player to the parent ship if any
+        if extern_ent then
+            extern_ent.on_rightclick(extern_ent, player)
+        end
     end
 end
 
