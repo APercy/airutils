@@ -1,10 +1,9 @@
 local S = airutils.S
 
-local function attach_entity(self, target_obj, dest_pos, relative_pos, entity_name, inv_id, attach_up)
+local function attach_entity(self, target_obj, ent, dest_pos, relative_pos, attach_up)
     attach_up = attach_up or false
     if not target_obj then return end
     if self.object then
-        local ent = target_obj:get_luaentity()
         if self._vehicle_custom_data then
             local y = 0
             if attach_up == false then
@@ -18,9 +17,9 @@ local function attach_entity(self, target_obj, dest_pos, relative_pos, entity_na
             if ent then
                 relative_pos.y = y*10
                 target_obj:set_attach(self.object,'',relative_pos,{x=0,y=0,z=0})
-                self._vehicle_custom_data.simple_external_attach_entity = entity_name
+                self._vehicle_custom_data.simple_external_attach_entity = ent.name
                 self._vehicle_custom_data.simple_external_attach_pos = relative_pos
-                self._vehicle_custom_data.simple_external_attach_invid = inv_id --why?! Because I can identify the target entity by it's inventory ;)
+                self._vehicle_custom_data.simple_external_attach_invid = ent._inv_id --why?! Because I can identify the target entity by it's inventory ;)
             end
         end
     end
@@ -72,6 +71,16 @@ function airutils.dettach_entity(self)
     end
 end
 
+function airutils.attach_external_object(self, object, ent, destination_pos, relative_pos, attach_up)
+    local dest_pos = vector.new(destination_pos)
+    local rel_pos = vector.new(relative_pos)
+    if attach_up == false then
+        rel_pos.y = 0
+    end
+    dest_pos = vector.add(dest_pos, vector.divide(rel_pos,10))
+    attach_entity(self, object, ent, dest_pos, rel_pos, attach_up)
+end
+
 function airutils.simple_external_attach(self, relative_pos, entity_name, radius, attach_up)
     attach_up = attach_up or false
     radius = radius or 12
@@ -88,14 +97,8 @@ function airutils.simple_external_attach(self, relative_pos, entity_name, radius
             local ent = obj:get_luaentity()
             if ent then
                 if ent.name == entity_name then
-                    local dest_pos = vector.new(pos)
-                    local rel_pos = vector.new(relative_pos)
-                    if attach_up == false then
-                        rel_pos.y = 0
-                    end
-                    dest_pos = vector.add(dest_pos, vector.divide(rel_pos,10))
-                    attach_entity(self, nearby_objects[i], dest_pos, rel_pos, entity_name, ent._inv_id, attach_up)
-                    return
+                    airutils.attach_external_object(self, nearby_objects[i], ent, pos, relative_pos, attach_up)
+                    return 
                 end
             end
 		end
@@ -123,7 +126,7 @@ function airutils.restore_external_attach(self)
                 --minetest.chat_send_all(dump(ent.name))
                 if ent._inv_id then
                     --minetest.chat_send_all(">> "..dump(ent._inv_id).." >> "..dump(inv_id))
-                    if ent._inv_id == inv_id then
+                    if ent._inv_id == inv_id and (not (ent._inv_id == self._inv_id)) then
                         --minetest.chat_send_all("++ "..dump(ent._inv_id).." ++ "..dump(inv_id))
                         local target_obj = nearby_objects[i]
                         target_obj:set_pos(dest_pos)
@@ -169,7 +172,10 @@ minetest.register_chatcommand("remove_hook", {
                         local direction = rotation.y
                         local velocity = rem_ent.object:get_velocity()
 
-                        local move = -1*rem_ent._vehicle_custom_data.simple_external_attach_pos.z/10
+                        local move = 0
+                        if rem_ent._vehicle_custom_data.simple_external_attach_pos then 
+                            move = -1*rem_ent._vehicle_custom_data.simple_external_attach_pos.z/10
+                        end
                         pos.x = pos.x + move * math.sin(direction)
                         pos.z = pos.z + move * math.cos(direction)
                         pos.y = pos.y + rem_ent.initial_properties.collisionbox[2] - entity.initial_properties.collisionbox[2]
