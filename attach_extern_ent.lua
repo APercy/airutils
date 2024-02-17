@@ -76,6 +76,9 @@ function airutils.simple_external_attach(self, relative_pos, entity_name, radius
     attach_up = attach_up or false
     radius = radius or 12
     if self.object then
+        local curr_ent, curr_obj = airutils.get_attached_entity(self)
+        if curr_ent then return end
+
         local pos = self.object:get_pos()
         local nearby_objects = minetest.get_objects_inside_radius(pos, radius)
 		for i,obj in ipairs(nearby_objects) do	
