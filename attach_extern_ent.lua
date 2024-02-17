@@ -1,11 +1,17 @@
 local S = airutils.S
 
-local function attach_entity(self, target_obj, dest_pos, relative_pos, entity_name, inv_id)
+local function attach_entity(self, target_obj, dest_pos, relative_pos, entity_name, inv_id, attach_up)
+    attach_up = attach_up or false
     if not target_obj then return end
     if self.object then
         local ent = target_obj:get_luaentity()
         if self._vehicle_custom_data then
-            local y = self.initial_properties.collisionbox[2] - ent.initial_properties.collisionbox[2]
+            local y = 0
+            if attach_up == false then
+                y = self.initial_properties.collisionbox[2] - ent.initial_properties.collisionbox[2]
+            else
+                y = (relative_pos.y/10) + ent.initial_properties.collisionbox[5]
+            end
             dest_pos.y = dest_pos.y + y
             target_obj:set_pos(dest_pos)
             local ent = target_obj:get_luaentity()
@@ -66,7 +72,8 @@ function airutils.dettach_entity(self)
     end
 end
 
-function airutils.simple_external_attach(self, relative_pos, entity_name, radius)
+function airutils.simple_external_attach(self, relative_pos, entity_name, radius, attach_up)
+    attach_up = attach_up or false
     radius = radius or 12
     if self.object then
         local pos = self.object:get_pos()
@@ -80,9 +87,11 @@ function airutils.simple_external_attach(self, relative_pos, entity_name, radius
                 if ent.name == entity_name then
                     local dest_pos = vector.new(pos)
                     local rel_pos = vector.new(relative_pos)
-                    rel_pos.y = 0
-                    dest_pos = vector.add(dest_pos, rel_pos)
-                    attach_entity(self, nearby_objects[i], dest_pos, relative_pos, entity_name, ent._inv_id)
+                    if attach_up == false then
+                        rel_pos.y = 0
+                    end
+                    dest_pos = vector.add(dest_pos, vector.divide(rel_pos,10))
+                    attach_entity(self, nearby_objects[i], dest_pos, rel_pos, entity_name, ent._inv_id, attach_up)
                     return
                 end
             end
