@@ -684,11 +684,13 @@ function airutils.on_punch(self, puncher, ttime, toolcaps, dir, damage)
     if self.owner and self.owner ~= name and self.owner ~= "" then
         if is_admin == false then return end
     end
-    	
-    if self.driver_name and self.driver_name ~= name then
-		-- do not allow other players to remove the object while there is a driver
-		return
-	end
+    
+    if is_admin == false and minetest.check_player_privs(puncher, {protection_bypass=false})  then
+        if self.driver_name and self.driver_name ~= name then
+		    -- do not allow other players to remove the object while there is a driver
+		    return
+	    end
+    end
     
     local is_attached = false
     local player_attach = puncher:get_attach()
