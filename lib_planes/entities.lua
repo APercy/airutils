@@ -67,6 +67,11 @@ function airutils.on_activate(self, staticdata, dtime_s)
         if self._engine_running then
             self._last_applied_power = -1 --signal to start
         end
+
+        if data.remove then
+            self.object:remove()
+            return
+        end
     end
     
     self._climb_rate = 0
