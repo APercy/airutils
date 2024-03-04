@@ -79,8 +79,8 @@ local is_biofuel_installed = false
 if biomass then
     if biomass.convertible_groups then is_biofuel_installed = true end
 end
-local enable_internal_bioduel = minetest.settings:get_bool('airutils.force_enable_biofuel')
-if not is_biofuel_installed or enable_internal_bioduel then
+local enable_internal_biofuel = minetest.settings:get_bool('airutils.force_enable_biofuel')
+if not is_biofuel_installed or enable_internal_biofuel then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_biofuel.lua")
 end
 
