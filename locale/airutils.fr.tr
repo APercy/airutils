@@ -1,9 +1,9 @@
 # textdomain: airutils
 Bio Fuel=Biocarburant 
-Biofuel Distiller=Raffineur Biocarburant
-Fuel Distiller=Raffineur Carburant
-Fuel Distiller (FULL)=Raffineur Carburant (PLEIN)
-Fuel Distiller @1% done=Raffineur Carburant : @1% traité
+Biofuel Distiller=Raffineur de Biocarburant
+Fuel Distiller=Raffineur de Carburant
+Fuel Distiller (FULL)=Raffineur de Carburant (PLEIN)
+Fuel Distiller @1% done=Raffineur de Carburant : @1% traité
 PAPI=PAPI
 left side=coté gauche  
 right side=coté droit
