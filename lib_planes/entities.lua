@@ -69,6 +69,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         end
 
         if data.remove then
+            airutils.destroy_inventory(self)
             self.object:remove()
             return
         end
