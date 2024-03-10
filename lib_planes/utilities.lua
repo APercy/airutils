@@ -187,7 +187,7 @@ function airutils.attach_pax(self, player, is_copilot)
             return
         end
 
-        t = {}    -- new array
+        local t = {}    -- new array
         for i=1, max_seats - crew do --(the first are for the crew
             t[i] = i
         end
@@ -199,6 +199,7 @@ function airutils.attach_pax(self, player, is_copilot)
         end
 
         --for i = 1,10,1 do
+        local i = 0
         for k,v in ipairs(t) do
             i = t[k] + crew --jump the crew seats
             if self._passengers[i] == nil then

@@ -304,7 +304,7 @@ function airutils.logic(self)
         --special routine for automated plane
         if extern_ent then
             if not extern_ent.on_rightclick then
-                local touch_point = self.initial_properties.collisionbox[2]-0.5
+                local touch_point = (self.initial_properties.collisionbox[2])-0.5
                 local node_bellow = airutils.nodeatpos(airutils.pos_shift(curr_pos,{y=touch_point}))
                 --minetest.chat_send_all(dump(node_bellow.drawtype))
                 if (node_bellow and node_bellow.drawtype ~= 'airlike') then
