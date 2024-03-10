@@ -265,7 +265,9 @@ function airutils.dettach_pax(self, player, is_flying)
 
         --move the player to the parent ship if any
         if extern_ent then
-            extern_ent.on_rightclick(extern_ent, player)
+            if extern_ent.on_rightclick then
+                extern_ent.on_rightclick(extern_ent, player)
+            end
         end
     end
 end

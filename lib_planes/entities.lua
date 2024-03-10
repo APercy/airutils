@@ -204,6 +204,11 @@ end
 
 function airutils.logic(self)
     local velocity = self.object:get_velocity()
+    local rem_obj = self.object:get_attach()
+    local extern_ent = nil
+    if rem_obj then
+        extern_ent = rem_obj:get_luaentity()
+    end
     local curr_pos = self.object:get_pos()
     self._curr_pos = curr_pos --shared
     self._last_accel = self.object:get_acceleration()
@@ -276,6 +281,12 @@ function airutils.logic(self)
     local nhdir = {x=hull_direction.z,y=0,z=-hull_direction.x}		-- lateral unit vector
 
     local longit_speed = vector.dot(velocity,hull_direction)
+
+    if extern_ent then
+        if extern_ent.curr_speed then longit_speed = extern_ent.curr_speed end
+        --minetest.chat_send_all(dump(longit_speed))
+    end
+
     self._longit_speed = longit_speed
     local longit_drag = vector.multiply(hull_direction,longit_speed*
             longit_speed*self._longit_drag_factor*-1*airutils.sign(longit_speed))
@@ -286,11 +297,23 @@ function airutils.logic(self)
     local accel = vector.add(longit_drag,later_drag)
     local stop = false
 
-    local node_bellow = airutils.nodeatpos(airutils.pos_shift(curr_pos,{y=-1.3}))
     local is_flying = true
     if self.colinfo then
         is_flying = (not self.colinfo.touching_ground) and (self.isinliquid == false)
+    else
+        --special routine for automated plane
+        if extern_ent then
+            if not extern_ent.on_rightclick then
+                local touch_point = self.initial_properties.collisionbox[2]-0.5
+                local node_bellow = airutils.nodeatpos(airutils.pos_shift(curr_pos,{y=touch_point}))
+                --minetest.chat_send_all(dump(node_bellow.drawtype))
+                if (node_bellow and node_bellow.drawtype ~= 'airlike') then
+	                is_flying = false
+                end
+            end
+        end
     end
+    --minetest.chat_send_all(dump(is_flying))
     --if is_flying then minetest.chat_send_all('is flying') end
 
     local is_attached = airutils.checkAttach(self, player)
@@ -559,7 +582,11 @@ function airutils.logic(self)
             if math.abs(velocity.x) > min_speed_animation or math.abs(velocity.z) > min_speed_animation then
                 self.wheels:set_animation_frame_speed(longit_speed * 10)
             else
-                self.wheels:set_animation_frame_speed(0)
+                if extern_ent then
+                    self.wheels:set_animation_frame_speed(longit_speed * 10)
+                else
+                    self.wheels:set_animation_frame_speed(0)
+                end
             end
         else
             --stop wheels
