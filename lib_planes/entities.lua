@@ -24,6 +24,7 @@ function airutils.get_staticdata(self) -- unloaded/unloads ... is now saved
         stored_skin = self._skin or "",
         stored_vehicle_custom_data = self._vehicle_custom_data or nil,
         stored_ship_name = self._ship_name or "",
+        remove = self._remove or false,
     })
 end
 
@@ -56,6 +57,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
         self._adf_destiny = data.stored_adf_destiny or vector.new()
         self._skin = data.stored_skin or ""
         self._ship_name = data.stored_ship_name or ""
+        self._remove = data.remove or false
         local custom_data = data.stored_vehicle_custom_data or nil
         if custom_data then
             self._vehicle_custom_data = custom_data
@@ -68,7 +70,7 @@ function airutils.on_activate(self, staticdata, dtime_s)
             self._last_applied_power = -1 --signal to start
         end
 
-        if data.remove then
+        if self._remove == true then
             airutils.destroy_inventory(self)
             self.object:remove()
             return
