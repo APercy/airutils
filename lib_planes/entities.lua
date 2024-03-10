@@ -862,7 +862,7 @@ function airutils.on_rightclick(self, clicker)
     --=========================
     --  attach pilot
     --=========================
-    elseif not self.driver_name then
+    elseif not self.driver_name and self._autoflymode == false then
         if self.owner == name or minetest.check_player_privs(clicker, {protection_bypass=true}) then
 
             local itmstck=clicker:get_wielded_item()
@@ -924,9 +924,10 @@ function airutils.on_rightclick(self, clicker)
     --=========================
     --  attach passenger
     --=========================
-    --TODO - _autoflymode
     elseif self.driver_name ~= nil or self._autoflymode == true then
-        local player = minetest.get_player_by_name(self.driver_name)
+        local d_name = self.driver_name
+        if d_name == nil then d_name = "" end
+        local player = minetest.get_player_by_name(d_name)
         if player or self._autoflymode == true then
             is_attached = airutils.check_passenger_is_attached(self, name)
 
