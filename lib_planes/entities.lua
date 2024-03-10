@@ -862,7 +862,7 @@ function airutils.on_rightclick(self, clicker)
     --=========================
     --  attach pilot
     --=========================
-    elseif not self.driver_name and self._autoflymode == false then
+    elseif not self.driver_name and not self._autoflymode then
         if self.owner == name or minetest.check_player_privs(clicker, {protection_bypass=true}) then
 
             local itmstck=clicker:get_wielded_item()
