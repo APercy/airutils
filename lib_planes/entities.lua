@@ -927,7 +927,7 @@ function airutils.on_rightclick(self, clicker)
     --TODO - _autoflymode
     elseif self.driver_name ~= nil or self._autoflymode == true then
         local player = minetest.get_player_by_name(self.driver_name)
-        if player then
+        if player or self._autoflymode == true then
             is_attached = airutils.check_passenger_is_attached(self, name)
 
             if is_attached then
