@@ -227,7 +227,7 @@ function airutils.logic(self)
     --test collision
     airutils.testImpact(self, velocity, curr_pos)
 
-    if ent._autoflymode == true then airutils.seats_update(self) end
+    if self._autoflymode == true then airutils.seats_update(self) end
 
     if player then
         local ctrl = player:get_player_control()
