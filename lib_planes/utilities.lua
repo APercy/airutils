@@ -1068,6 +1068,22 @@ function airutils.seats_create(self)
     end
 end
 
+function airutils.seats_update(self)
+    if self.object then
+        local pos = self.object:get_pos()
+        if self._passengers_base then 
+            local max_seats = table.getn(self._passengers_base)
+            for i=1, max_seats do
+                if not self._seats_rot then
+                    self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=0,z=0})
+                else
+                    self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=self._seats_rot[i],z=0})
+                end
+            end
+        end
+    end
+end
+
 function airutils.seats_destroy(self)
     local max_seats = table.getn(self._passengers_base)
     for i=1, max_seats do
