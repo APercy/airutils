@@ -323,7 +323,7 @@ function airutils.logic(self)
     local is_attached = airutils.checkAttach(self, player)
     if self._indicated_speed == nil then self._indicated_speed = 0 end
 
-	if not is_attached then
+	if not is_attached and not self._autoflymode == true then
         -- for some engine error the player can be detached from the machine, so lets set him attached again
         airutils.checkattachBug(self)
     end
@@ -512,7 +512,9 @@ function airutils.logic(self)
     --end accell
 
     --get disconnected players
-    airutils.rescueConnectionFailedPassengers(self)
+    if not self._autoflymode == true then
+        airutils.rescueConnectionFailedPassengers(self)
+    end
 
     if accel == nil then accel = {x=0,y=0,z=0} end
 
