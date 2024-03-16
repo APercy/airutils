@@ -323,10 +323,9 @@ function airutils.logic(self)
     local is_attached = airutils.checkAttach(self, player)
     if self._indicated_speed == nil then self._indicated_speed = 0 end
 
-	if not is_attached and not self._autoflymode == true then
-        -- for some engine error the player can be detached from the machine, so lets set him attached again
-        airutils.checkattachBug(self)
-    end
+    -- for some engine error the player can be detached from the machine, so lets set him attached again
+    airutils.checkattachBug(self)
+
 
     if self._custom_step_additional_function then
         self._custom_step_additional_function(self)

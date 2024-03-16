@@ -596,6 +596,62 @@ end
 
 function airutils.checkattachBug(self)
     -- for some engine error the player can be detached from the submarine, so lets set him attached again
+    --[[local have_driver = (self.driver_name ~= nil)
+    if have_driver then
+        local max_seats = table.getn(self._passengers_base)
+        for i = max_seats,1,-1 do
+            if self._passengers[i] then
+                local player = minetest.get_player_by_name(self._passengers[i])
+                if player then
+                    --we have a player!
+                    if player:get_attach() == nil then
+                        if self._passengers[i] == self.driver_name then
+                            --attach the driver again
+	                        if player:get_hp() > 0 then
+                                self._passengers[i] = nil --clear the slot first
+                                airutils.attach(self, player, self._instruction_mode)
+                            else
+                                --he is dead, so good bye!
+                                airutils.dettachPlayer(self, player)
+	                        end
+                        else
+                            --normal player
+	                        if player:get_hp() > 0 then
+                                self._passengers[i] = nil --clear the slot first
+                                do_attach(self, player, i) --attach
+                            else
+                                --let the work for the gravity
+                                self._passengers[i] = nil
+	                        end
+                        end
+                    end
+                else
+                    --the player is gone
+                    if self._passengers[i] == self.driver_name then
+                        --oh nooo! The pilot is gone!
+                        self.driver_name = nil
+                        self._autopilot = false
+                        airutils.transfer_control(self, true)
+                    else
+                        --no player, so clean it
+                        self._passengers[i] = nil
+                    end
+                end
+            end
+        end ---end for
+    end]]--
+
+    local max_seats = table.getn(self._passengers_base)
+    for i = max_seats,1,-1 do
+        if self._passengers[i] then
+            local player = minetest.get_player_by_name(self._passengers[i])
+            if not player:get_attach() then
+                do_attach(self, player, i)
+            end
+        end
+    end
+
+    -- for some engine error the player can be detached from the submarine, so lets set him attached again
     local have_driver = (self.driver_name ~= nil)
     if have_driver then
         -- attach the driver again
@@ -621,6 +677,7 @@ function airutils.checkattachBug(self)
             end
         end
     end
+
 end
 
 function airutils.engineSoundPlay(self)
