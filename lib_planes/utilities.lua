@@ -641,7 +641,7 @@ function airutils.checkattachBug(self)
         end ---end for
     end]]--
 
-    local max_seats = table.getn(self._passengers_base)
+    --[[local max_seats = table.getn(self._passengers_base)
     if max_seats > 2 then
         for i = max_seats,3,-1 do
             if self._passengers[i] then
@@ -651,7 +651,7 @@ function airutils.checkattachBug(self)
                 end
             end
         end
-    end
+    end]]--
 
     -- for some engine error the player can be detached from the submarine, so lets set him attached again
     local have_driver = (self.driver_name ~= nil)
