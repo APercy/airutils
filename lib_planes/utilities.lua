@@ -642,11 +642,13 @@ function airutils.checkattachBug(self)
     end]]--
 
     local max_seats = table.getn(self._passengers_base)
-    for i = max_seats,1,-1 do
-        if self._passengers[i] then
-            local player = minetest.get_player_by_name(self._passengers[i])
-            if not player:get_attach() then
-                do_attach(self, player, i)
+    if max_seats > 2 then
+        for i = max_seats,3,-1 do
+            if self._passengers[i] then
+                local player = minetest.get_player_by_name(self._passengers[i])
+                if not player:get_attach() then
+                    do_attach(self, player, i)
+                end
             end
         end
     end
