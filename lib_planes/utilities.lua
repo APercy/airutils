@@ -612,7 +612,7 @@ function airutils.checkattachBug(self)
                     airutils.attach(self, player, self._instruction_mode)
                 else
                     if self.owner and self.driver_name ~= self.owner then
-                        self.driver_name = nil
+                        --self.driver_name = nil
                         return
                     end
                 end
