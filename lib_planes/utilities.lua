@@ -75,9 +75,11 @@ function airutils.attach(self, player, instructor_mode)
     local eye_y = 0
     if instructor_mode == true and self._have_copilot then
         eye_y = -4
+        airutils.seat_create(self, 2)
         player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     else
         eye_y = -4
+        airutils.seat_create(self, 1)
         player:set_attach(self.pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     end
     if airutils.detect_player_api(player) == 1 then
@@ -151,6 +153,7 @@ function airutils.check_passenger_is_attached(self, name)
 end
 
 local function attach_copilot(self, name, player, eye_y)
+    airutils.seat_create(self, 2)
     if not self.co_pilot_seat_base or not player then return end
     self.co_pilot = name
     self._passengers[2] = name
@@ -205,6 +208,7 @@ function airutils.attach_pax(self, player, is_copilot)
             if self._passengers[i] == nil then
                 --minetest.chat_send_all(self.driver_name)
                 self._passengers[i] = name
+                airutils.seat_create(self, i)
                 player:set_attach(self._passengers_base[i], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
                 player:set_eye_offset({x = 0, y = eye_y, z = 0}, {x = 0, y = 3, z = -30})
 
@@ -280,8 +284,10 @@ function airutils.checkAttach(self, player)
             local max_seats = table.getn(self._seats)
             for i = max_seats,1,-1
             do
-                if player_attach == self._passengers_base[i] then
-                    return true
+                if self._passengers_base[i] then
+                    if player_attach == self._passengers_base[i] then
+                        return true
+                    end
                 end
             end
         end
@@ -596,84 +602,25 @@ end
 
 function airutils.checkattachBug(self)
     -- for some engine error the player can be detached from the submarine, so lets set him attached again
-    --[[local have_driver = (self.driver_name ~= nil)
-    if have_driver then
-        local max_seats = table.getn(self._passengers_base)
-        for i = max_seats,1,-1 do
-            if self._passengers[i] then
-                local player = minetest.get_player_by_name(self._passengers[i])
-                if player then
-                    --we have a player!
-                    if player:get_attach() == nil then
-                        if self._passengers[i] == self.driver_name then
-                            --attach the driver again
-	                        if player:get_hp() > 0 then
-                                self._passengers[i] = nil --clear the slot first
-                                airutils.attach(self, player, self._instruction_mode)
-                            else
-                                --he is dead, so good bye!
-                                airutils.dettachPlayer(self, player)
-	                        end
-                        else
-                            --normal player
-	                        if player:get_hp() > 0 then
-                                self._passengers[i] = nil --clear the slot first
-                                do_attach(self, player, i) --attach
-                            else
-                                --let the work for the gravity
-                                self._passengers[i] = nil
-	                        end
-                        end
-                    end
-                else
-                    --the player is gone
-                    if self._passengers[i] == self.driver_name then
-                        --oh nooo! The pilot is gone!
-                        self.driver_name = nil
-                        self._autopilot = false
-                        airutils.transfer_control(self, true)
-                    else
-                        --no player, so clean it
-                        self._passengers[i] = nil
-                    end
-                end
-            end
-        end ---end for
-    end]]--
-
-    --[[local max_seats = table.getn(self._passengers_base)
-    if max_seats > 2 then
-        for i = max_seats,3,-1 do
-            if self._passengers[i] then
-                local player = minetest.get_player_by_name(self._passengers[i])
-                if not player:get_attach() then
-                    do_attach(self, player, i)
-                end
-            end
-        end
-    end]]--
-
-    -- for some engine error the player can be detached from the submarine, so lets set him attached again
     local have_driver = (self.driver_name ~= nil)
     if have_driver then
         -- attach the driver again
-        if self.driver_name ~= self.owner then
-            self.driver_name = nil
-            return
-        end
         local player = minetest.get_player_by_name(self.driver_name)
         if player then
 		    if player:get_hp() > 0 then
                 if player:get_attach() == nil then
                     airutils.attach(self, player, self._instruction_mode)
                 else
-                    self.driver_name = nil
+                    if self.owner and self.driver_name ~= self.owner then
+                        self.driver_name = nil
+                        return
+                    end
                 end
             else
                 airutils.dettachPlayer(self, player)
 		    end
         else
-            if self._passenger ~= nil and self._command_is_given == false then
+            if (self._passenger ~= nil or self.co_pilot ~= nil) and self._command_is_given == false then
                 self._autopilot = false
                 airutils.transfer_control(self, true)
             end
@@ -1134,16 +1081,46 @@ function airutils.seats_create(self)
     end
 end
 
+function airutils.seat_create(self, index)
+    if self.object then
+        local pos = self.object:get_pos()
+        if not self._passengers_base then
+            self._passengers_base = {}
+            if self._seats then 
+                local max_seats = table.getn(self._seats)
+                for i=1, max_seats do
+                    self._passengers_base[i] = 0
+                end
+            end
+        end
+        if self._passengers_base[index] == 0 then
+            if self._seats then 
+                local max_seats = table.getn(self._seats)
+                for i=1, max_seats do
+                    if i == index then
+                        self._passengers_base[i] = minetest.add_entity(pos,'airutils:seat_base')
+                        local rot = self._seats_rot[i] or 0
+                        self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=rot,z=0})
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
 function airutils.seats_update(self)
     if self.object then
         local pos = self.object:get_pos()
         if self._passengers_base then 
             local max_seats = table.getn(self._passengers_base)
             for i=1, max_seats do
-                if not self._seats_rot then
-                    self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=0,z=0})
-                else
-                    self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=self._seats_rot[i],z=0})
+                if self._passengers_base[i] then
+                    if not self._seats_rot then
+                        self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=0,z=0})
+                    else
+                        self._passengers_base[i]:set_attach(self.object,'',self._seats[i],{x=0,y=self._seats_rot[i],z=0})
+                    end
                 end
             end
         end
@@ -1242,6 +1219,7 @@ local function do_attach(self, player, slot)
         local name = player:get_player_name()
         --minetest.chat_send_all(self.driver_name)
         self._passengers[slot] = name
+        airutils.seat_create(self, slot)
         player:set_attach(self._passengers_base[slot], "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
 
         local eye_y = -4
