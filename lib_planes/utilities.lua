@@ -76,10 +76,16 @@ function airutils.attach(self, player, instructor_mode)
     if instructor_mode == true and self._have_copilot then
         eye_y = -4
         airutils.seat_create(self, 2)
+        if not self.co_pilot_seat_base then
+            self.co_pilot_seat_base = self._passengers_base[2]
+        end
         player:set_attach(self.co_pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     else
         eye_y = -4
         airutils.seat_create(self, 1)
+        if not self.pilot_seat_base then
+            self.pilot_seat_base = self._passengers_base[1]
+        end
         player:set_attach(self.pilot_seat_base, "", {x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
     end
     if airutils.detect_player_api(player) == 1 then
@@ -250,6 +256,10 @@ function airutils.dettach_pax(self, player, is_flying)
 
     -- detach the player
     if player then
+        if name == self.driver_name then
+            self.driver_name = nil
+        end
+
         local pos = player:get_pos()
         player:set_detach()
         if is_flying then
@@ -610,11 +620,6 @@ function airutils.checkattachBug(self)
 		    if player:get_hp() > 0 then
                 if player:get_attach() == nil then
                     airutils.attach(self, player, self._instruction_mode)
-                else
-                    if self.owner and self.driver_name ~= self.owner then
-                        --self.driver_name = nil
-                        return
-                    end
                 end
             else
                 airutils.dettachPlayer(self, player)
