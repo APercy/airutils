@@ -1133,9 +1133,11 @@ function airutils.seats_update(self)
 end
 
 function airutils.seats_destroy(self)
-    local max_seats = table.getn(self._passengers_base)
+    local max_seats = table.getn(self._seats)
     for i=1, max_seats do
-        if self._passengers_base[i] then self._passengers_base[i]:remove() end
+        if self._passengers_base and self._passengers_base[i] then
+           if self._passengers_base[i] ~= 0 then self._passengers_base[i]:remove() end
+        end
     end
 end
 
