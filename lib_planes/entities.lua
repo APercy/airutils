@@ -2,7 +2,7 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELI
 
 local S = airutils.S
 
-function lib_change_color(self, colstr)
+local function lib_change_color(self, colstr)
     airutils.param_paint(self, colstr)
 end
 
@@ -124,6 +124,8 @@ function airutils.on_activate(self, staticdata, dtime_s)
     if self._flap then airutils.flap_on(self) end
 
     if self._vehicle_name then airutils.setText(self, self._vehicle_name) end
+
+    self._change_color = lib_change_color
 end
 
 function airutils.on_step(self,dtime,colinfo)
