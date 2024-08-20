@@ -31,7 +31,7 @@ function airutils.add_splash(pos, yaw, x_pos)
     local direction = yaw
 
     local spl_pos = vector.new(pos)  
-    water_particle(spl_pos, {x=0,y=0,z=0})
+    --water_particle(spl_pos, {x=0,y=0,z=0})
 
     --right
     local move = x_pos/10

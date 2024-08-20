@@ -78,6 +78,8 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "texture_management.lua"
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "attach_extern_ent.lua")
 if airutils._use_signs_api then dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "text.lua") end
 
+airutils.splash_texture = "airutils_splash.png"
+
 local is_biofuel_installed = false
 if biomass then
     if biomass.convertible_groups then is_biofuel_installed = true end
