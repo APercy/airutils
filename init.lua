@@ -60,6 +60,12 @@ if not minetest.settings:get_bool('airutils_disable_repair') then
     dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "airutils_repair.lua")
 end
 
+airutils.splash_texture = "airutils_splash.png"
+airutils.use_water_particles = false
+if minetest.settings:get_bool('airutils_enable_water_particles', false) then
+    airutils.use_water_particles = true
+end
+
 airutils._use_signs_api = true
 if not minetest.get_modpath("signs_lib") then airutils._use_signs_api = false end
 if minetest.settings:get_bool('airutils_disable_signs_api') then airutils._use_signs_api = false end
@@ -77,8 +83,6 @@ dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_copter" .. DIR_DELI
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "texture_management.lua")
 dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "attach_extern_ent.lua")
 if airutils._use_signs_api then dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "text.lua") end
-
-airutils.splash_texture = "airutils_splash.png"
 
 local is_biofuel_installed = false
 if biomass then

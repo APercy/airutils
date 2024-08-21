@@ -10,14 +10,14 @@ local function calculateVelocity(magnitude, angle)
     return velocity
 end
 
-local function water_particle(pos, vel)
+local function water_particle(pos, accell)
     if airutils.splash_texture == nil then return end
     if airutils.splash_texture == "" then return end
 
 	minetest.add_particle({
 		pos = pos,
-		velocity = vel, --{x = 0, y = 0, z = 0},
-		acceleration = {x = 0, y = 0, z = 0},
+		velocity = {x = 0, y = 0, z = 0},
+		acceleration = accell, --{x = 0, y = 0, z = 0},
 		expirationtime = 2.0,
 		size = 4.8,
 		collisiondetection = false,
@@ -38,7 +38,7 @@ function airutils.add_splash(pos, yaw, x_pos)
     spl_pos.x = spl_pos.x + move * math.cos(direction)
     spl_pos.z = spl_pos.z + move * math.sin(direction)
     
-    local velocity = calculateVelocity(1.0, yaw)
+    local velocity = calculateVelocity(0.2, yaw)
     water_particle(spl_pos, velocity)
 
     --left
@@ -47,6 +47,6 @@ function airutils.add_splash(pos, yaw, x_pos)
     spl_pos.x = spl_pos.x + move * math.cos(direction)
     spl_pos.z = spl_pos.z + move * math.sin(direction)
     
-    velocity = calculateVelocity(1.0, yaw - math.rad(180))
+    velocity = calculateVelocity(0.2, yaw - math.rad(180))
     water_particle(spl_pos, velocity)
 end
