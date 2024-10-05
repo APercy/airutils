@@ -174,7 +174,7 @@ function airutils.stepfunc(self,dtime,colinfo)
 	if self.logic then
 		if self.view_range then self:sensefunc() end
 		self:logic()
-		execute_queues(self) -- !!! accessing undefined variable execute_queues
+		--execute_queues(self)
 	end
 
 	self.lastvelocity = self.object:get_velocity()

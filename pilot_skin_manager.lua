@@ -97,11 +97,11 @@ function airutils.set_player_skin(player, skin)
         else
             --remove texture
             local old_texture = player_meta:get_string("backup")
-            if set_skin then -- !!! accessing undefined variable set_skin
+            if set_skin then --checking if set_skin is available (not using an optional dependency, just checking if it exists)
                 if player:get_attribute("set_skin:player_skin") ~= nil and player:get_attribute("set_skin:player_skin") ~= "" then
                     old_texture = player:get_attribute("set_skin:player_skin")
                 end
-            elseif wardrobe then
+            elseif wardrobe then --checking if wardrobe is available (not using an optional dependency, just checking if it exists)
                 if wardrobe.playerSkins then
                     if wardrobe.playerSkins[name] ~= nil then
                         old_texture = wardrobe.playerSkins[name]
