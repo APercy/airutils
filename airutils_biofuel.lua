@@ -75,7 +75,7 @@ local ferment_groups = {'flora', 'leaves', 'flower', 'sapling', 'tree', 'wood', 
 local biofueldistiller_formspec = "size[8,9]"
 	.. "list[current_name;src;2,1;1,1;]" .. airutils.get_itemslot_bg(2, 1, 1, 1)
 	.. "list[current_name;dst;5,1;1,1;]" .. airutils.get_itemslot_bg(5, 1, 1, 1)
-	.. "list[current_player;main;0,5;8,4;]" .. airutils.get_itemslot_bg(0, 5, 8, 4) 
+	.. "list[current_player;main;0,5;8,4;]" .. airutils.get_itemslot_bg(0, 5, 8, 4)
 	.. "listring[current_name;dst]"
 	.. "listring[current_player;main]"
 	.. "listring[current_name;src]"
@@ -138,9 +138,6 @@ minetest.register_node( module_name .. ":biofuel_distiller", {
 			return 0
 		end
 
-		local meta = minetest.get_meta(pos)
-		local inv = meta:get_inventory()
-
 		if listname == "src" then
 			return stack:get_count()
 		elseif listname == "dst" then
@@ -153,10 +150,6 @@ minetest.register_node( module_name .. ":biofuel_distiller", {
 		if minetest.is_protected(pos, player:get_player_name()) then
 			return 0
 		end
-
-		local meta = minetest.get_meta(pos)
-		local inv = meta:get_inventory()
-		local stack = inv:get_stack(from_list, from_index)
 
 		if to_list == "src" then
 			return count

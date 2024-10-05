@@ -300,15 +300,6 @@ end
 -- max_height: the max ceilling for the airplane
 -- wingspan: for ground effect calculation
 function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_pos, in_lift, max_height, wingspan)
-    local new_velocity = vector.new(velocity)
-    if not self._min_collective then --ignore if it is an helicopter
-        --add wind to the lift calcs
-        local wind = airutils.get_wind(curr_pos, 5)
-        local accel_wind = vector.subtract(accel, wind)  --why? because I need to fake more speed when against the wind to gain lift
-        local vel_wind = vector.multiply(accel_wind, self.dtime)
-        new_velocity = vector.add(new_velocity, vel_wind)
-    end
-
     if longit_speed == nil then longit_speed = 0 end
     wingspan = wingspan or 10
     local lift = in_lift
@@ -374,7 +365,7 @@ function airutils.getLiftAccel(self, velocity, accel, longit_speed, roll, curr_p
     retval = vector.add(retval,lift_acc)
     -----------------------------------------------------------
     -- end lift
-    
+
     return retval
 end
 
@@ -439,7 +430,7 @@ function airutils.set_paint(self, puncher, itmstck, texture_name)
     else
         --painting with dyes
         local split = string.split(item_name, ":")
-        local color, indx, _
+        local indx, _
         if split[1] then _,indx = split[1]:find('dye') end
         if indx then
             --[[for clr,_ in pairs(airutils.colors) do
@@ -469,7 +460,7 @@ function airutils._set_name(self)
     if not airutils._use_signs_api then return end
     local l_textures = self.object:get_properties().textures   --self.initial_properties.textures
     for _, texture in ipairs(l_textures) do
-        indx = texture:find('airutils_name_canvas.png')
+        local indx = texture:find('airutils_name_canvas.png')
         if indx then
             l_textures[_] = "airutils_name_canvas.png^"..airutils.convert_text_to_texture(self._ship_name, self._name_color or 0, self._name_hor_aligment or 0.8)
         end
@@ -606,7 +597,6 @@ minetest.register_chatcommand("ground_effect", {
     description = S("Enables/disables the ground effect (for debug purposes)"),
     privs = {server=true},
 	func = function(name, param)
-        local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
             if param == "on" or param == "" then
                 airutils.ground_effect_is_disabled = nil
@@ -626,7 +616,6 @@ minetest.register_chatcommand("show_lift", {
     description = S("Enables/disables the lift printing (for debug purposes)"),
     privs = {server=true},
 	func = function(name, param)
-        local player = minetest.get_player_by_name(name)
         if minetest.check_player_privs(name, {server=true}) then
             if param == "on" or param == "" then
                 airutils.show_lift = name

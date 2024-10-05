@@ -19,7 +19,6 @@ function airutils.PAPIplace(player,pos)
     end
 
 	local dir = minetest.dir_to_facedir(player:get_look_dir())
-	local pos1 = vector.new(pos)
 
     local player_name = player:get_player_name()
 	if check_protection(pos, player_name) then
@@ -45,7 +44,7 @@ function airutils.togglePapiSide(pos, node, clicker, itemstack)
     local dir=node.param2
     if node.name == "airutils:papi_right" then
         core.set_node(pos, {name="airutils:papi", param2=dir})
-    	meta:set_string("infotext", S("PAPI") .. " - " .. S("left side") .. "\r" .. S("Owned by: @1",player_name))
+        meta:set_string("infotext", S("PAPI") .. " - " .. S("left side") .. "\r" .. S("Owned by: @1",player_name))
     elseif node.name == "airutils:papi" then
         core.set_node(pos, {name="airutils:papi_right", param2=dir})
         meta:set_string("infotext", S("PAPI") .. " - " .. S("right side") .. "\r" .. S("Owned by: @1",player_name))
@@ -107,11 +106,6 @@ minetest.register_node("airutils:papi",{
 		        return
             end
 	    end
-
-        local itmstck=puncher:get_wielded_item()
-        local item_name = ""
-        if itmstck then item_name = itmstck:get_name() end
-
     end,
 })
 
@@ -123,7 +117,7 @@ function airutils.remove_papi(pos)
         local dir=node.param2
         if node.name == "airutils:papi_right" then
             core.set_node(pos, {name="airutils:papi", param2=dir})
-        	meta:set_string("infotext", "PAPI - left side\rOwned by: "..player_name)
+            meta:set_string("infotext", "PAPI - left side\rOwned by: "..player_name)
         end
 
 	    meta:set_string("owner", player_name)
@@ -161,11 +155,6 @@ minetest.register_node("airutils:papi_right",{
 	    if player_name ~= meta:get_string("owner") then
 		    return
 	    end
-
-        local itmstck=puncher:get_wielded_item()
-        local item_name = ""
-        if itmstck then item_name = itmstck:get_name() end
-
     end,
 })
 

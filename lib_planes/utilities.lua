@@ -77,7 +77,7 @@ function airutils.attach(self, player, instructor_mode)
         eye_y = -4
         --airutils.seat_create(self, 1)
         --airutils.seat_create(self, 2)
-        
+
         if not self.co_pilot_seat_base then
             self.co_pilot_seat_base = self._passengers_base[2]
         end
@@ -99,7 +99,7 @@ function airutils.attach(self, player, instructor_mode)
     if airutils.detect_player_api(player) == 2 then
         eye_y = -4
     end
-    
+
     player:set_eye_offset({x = 0, y = eye_y, z = 2}, {x = 0, y = 1, z = -30})
     sit_player(player, name)
 end
@@ -173,8 +173,8 @@ function airutils.check_passenger_is_attached(self, name)
     if self._passenger == name then is_attached = true end
     if is_attached == false then
         local max_occupants = table.getn(self._seats)
-        for i = max_occupants,1,-1 
-        do 
+        for i = max_occupants,1,-1
+        do
             if self._passengers[i] == name then
                 is_attached = true
                 break
@@ -272,7 +272,7 @@ function airutils.dettach_pax(self, player, is_flying)
     else
         local max_seats = table.getn(self._seats)
         for i = max_seats,1,-1
-        do 
+        do
             if self._passengers[i] == name then
                 self._passengers[i] = ""
                 break
@@ -365,10 +365,10 @@ function airutils.destroy(self, by_name, by_automation)
         self.sound_handle = nil
     end
 
-    --remove the passengers first                
+    --remove the passengers first
     local max_seats = table.getn(self._seats)
     for i = max_seats,2,-1
-    do 
+    do
         if self._passengers[i] and self._passengers[i] ~= "" then
             local passenger = minetest.get_player_by_name(self._passengers[i])
             if passenger then airutils.dettach_pax(self, passenger) end
@@ -535,7 +535,6 @@ function airutils.testImpact(self, velocity, position)
             }, true)
             self.hp_max = self.hp_max - self._damage_by_wind_speed
             if self.driver_name then
-                local player_name = self.driver_name
                 airutils.setText(self, self._vehicle_name)
             end
             if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
@@ -580,7 +579,7 @@ function airutils.testImpact(self, velocity, position)
             self._power_lever = 0
             self._engine_running = false
         end
-        
+
         airutils.setText(self, self._vehicle_name)
 
         if self.driver_name then
@@ -621,8 +620,8 @@ function airutils.rescueConnectionFailedPassengers(self)
     if self._disconnection_check_time > 1 then
         --minetest.chat_send_all(dump(self._passengers))
         self._disconnection_check_time = 0
-        for i = max_seats,1,-1 
-        do 
+        for i = max_seats,1,-1
+        do
             if self._passengers[i] and self._passengers[i] ~= "" then
                 local player = minetest.get_player_by_name(self._passengers[i])
                 if player then --we have a player!
@@ -672,11 +671,11 @@ function airutils.checkattachBug(self)
     local base_value = 1.0
     if self._seat_check_interval == nil then self._seat_check_interval = base_value end
     self._seat_check_interval = self._seat_check_interval + self.dtime
-    
+
     if self._seat_check_interval >= base_value then
         self._seat_check_interval = 0
         local max_seats = table.getn(self._seats)
-        for i = max_seats,1,-1 
+        for i = max_seats,1,-1
         do
             if self._passengers[i] and self._passengers[i] ~= "" then
                 local player = minetest.get_player_by_name(self._passengers[i])
@@ -734,7 +733,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
     mode = mode or 1
     local item_name = ""
     if itmstck then item_name = itmstck:get_name() end
-    
+
     if item_name == "automobiles_lib:painter" or item_name == "bike:painter" then
         self._skin = ""
         --painting with bike painter
@@ -751,7 +750,7 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
     else
         --painting with dyes
         local split = string.split(item_name, ":")
-        local color, indx, _
+        local indx, _
         if split[1] then _,indx = split[1]:find('dye') end
         if indx then
             self._skin = ""
@@ -784,7 +783,7 @@ end
 local function _paint(self, l_textures, colstr, paint_list, mask_associations)
     paint_list = paint_list or self._painting_texture
     mask_associations = mask_associations or self._mask_painting_associations
-    
+
     for _, texture in ipairs(l_textures) do
         for i, texture_name in ipairs(paint_list) do --textures list
             local indx = texture:find(texture_name)
@@ -879,7 +878,7 @@ end
 function airutils.paint_with_mask(self, colstr, target_texture, mask_texture)
     if colstr then
         self._color = colstr
-        self._det_color = mask_colstr
+        self._det_color = mask_colstr -- !!! accessing undefined variable mask_colstr
         local l_textures = self.initial_properties.textures
         for _, texture in ipairs(l_textures) do
             local indx = texture:find(target_texture)
@@ -904,7 +903,7 @@ function airutils.pid_controller(current_value, setpoint, last_error, d_time, kp
     local _error = setpoint - current_value
     local derivative = _error - last_error
     --local output = kpv*erro + (kpv/Tiv)*I + kpv*Tdv*((erro - erro_passado)/delta_t);
-    if integrative == nil then integrative = 0 end
+    if integrative == nil then integrative = 0 end -- !!! accessing undefined variable integrative
     integrative = integrative + (((_error + last_error)/delta_t)/2);
     local output = kp*_error + (kp/ti)*integrative + kp * td*((_error - last_error)/delta_t)
     last_error = _error
@@ -927,7 +926,6 @@ function airutils.add_smoke_trail(self, smoke_type)
     end
 
     if self._smoke_spawner == nil then
-        local radius = 1
 	    self._smoke_spawner = minetest.add_particlespawner({
 		    amount = 3,
 		    time = 0,
@@ -1017,7 +1015,7 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
 		local obj_pos = obj:get_pos()
 		local dist = math.max(1, vector.distance(pos, obj_pos))
         local damage = (damage_cal / dist) * radius
-        
+
         if obj:is_player() then
             obj:set_hp(obj:get_hp() - damage)
         else
@@ -1044,7 +1042,7 @@ function airutils.add_blast_damage(pos, radius, damage_cal)
                     }, nil)
 				end
 				for _, item in pairs(entity_drops) do
-					add_drop(drops, item)
+					add_drop(drops, item) -- !!! accessing undefined variable add_drop, drops
 				end
 			end
 
@@ -1114,7 +1112,7 @@ function airutils.camera_reposition(player, pitch, roll)
         --minetest.chat_send_all("2")
         eye_y = -5
     end
-     
+
     local z, y = airutils.get_xz_from_hipotenuse(0, eye_y, pitch, player_properties.eye_height)
     new_eye_offset.z = z*7
     new_eye_offset.y = y*1.5
@@ -1129,7 +1127,7 @@ function airutils.seats_create(self)
         local pos = self.object:get_pos()
         self._passengers_base = {}
         self._passengers = {}
-        if self._seats then 
+        if self._seats then
             local max_seats = table.getn(self._seats)
             for i=1, max_seats do
                 self._passengers_base[i] = minetest.add_entity(pos,'airutils:seat_base')
@@ -1154,7 +1152,7 @@ function airutils.seat_create(self, index)
         local pos = self.object:get_pos()
         if not self._passengers_base then
             self._passengers_base = {}
-            if self._seats then 
+            if self._seats then
                 local max_seats = table.getn(self._seats)
                 for i=1, max_seats do
                     self._passengers_base[i] = 0
@@ -1162,7 +1160,7 @@ function airutils.seat_create(self, index)
             end
         end
         if self._passengers_base[index] == 0 then
-            if self._seats then 
+            if self._seats then
                 local max_seats = table.getn(self._seats)
                 for i=1, max_seats do
                     if i == index then
@@ -1179,8 +1177,7 @@ end
 
 function airutils.seats_update(self)
     if self.object then
-        local pos = self.object:get_pos()
-        if self._passengers_base then 
+        if self._passengers_base then
             local max_seats = table.getn(self._passengers_base)
             for i=1, max_seats do
                 if self._passengers_base[i] then
@@ -1324,8 +1321,6 @@ function airutils.destroyed_save_static_data(self)
 end
 
 function airutils.destroyed_on_activate(self, staticdata, dtime_s)
-    local pos = self.object:get_pos()
-
     if staticdata ~= "" and staticdata ~= nil then
         local data = minetest.deserialize(staticdata) or {}
         self.owner = data.stored_owner
@@ -1354,7 +1349,6 @@ local function check_shared_by_time(self)
 end
 
 function airutils.destroyed_open_inventory(self, clicker)
-    local message = ""
 	if not clicker or not clicker:is_player() then
 		return
 	end
@@ -1386,8 +1380,7 @@ function airutils.destroyed_on_punch(self, puncher, ttime, toolcaps, dir, damage
     local shared_by_time = check_shared_by_time(self)
     local pos = self.object:get_pos()
 
-    local is_admin = false
-    is_admin = minetest.check_player_privs(puncher, {server=true})
+    local is_admin = minetest.check_player_privs(puncher, {server=true})
     if shared_by_time == false then
         if self.owner and self.owner ~= name and self.owner ~= "" then
             if is_admin == false then return end
