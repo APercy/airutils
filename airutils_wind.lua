@@ -47,7 +47,7 @@ airutils.wind_selection_box = {
 local function get_smooth(angle_initial, reference, last_ref, value)
     local range = reference-last_ref
     local retVal = (value*angle_initial)/range
-    retval = angle_initial - retVal
+    local retval = angle_initial - retVal
     if retval < 0 then retval = 0 end
     return retval
 end
@@ -55,7 +55,7 @@ end
 minetest.register_entity("airutils:wind_indicator",{
 											-- common props
 	physical = true,
-	stepheight = 0.5,				
+	stepheight = 0.5,
 	collide_with_objects = true,
 	collisionbox = {-0.5, 0, -0.5, 0.5, 5.0, 0.5},
 	visual = "mesh",
@@ -113,14 +113,13 @@ minetest.register_entity("airutils:wind_indicator",{
     on_punch=function(self, puncher)
 		return
 	end,
-                                            
+
     on_rightclick = function(self, clicker)
-        local wind = airutils.get_wind(pos, 2.0)
+        local wind = airutils.get_wind(self.object:get_pos(), 2.0)
         local wind_yaw = minetest.dir_to_yaw(wind)
         minetest.chat_send_player(clicker:get_player_name(),core.colorize('#00ff00', S(" >>> The wind direction now is @1", math.deg(wind_yaw))))
 		return
     end,
-                                            
 })
 
 
@@ -141,13 +140,13 @@ minetest.register_node("airutils:wind",{
 				{-0.5, -0.5, -0.5, 0.5, 0.5, 0.5},
 				{-0.1,  0.5, -0.1, 0.1, 2.0, 0.1}
 		}
-	},          
-	
+	},
+
 	node_dig_prediction = "default:dirt",
 	node_placement_prediction = "airutils:wind",
-	
+
 	on_place = function(itemstack, placer, pointed_thing)
-                                                
+
 		local pos = pointed_thing.above
 
 			local player_name = placer:get_player_name()
@@ -156,7 +155,6 @@ minetest.register_node("airutils:wind",{
 			if not minetest.is_protected(pos, player_name) and not minetest.is_protected(pos, player_name) then
 				minetest.set_node(pos, {name = "airutils:wind",param2 = 1 })
 				minetest.add_entity({x=pos.x, y=pos.y, z=pos.z},"airutils:wind_indicator")
-				local meta = minetest.get_meta(pos)
 				if not (creative and creative.is_enabled_for and creative.is_enabled_for(player_name)) then
 					itemstack:take_item()
 				end
@@ -168,7 +166,7 @@ minetest.register_node("airutils:wind",{
 
 		return itemstack
 	end,
-	
+
 	on_destruct = function(pos)
 		local meta=minetest.get_meta(pos)
 		if meta then
