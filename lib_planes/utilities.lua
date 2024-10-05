@@ -712,7 +712,9 @@ function airutils.engine_set_sound_and_animation(self)
     if self._engine_running then
         if self._last_applied_power ~= self._power_lever and not self._autopilot then
             self._last_applied_power = self._power_lever
-            self.object:set_animation_frame_speed(60 + self._power_lever)
+            if not self._no_propeller then
+                self.object:set_animation_frame_speed(60 + self._power_lever)
+            end
             airutils.engineSoundPlay(self)
         end
     else
