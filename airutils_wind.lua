@@ -1,13 +1,13 @@
 local S = airutils.S
 
 local function check_protection(pos, name)
-	if minetest.is_protected(pos, name) then
-		minetest.log("action", name
+	if core.is_protected(pos, name) then
+		core.log("action", name
 			.. " tried to place a Wind Indicator"
 			.. " at protected position "
-			.. minetest.pos_to_string(pos)
+			.. core.pos_to_string(pos)
         )
-		minetest.record_protection_violation(pos, name)
+		core.record_protection_violation(pos, name)
 		return true
 	end
 	return false
@@ -18,7 +18,7 @@ function airutils.WindDplace(player,pos)
         return
     end
 
-	local dir = minetest.dir_to_facedir(vector.new())
+	local dir = core.dir_to_facedir(vector.new())
 	local pos1 = vector.new(pos)
 
     local player_name = player:get_player_name()
@@ -52,7 +52,7 @@ local function get_smooth(angle_initial, reference, last_ref, value)
     return retval
 end
 
-minetest.register_entity("airutils:wind_indicator",{
+core.register_entity("airutils:wind_indicator",{
 											-- common props
 	physical = true,
 	stepheight = 0.5,
@@ -73,13 +73,13 @@ minetest.register_entity("airutils:wind_indicator",{
         self.object:set_pos(self._pos)
 
         local wind = airutils.get_wind(self._pos, 1.0)
-        local wind_yaw = minetest.dir_to_yaw(wind)
+        local wind_yaw = core.dir_to_yaw(wind)
         self.object:set_bone_position("ajuste", {x=0,y=42,z=0}, {x=0,y=0,z=90})
         self.object:set_bone_position("b_a", {x=0,y=0,z=0}, {x=math.deg(wind_yaw)-90,y=0,z=0})
 
         local false_div = 1 --trying to make it more o minus sensible
         local vel = ((vector.dot(vector.multiply(wind,dtime),wind))/false_div)*100
-        --minetest.chat_send_all(vel)
+        --core.chat_send_all(vel)
         local b_b = 65
         if vel > 11 then
             b_b = get_smooth(65, 11, 0, vel)
@@ -104,7 +104,7 @@ minetest.register_entity("airutils:wind_indicator",{
         end
         self.object:set_bone_position("b_e", {x=0,y=3,z=0}, {x=0,y=0,z=-b_e})
 
-        --minetest.chat_send_all("Wind Direction: "..math.deg(wind_yaw))
+        --core.chat_send_all("Wind Direction: "..math.deg(wind_yaw))
     end,	-- required
 	--on_activate = mobkit.actfunc,		-- required
 	--get_staticdata = mobkit.statfunc,
@@ -116,8 +116,8 @@ minetest.register_entity("airutils:wind_indicator",{
 
     on_rightclick = function(self, clicker)
         local wind = airutils.get_wind(self.object:get_pos(), 2.0)
-        local wind_yaw = minetest.dir_to_yaw(wind)
-        minetest.chat_send_player(clicker:get_player_name(),core.colorize('#00ff00', S(" >>> The wind direction now is @1", math.deg(wind_yaw))))
+        local wind_yaw = core.dir_to_yaw(wind)
+        core.chat_send_player(clicker:get_player_name(),core.colorize('#00ff00', S(" >>> The wind direction now is @1", math.deg(wind_yaw))))
 		return
     end,
 })
@@ -125,7 +125,7 @@ minetest.register_entity("airutils:wind_indicator",{
 
 
 -- Wind Indicator node (default left)
-minetest.register_node("airutils:wind",{
+core.register_node("airutils:wind",{
 	description = S("Wind Direction Indicator"),
 	waving = 1,
 	tiles = {"default_steel_block.png","default_steel_block.png","default_steel_block.png","default_steel_block.png","default_steel_block.png","default_steel_block.png"},
@@ -152,15 +152,15 @@ minetest.register_node("airutils:wind",{
 			local player_name = placer:get_player_name()
 
 
-			if not minetest.is_protected(pos, player_name) and not minetest.is_protected(pos, player_name) then
-				minetest.set_node(pos, {name = "airutils:wind",param2 = 1 })
-				minetest.add_entity({x=pos.x, y=pos.y, z=pos.z},"airutils:wind_indicator")
+			if not core.is_protected(pos, player_name) and not core.is_protected(pos, player_name) then
+				core.set_node(pos, {name = "airutils:wind",param2 = 1 })
+				core.add_entity({x=pos.x, y=pos.y, z=pos.z},"airutils:wind_indicator")
 				if not (creative and creative.is_enabled_for and creative.is_enabled_for(player_name)) then
 					itemstack:take_item()
 				end
 			else
-				minetest.chat_send_player(player_name, S("Node is protected"))
-				minetest.record_protection_violation(pos, player_name)
+				core.chat_send_player(player_name, S("Node is protected"))
+				core.record_protection_violation(pos, player_name)
 			end
 
 
@@ -168,10 +168,10 @@ minetest.register_node("airutils:wind",{
 	end,
 
 	on_destruct = function(pos)
-		local meta=minetest.get_meta(pos)
+		local meta=core.get_meta(pos)
 		if meta then
 		    local cpos = {x=pos.x, y= pos.y, z=pos.z}
-		    local object = minetest.get_objects_inside_radius(cpos, 1)
+		    local object = core.get_objects_inside_radius(cpos, 1)
 		    for _,obj in ipairs(object) do
 			    local entity = obj:get_luaentity()
 			    if entity and entity.name == "airutils:wind_indicator" then
@@ -183,7 +183,7 @@ minetest.register_node("airutils:wind",{
 })
 
 -- WIND craft
-minetest.register_craft({
+core.register_craft({
 	output = 'airutils:wind',
 	recipe = {
 		{'wool:white', 'wool:white', 'wool:white'},
