@@ -1,13 +1,13 @@
 local S = airutils.S
 
 local function check_protection(pos, name)
-	if minetest.is_protected(pos, name) then
-		minetest.log("action", name
+	if core.is_protected(pos, name) then
+		core.log("action", name
 			.. " tried to place a PAPI"
 			.. " at protected position "
-			.. minetest.pos_to_string(pos)
+			.. core.pos_to_string(pos)
         )
-		minetest.record_protection_violation(pos, name)
+		core.record_protection_violation(pos, name)
 		return true
 	end
 	return false
@@ -18,7 +18,7 @@ function airutils.PAPIplace(player,pos)
         return
     end
 
-	local dir = minetest.dir_to_facedir(player:get_look_dir())
+	local dir = core.dir_to_facedir(player:get_look_dir())
 
     local player_name = player:get_player_name()
 	if check_protection(pos, player_name) then
@@ -68,7 +68,7 @@ airutils.groups_right = {snappy=2,choppy=2,oddly_breakable_by_hand=2,not_in_crea
 airutils.groups = {snappy=2,choppy=2,oddly_breakable_by_hand=2}
 
 -- PAPI node (default left)
-minetest.register_node("airutils:papi",{
+core.register_node("airutils:papi",{
 	description = S("PAPI"),
 	--inventory_image = "papi.png",
 	--wield_image = "papi.png",
@@ -101,7 +101,7 @@ minetest.register_node("airutils:papi",{
 	    local player_name = puncher:get_player_name()
         local meta = core.get_meta(pos)
 	    if player_name ~= meta:get_string("owner") then
-            local privs = minetest.get_player_privs(player_name)
+            local privs = core.get_player_privs(player_name)
             if privs.server == false then
 		        return
             end
@@ -112,7 +112,7 @@ minetest.register_node("airutils:papi",{
 function airutils.remove_papi(pos)
     --[[
 	local meta = core.get_meta(pos)
-    local node = minetest.get_node(pos)
+    local node = core.get_node(pos)
     if node and meta then
         local dir=node.param2
         if node.name == "airutils:papi_right" then
@@ -131,7 +131,7 @@ function airutils.remove_papi(pos)
 end
 
 -- PAPI right node
-minetest.register_node("airutils:papi_right",{
+core.register_node("airutils:papi_right",{
     description = S("PAPI") .. "_" .. S("right_side"),
 	tiles = {"airutils_black.png", "airutils_u_black.png", "airutils_white.png",
 	"airutils_metal.png", {name = "airutils_red.png", backface_culling = true},},
@@ -160,7 +160,7 @@ minetest.register_node("airutils:papi_right",{
 
 
 -- PAPI craft
-minetest.register_craft({
+core.register_craft({
 	output = 'airutils:papi',
 	recipe = {
 		{'default:glass', 'default:mese_crystal', 'default:glass'},
