@@ -701,6 +701,7 @@ local function damage_vehicle(self, toolcaps, ttime, damage)
     end
     damage = damage + value / 10
     self.hp_max = self.hp_max - damage
+    if self.hp_max < 0 then self.hp_max = 0 end
     airutils.setText(self, self._vehicle_name)
 end
 
