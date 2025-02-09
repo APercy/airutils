@@ -37,6 +37,7 @@ function airutils.on_deactivate(self)
 end
 
 function airutils.on_activate(self, staticdata, dtime_s)
+    if not self.object then return end
     local pos = self.object:get_pos()
     airutils.actfunc(self, staticdata, dtime_s)
     self._flap = false
@@ -136,6 +137,8 @@ function airutils.on_step(self,dtime,colinfo)
     self.colinfo = colinfo
     self.height = airutils.get_box_height(self)
 
+    if not self.object then return end
+
 --  physics comes first
     local vel = self.object:get_velocity()
     local pos = self.object:get_pos()
@@ -165,8 +168,10 @@ function airutils.on_step(self,dtime,colinfo)
 	    end
     end
 
-    if self.hp_max <= 0 then
-        airutils.destroy(self)
+    if self.hp_max then
+        if self.hp_max <= 0 then
+            airutils.destroy(self)
+        end
     end
 
     self:physics()
