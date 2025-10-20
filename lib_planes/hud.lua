@@ -313,7 +313,7 @@ end
 function airutils.remove_hud(player)
     if player then
         local player_name = player:get_player_name()
-        --minetest.chat_send_all(player_name)
+        --core.chat_send_all(player_name)
         local ids = airutils.hud_list[player_name]
         if ids then
             --player:hud_remove(ids["altitude"])
