@@ -32,7 +32,7 @@ function airutils.get_attached_entity(self)
     local inv_id = self._vehicle_custom_data.simple_external_attach_invid
 
     local pos = self.object:get_pos()
-    local nearby_objects = minetest.get_objects_inside_radius(pos, 32)
+    local nearby_objects = core.get_objects_inside_radius(pos, 32)
 	for i,obj in ipairs(nearby_objects) do
         local ent = obj:get_luaentity()
         if ent then
@@ -88,7 +88,7 @@ function airutils.simple_external_attach(self, relative_pos, entity_name, radius
         if curr_ent then return end
 
         local pos = self.object:get_pos()
-        local nearby_objects = minetest.get_objects_inside_radius(pos, radius)
+        local nearby_objects = core.get_objects_inside_radius(pos, radius)
 		for i,obj in ipairs(nearby_objects) do
 			if obj == self.object then
 				table.remove(nearby_objects,i)
@@ -115,17 +115,17 @@ function airutils.restore_external_attach(self)
     local inv_id = self._vehicle_custom_data.simple_external_attach_invid
     dest_pos = vector.add(dest_pos, relative_pos)
 
-    minetest.after(0.3, function()
-        local nearby_objects = minetest.get_objects_inside_radius(pos, 32)
+    core.after(0.3, function()
+        local nearby_objects = core.get_objects_inside_radius(pos, 32)
         local ent
 	    for i,obj in ipairs(nearby_objects) do
             ent = obj:get_luaentity()
             if ent then
-                --minetest.chat_send_all(dump(ent.name))
+                --core.chat_send_all(dump(ent.name))
                 if ent._inv_id then
-                    --minetest.chat_send_all(">> "..dump(ent._inv_id).." >> "..dump(inv_id))
+                    --core.chat_send_all(">> "..dump(ent._inv_id).." >> "..dump(inv_id))
                     if ent._inv_id == inv_id and ent._inv_id ~= self._inv_id then
-                        --minetest.chat_send_all("++ "..dump(ent._inv_id).." ++ "..dump(inv_id))
+                        --core.chat_send_all("++ "..dump(ent._inv_id).." ++ "..dump(inv_id))
                         local target_obj = nearby_objects[i]
                         target_obj:set_pos(dest_pos)
                         target_obj:set_attach(self.object,'',relative_pos,{x=0,y=0,z=0})
@@ -143,13 +143,13 @@ function airutils.restore_external_attach(self)
     --self._vehicle_custom_data.simple_external_attach_invid = nil
 end
 
-minetest.register_chatcommand("remove_hook", {
+core.register_chatcommand("remove_hook", {
     params = "",
     description = S("Dettach current vehicle from another"),
     privs = {interact=true},
 	func = function(name, param)
         local colorstring = core.colorize('#ff0000', S(" >>> you are not inside a plane"))
-        local player = minetest.get_player_by_name(name)
+        local player = core.get_player_by_name(name)
         local attached_to = player:get_attach()
 
 		if attached_to ~= nil then
@@ -160,7 +160,7 @@ minetest.register_chatcommand("remove_hook", {
                     if entity.on_step == airutils.on_step then
                         local rem_obj = entity.object:get_attach()
                         if not rem_obj then
-                            minetest.chat_send_player(name,core.colorize('#ff0000', S(" >>> no hook found")))
+                            core.chat_send_player(name,core.colorize('#ff0000', S(" >>> no hook found")))
                             return
                         end
                         local rem_ent = rem_obj:get_luaentity()
@@ -186,12 +186,12 @@ minetest.register_chatcommand("remove_hook", {
                         rem_ent._vehicle_custom_data.simple_external_attach_pos = nil
                         rem_ent._vehicle_custom_data.simple_external_attach_invid = nil
                     else
-			            minetest.chat_send_player(name,colorstring)
+			            core.chat_send_player(name,colorstring)
                     end
                 end
             end
 		else
-			minetest.chat_send_player(name,colorstring)
+			core.chat_send_player(name,colorstring)
 		end
 	end
 })
