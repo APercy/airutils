@@ -85,7 +85,7 @@ function airutils.plot_fuel_gauge(self, scale, place_x, place_y)
 
     --local fuel_percentage = (curr_level*100)/max_level
     --local fuel_angle = -(fuel_percentage*180)/100
-    --minetest.chat_send_all(dump(fuel_angle))
+    --core.chat_send_all(dump(fuel_angle))
 
     local fuel = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_fuel_gauge.png:"
@@ -104,7 +104,7 @@ function airutils.plot_speed_gauge(self, scale, place_x, place_y)
 
     --local speed_percentage = (curr_level*100)/max_level
     --local speed_angle = -(speed_percentage*350)/100
-    --minetest.chat_send_all(dump(fuel_angle))
+    --core.chat_send_all(dump(fuel_angle))
 
     local speed = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_speed_gauge.png:"
@@ -123,7 +123,7 @@ function airutils.plot_power_gauge(self, scale, place_x, place_y)
 
     --local speed_percentage = (curr_level*100)/max_level
     --local speed_angle = -(speed_percentage*350)/100
-    --minetest.chat_send_all(dump(fuel_angle))
+    --core.chat_send_all(dump(fuel_angle))
 
     local rpm = "^[resize:"..scale.."x"..scale.."^[combine:"..bg_width_height.."x"..bg_width_height..":"
                         ..place_x..","..place_y.."=airutils_rpm_gauge.png:"
