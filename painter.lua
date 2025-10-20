@@ -46,7 +46,7 @@ end
 -- Painter formspec
 local function painter_form(player, rgb)
     local color = rgb_to_hex(rgb)
-    minetest.show_formspec(player:get_player_name(), "airutils:painter",
+    core.show_formspec(player:get_player_name(), "airutils:painter",
         -- Init formspec
         "formspec_version[3]" .. -- Minetest 5.2+
         "size[5.6,5.2;true]" ..
@@ -91,7 +91,7 @@ end
 local airutils_being_painted = {}
 local formspec_timers = {}
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "airutils:painter" then
         if formspec_timers[player] then
             formspec_timers[player]:cancel()
@@ -127,8 +127,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
         elseif fields.r and fields.r:find("^CHG") or
         fields.g and fields.g:find("^CHG") or
         fields.b and fields.b:find("^CHG") then -- Has a scrollbar changed?
-            formspec_timers[player] = minetest.after(0.2, function(itemstack, name)
-                local player = minetest.get_player_by_name(name)
+            formspec_timers[player] = core.after(0.2, function(itemstack, name)
+                local player = core.get_player_by_name(name)
                 if player then
                     painter_form(player, rgb)
                 end
@@ -145,7 +145,7 @@ end)
 
 
 -- Make the actual thingy
-minetest.register_tool("airutils:painter", {
+core.register_tool("airutils:painter", {
     description = S("Plane Painter"),
     inventory_image = "airutils_painter.png",
     wield_scale = {x = 2, y = 2, z = 1},
@@ -160,18 +160,18 @@ minetest.register_tool("airutils:painter", {
                     local rgb = is_hex(color) and hex_to_rgb(color) or {r = 0, g = 0, b = 0}
                     painter_form(user, rgb)
                 else
-                    minetest.chat_send_player(player_name, S("Only the owner can paint this entity."))
+                    core.chat_send_player(player_name, S("Only the owner can paint this entity."))
                 end
             end
         end
     end
 })
 
-minetest.register_on_leaveplayer(function(player, timed_out)
+core.register_on_leaveplayer(function(player, timed_out)
     airutils_being_painted[player] = nil
 end)
 
-minetest.register_craft({
+core.register_craft({
     output = "airutils:painter",
     recipe = {
         {"", "default:steel_ingot", ""},
