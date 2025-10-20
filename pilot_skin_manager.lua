@@ -2,29 +2,29 @@ local S = airutils.S
 
 airutils.pilot_textures = {"pilot_clothes1.png","pilot_clothes2.png","pilot_clothes3.png","pilot_clothes4.png",
         "pilot_novaskin_girl.png","pilot_novaskin_girl_steampunk.png","pilot_novaskin_girl_2.png","pilot_novaskin_girl_steampunk_2.png"}
-local skinsdb_mod_path = minetest.get_modpath("skinsdb")
+local skinsdb_mod_path = core.get_modpath("skinsdb")
 
-minetest.register_chatcommand("au_uniform", {
+core.register_chatcommand("au_uniform", {
     func = function(name, param)
-		local player = minetest.get_player_by_name(name)
+		local player = core.get_player_by_name(name)
 
 		if player then
 			if skinsdb_mod_path then
 				local skdb_skin = skins.get_player_skin(player)
 				if skdb_skin:get_meta("format") == "1.8" then
-					minetest.chat_send_player(name, S("Sorry, but uniform cannot be applied to format 1.8 skins."))
+					core.chat_send_player(name, S("Sorry, but uniform cannot be applied to format 1.8 skins."))
 					return
 				end
 			end
 			airutils.uniform_formspec(name)
 		else
-			minetest.chat_send_player(name, S("Something isn't working..."))
+			core.chat_send_player(name, S("Something isn't working..."))
 		end
     end,
 })
 
 local set_player_textures =
-	minetest.get_modpath("player_api") and player_api.set_textures
+	core.get_modpath("player_api") and player_api.set_textures
 	or default.player_set_textures
 
 if skinsdb_mod_path then
@@ -97,18 +97,18 @@ function airutils.set_player_skin(player, skin)
         else
             --remove texture
             local old_texture = player_meta:get_string("backup")
-            if minetest.global_exists("set_skin") then --checking if set_skin is available
+            if core.global_exists("set_skin") then --checking if set_skin is available
                 if player:get_attribute("set_skin:player_skin") ~= nil and player:get_attribute("set_skin:player_skin") ~= "" then
                     old_texture = player:get_attribute("set_skin:player_skin")
                 end
-            elseif minetest.global_exists("wardrobe") then --checking if wardrobe is available
+            elseif core.global_exists("wardrobe") then --checking if wardrobe is available
                 if wardrobe.playerSkins then
                     if wardrobe.playerSkins[name] ~= nil then
                         old_texture = wardrobe.playerSkins[name]
                     end
                 end
             end
-            --minetest.chat_send_all(dump(old_texture))
+            --core.chat_send_all(dump(old_texture))
             if old_texture ~= nil and old_texture ~= "" then
                 set_player_textures(player, { old_texture })
             end
@@ -127,7 +127,7 @@ function airutils.uniform_formspec(name)
         "size[5,2.9]",
 	}, "")
 
-    --minetest.chat_send_all(dump(airutils.pilot_textures))
+    --core.chat_send_all(dump(airutils.pilot_textures))
 
     local textures = ""
     if airutils.pilot_textures then
@@ -138,30 +138,30 @@ function airutils.uniform_formspec(name)
 	    basic_form = basic_form.."dropdown[0.5,0.5;4,0.8;textures;".. textures ..";0;false]"
         basic_form = basic_form.."button[0.5,1.6;4,0.8;set_texture;" .. S("Set Player Texture") .. "]"
 
-        minetest.show_formspec(name, "airutils:change", basic_form)
+        core.show_formspec(name, "airutils:change", basic_form)
     else
-        minetest.chat_send_player(name, S("The isn't activated as secure. Aborting"))
+        core.chat_send_player(name, S("The isn't activated as secure. Aborting"))
     end
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "airutils:change" then
         local name = player:get_player_name()
 		if fields.textures or fields.set_texture then
             airutils.set_player_skin(player, fields.textures)
 		end
-        minetest.close_formspec(name, "airutils:change")
+        core.close_formspec(name, "airutils:change")
     end
 end)
 
-minetest.register_on_joinplayer(function(player)
+core.register_on_joinplayer(function(player)
     local player_meta = player:get_meta()
     local skin = player_meta:get_string("curr_skin")
-    --minetest.chat_send_all(">>>"..skin)
+    --core.chat_send_all(">>>"..skin)
 
 	if skin and skin ~= "" and skin ~= nil then
 		-- setting player skin on connect has no effect, so delay skin change
-		minetest.after(3, function(player1, skin1)
+		core.after(3, function(player1, skin1)
             airutils.set_player_skin(player1, skin1)
 		end, player, skin)
 	end
