@@ -14,7 +14,7 @@ local function water_particle(pos, accell)
     if airutils.splash_texture == nil then return end
     if airutils.splash_texture == "" then return end
 
-	minetest.add_particle({
+	core.add_particle({
 		pos = pos,
 		velocity = {x = 0, y = 0, z = 0},
 		acceleration = accell, --{x = 0, y = 0, z = 0},
