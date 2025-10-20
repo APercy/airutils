@@ -4,7 +4,7 @@ airutils.ideal_step = 0.02
 --[[airutils.rudder_limit = 30
 airutils.elevator_limit = 40]]--
 
-dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "utilities.lua")
+dofile(core.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "utilities.lua")
 local S = airutils.S
 
 function airutils.powerAdjust(self,dtime,factor,dir,max_power)
@@ -138,10 +138,10 @@ function airutils.control(self, dtime, hull_direction, longit_speed, longit_drag
             self._last_time_command = 0
             local name = player:get_player_name()
             if self._yaw_by_mouse == true then
-                minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control disabled.")))
+                core.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control disabled.")))
                 self._yaw_by_mouse = false
             else
-                minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control enabled.")))
+                core.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control enabled.")))
                 self._yaw_by_mouse = true
             end
         end
@@ -175,10 +175,10 @@ function airutils.set_pitch(self, dir, dtime)
     local pitch_factor = self._pitch_intensity or 0.6
     local multiplier = pitch_factor*(dtime/airutils.ideal_step)
 	if dir == -1 then
-        --minetest.chat_send_all("cabrando")
+        --core.chat_send_all("cabrando")
 		self._elevator_angle = math.max(self._elevator_angle-multiplier,-self._elevator_limit)
 	elseif dir == 1 then
-        --minetest.chat_send_all("picando")
+        --core.chat_send_all("picando")
 		self._elevator_angle = math.min(self._elevator_angle+multiplier,self._elevator_limit)
 	end
 end
@@ -187,10 +187,10 @@ function airutils.set_autopilot_pitch(self, dir, dtime)
     local pitch_factor = 0.05
     local multiplier = pitch_factor*(dtime/airutils.ideal_step)
 	if dir == -1 then
-        --minetest.chat_send_all("cabrando")
+        --core.chat_send_all("cabrando")
 		self._elevator_angle = math.max(self._elevator_angle-multiplier,-self._elevator_limit)
 	elseif dir == 1 then
-        --minetest.chat_send_all("picando")
+        --core.chat_send_all("picando")
 		self._elevator_angle = math.min(self._elevator_angle+multiplier,self._elevator_limit)
 	end
 end
@@ -210,7 +210,7 @@ function airutils.set_yaw_by_mouse(self, dir)
     local command = (rot_y - dir) * intensity
     if command < -90 then command = -90
     elseif command > 90 then command = 90 end
-    --minetest.chat_send_all("rotation y: "..rot_y.." - dir: "..dir.." - command: "..command)
+    --core.chat_send_all("rotation y: "..rot_y.." - dir: "..dir.." - command: "..command)
 
 	self._rudder_angle = (-command * self._rudder_limit)/90
 end
