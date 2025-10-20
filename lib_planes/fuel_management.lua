@@ -8,7 +8,7 @@ function airutils.contains(table, val)
 end
 
 function airutils.loadFuel(self, player_name)
-    local player = minetest.get_player_by_name(player_name)
+    local player = core.get_player_by_name(player_name)
     local inv = player:get_inventory()
     local itmstck=player:get_wielded_item()
 
@@ -51,7 +51,7 @@ function airutils.consumptionCalc(self, accel)
                 consumed_power = self._power_lever/divisor
             end
         end
-        --minetest.chat_send_all('consumed: '.. consumed_power)
+        --core.chat_send_all('consumed: '.. consumed_power)
         self._energy = self._energy - consumed_power;
 
         local energy_indicator_angle = airutils.get_gauge_angle(self._energy)
@@ -64,7 +64,7 @@ function airutils.consumptionCalc(self, accel)
     if self._energy <= 0 and self._engine_running and accel ~= nil then
         self._engine_running = false
         self._autopilot = false
-        if self.sound_handle then minetest.sound_stop(self.sound_handle) end
+        if self.sound_handle then core.sound_stop(self.sound_handle) end
 	    self.object:set_animation_frame_speed(0)
     end
 end
