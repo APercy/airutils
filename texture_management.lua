@@ -67,7 +67,7 @@ local function listLoadedTextures()
     local loadedTextures = {}
 
     --nodes
-    for name, node in pairs(minetest.registered_nodes) do
+    for name, node in pairs(core.registered_nodes) do
         local textures = getTexturesFromNode(node)
 
         for _, texture in pairs(textures) do
@@ -78,7 +78,7 @@ local function listLoadedTextures()
 
     --entities
     loadedTextures = {}
-    for name, entityDef in pairs(minetest.registered_entities) do
+    for name, entityDef in pairs(core.registered_entities) do
         local textures = getTexturesFromEntity(entityDef)
 
         for _, texture in pairs(textures) do
@@ -89,7 +89,7 @@ local function listLoadedTextures()
 
     --items
     loadedTextures = {}
-    for name, itemDef in pairs(minetest.registered_items) do
+    for name, itemDef in pairs(core.registered_items) do
         local textures = getTexturesFromItem(itemDef)
 
         for _, texture in pairs(textures) do
