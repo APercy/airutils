@@ -1,13 +1,13 @@
-dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
+dofile(core.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 
 local function engineSoundPlay(self, increment, base)
     increment = increment or 0.0
     --sound
-    if self.sound_handle then minetest.sound_stop(self.sound_handle) end
+    if self.sound_handle then core.sound_stop(self.sound_handle) end
     if self.object then
         local base_pitch = base
         local pitch_adjust = base_pitch + increment
-        self.sound_handle = minetest.sound_play({name = self._engine_sound},
+        self.sound_handle = core.sound_play({name = self._engine_sound},
             {object = self.object, gain = 2.0,
                 pitch = pitch_adjust,
                 max_hear_distance = 32,
@@ -45,7 +45,7 @@ local function engine_set_sound_and_animation(self, is_flying, newpitch, newroll
             if self.sound_handle then
                 self._snd_last_roll = nil
                 self._snd_last_pitch = nil
-                minetest.sound_stop(self.sound_handle)
+                core.sound_stop(self.sound_handle)
                 self.sound_handle = nil
                 self.object:set_animation_frame_speed(0)
             end
@@ -64,9 +64,9 @@ function airutils.logic_heli(self)
     if self._last_time_command > 1 then self._last_time_command = 1 end
 
     local player = nil
-    if self.driver_name then player = minetest.get_player_by_name(self.driver_name) end
+    if self.driver_name then player = core.get_player_by_name(self.driver_name) end
     local co_pilot = nil
-    if self.co_pilot and self._have_copilot then co_pilot = minetest.get_player_by_name(self.co_pilot) end
+    if self.co_pilot and self._have_copilot then co_pilot = core.get_player_by_name(self.co_pilot) end
 
     --test collision
     airutils.testImpact(self, velocity, curr_pos)
@@ -102,7 +102,7 @@ function airutils.logic_heli(self)
 	local newyaw=yaw
 	local roll = rotation.z
 
-    local hull_direction = airutils.rot_to_dir(rotation) --minetest.yaw_to_dir(yaw)
+    local hull_direction = airutils.rot_to_dir(rotation) --core.yaw_to_dir(yaw)
     local nhdir = {x=hull_direction.z,y=0,z=-hull_direction.x}		-- lateral unit vector
 
     local longit_speed = vector.dot(velocity,hull_direction)
@@ -111,7 +111,7 @@ function airutils.logic_heli(self)
     local longit_drag = vector.multiply(hull_direction,longit_speed*
             longit_speed*self._longit_drag_factor*-1*airutils.sign(longit_speed))
 	local later_speed = airutils.dot(velocity,nhdir)
-    --minetest.chat_send_all('later_speed: '.. later_speed)
+    --core.chat_send_all('later_speed: '.. later_speed)
 	local later_drag = vector.multiply(nhdir,later_speed*later_speed*
             self._later_drag_factor*-1*airutils.sign(later_speed))
     local accel = vector.add(longit_drag,later_drag)
@@ -125,7 +125,7 @@ function airutils.logic_heli(self)
         is_flying = false
     end
     --if self.isonground then is_flying = false end
-    --if is_flying then minetest.chat_send_all('is flying') end
+    --if is_flying then core.chat_send_all('is flying') end
 
     local is_attached = airutils.checkAttach(self, player)
     if self._indicated_speed == nil then self._indicated_speed = 0 end
@@ -155,9 +155,9 @@ function airutils.logic_heli(self)
     else
         if self._smoke_spawner and not self._smoke_semaphore then
             self._smoke_semaphore = 1 --to set it only one time
-            minetest.after(5, function()
+            core.after(5, function()
                 if self._smoke_spawner then
-                    minetest.delete_particlespawner(self._smoke_spawner)
+                    core.delete_particlespawner(self._smoke_spawner)
                     self._smoke_spawner = nil
                     self._smoke_semaphore = nil
                 end
@@ -257,7 +257,7 @@ function airutils.logic_heli(self)
         local h_vel_compensation = ((ref_speed * 100)/max_pitch)/100
         if h_vel_compensation < 0 then h_vel_compensation = 0 end
         if h_vel_compensation > max_pitch then h_vel_compensation = max_pitch end
-        --minetest.chat_send_all(h_vel_compensation)
+        --core.chat_send_all(h_vel_compensation)
         newpitch = newpitch + (velocity.y * math.rad(max_pitch - h_vel_compensation))
     end
 
@@ -331,7 +331,7 @@ function airutils.logic_heli(self)
     ------------------------------------------------------
 
     --GAUGES
-    --minetest.chat_send_all('rate '.. climb_rate)
+    --core.chat_send_all('rate '.. climb_rate)
     local climb_angle = airutils.get_gauge_angle(climb_rate)
     self._climb_rate = climb_rate
 
@@ -360,7 +360,7 @@ function airutils.logic_heli(self)
     end
 
     if player and self._use_camera_relocation then
-        --minetest.chat_send_all(dump(newroll))
+        --core.chat_send_all(dump(newroll))
         local new_eye_offset = airutils.camera_reposition(player, newpitch, newroll)
         player:set_eye_offset(new_eye_offset, {x = 0, y = 1, z = -30})
     end
