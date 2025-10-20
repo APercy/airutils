@@ -1,4 +1,4 @@
-dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
+dofile(core.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "global_definitions.lua")
 local S = airutils.S
 --------------
 -- Manual --
@@ -14,7 +14,7 @@ function airutils.getPlaneFromPlayer(player)
 end
 
 function airutils.pilot_formspec(name)
-    local player = minetest.get_player_by_name(name)
+    local player = core.get_player_by_name(name)
     local plane_obj = airutils.getPlaneFromPlayer(player)
     if plane_obj == nil then
         return
@@ -112,11 +112,11 @@ function airutils.pilot_formspec(name)
         "size["..form_width..",7.2]",
 	}, "")
 
-    minetest.show_formspec(name, "lib_planes:pilot_main", form..basic_form)
+    core.show_formspec(name, "lib_planes:pilot_main", form..basic_form)
 end
 
 function airutils.manage_copilot_formspec(name)
-    local player = minetest.get_player_by_name(name)
+    local player = core.get_player_by_name(name)
     local plane_obj = airutils.getPlaneFromPlayer(player)
     if plane_obj == nil then
         return
@@ -142,11 +142,11 @@ function airutils.manage_copilot_formspec(name)
 
     basic_form = basic_form.."button[1,2.5;4,1;pass_control;" .. S("Pass the Control") .. "]"
 
-    minetest.show_formspec(name, "lib_planes:manage_copilot", basic_form)
+    core.show_formspec(name, "lib_planes:manage_copilot", basic_form)
 end
 
 function airutils.adf_formspec(name)
-    local player = minetest.get_player_by_name(name)
+    local player = core.get_player_by_name(name)
     local plane_obj = airutils.getPlaneFromPlayer(player)
     if plane_obj == nil then
         return
@@ -180,7 +180,7 @@ function airutils.adf_formspec(name)
     basic_form = basic_form.."field[2.8,1.7;1.5,0.6;adf_z;pos z;"..z.."]"
     basic_form = basic_form.."button[4.5,1.7;0.6,0.6;save_adf;" .. S("OK") .. "]"
 
-    minetest.show_formspec(name, "lib_planes:adf_main", basic_form)
+    core.show_formspec(name, "lib_planes:adf_main", basic_form)
 end
 
 function airutils.pax_formspec(name)
@@ -192,7 +192,7 @@ function airutils.pax_formspec(name)
 	basic_form = basic_form.."button[1,1.0;4,1;new_seat;" .. S("Change Seat") .. "]"
 	basic_form = basic_form.."button[1,2.5;4,1;go_out;" .. S("Go Offboard") .. "]"
 
-    minetest.show_formspec(name, "lib_planes:passenger_main", basic_form)
+    core.show_formspec(name, "lib_planes:passenger_main", basic_form)
 end
 
 function airutils.go_out_confirmation_formspec(name)
@@ -205,15 +205,15 @@ function airutils.go_out_confirmation_formspec(name)
 	basic_form = basic_form.."button[1.3,1.0;2,0.8;no;" .. S("No") .. "]"
 	basic_form = basic_form.."button[3.6,1.0;2,0.8;yes;" .. S("Yes") .. "]"
 
-    minetest.show_formspec(name, "lib_planes:go_out_confirmation_form", basic_form)
+    core.show_formspec(name, "lib_planes:go_out_confirmation_form", basic_form)
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
     if formname == "lib_planes:go_out_confirmation_form" then
         local name = player:get_player_name()
         local plane_obj = airutils.getPlaneFromPlayer(player)
         if plane_obj == nil then
-            minetest.close_formspec(name, "lib_planes:go_out_confirmation_form")
+            core.close_formspec(name, "lib_planes:go_out_confirmation_form")
             return
         end
         local ent = plane_obj:get_luaentity()
@@ -222,14 +222,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 airutils.dettach_pax(ent, player, true)
 		    end
         end
-        minetest.close_formspec(name, "lib_planes:go_out_confirmation_form")
+        core.close_formspec(name, "lib_planes:go_out_confirmation_form")
     end
 	if formname == "lib_planes:adf_main" then
         local name = player:get_player_name()
         local plane_obj = airutils.getPlaneFromPlayer(player)
         if plane_obj == nil then
-            minetest.chat_send_player(name, core.colorize('#ff0000', S(" >>> There is something wrong with the plane...")))
-            minetest.close_formspec(name, "lib_planes:adf_main")
+            core.chat_send_player(name, core.colorize('#ff0000', S(" >>> There is something wrong with the plane...")))
+            core.close_formspec(name, "lib_planes:adf_main")
             return
         end
         local ent = plane_obj:get_luaentity()
@@ -237,10 +237,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             if fields.adf then
                 if ent._adf == true then
                     ent._adf = false
-                    minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> ADF deactivated.")))
+                    core.chat_send_player(name, core.colorize('#0000ff', S(" >>> ADF deactivated.")))
                 else
                     ent._adf = true
-                    minetest.chat_send_player(name, core.colorize('#00ff00', S(" >>> ADF activated.")))
+                    core.chat_send_player(name, core.colorize('#00ff00', S(" >>> ADF activated.")))
                 end
             end
             if fields.save_adf then
@@ -250,25 +250,25 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                         if tonumber(fields.adf_x, 10) ~= nil and tonumber(fields.adf_z, 10) ~= nil then
                             ent._adf_destiny.x = tonumber(fields.adf_x, 10)
                             ent._adf_destiny.z = tonumber(fields.adf_z, 10)
-                            minetest.chat_send_player(name, core.colorize('#00ff00', S(" >>> Destination written successfully.")))
+                            core.chat_send_player(name, core.colorize('#00ff00', S(" >>> Destination written successfully.")))
                         else
-                            minetest.chat_send_player(name, core.colorize('#ff0000', S(" >>> There is something wrong with the ADF fields values.")))
+                            core.chat_send_player(name, core.colorize('#ff0000', S(" >>> There is something wrong with the ADF fields values.")))
                         end
                     else
-                        minetest.chat_send_player(name, core.colorize('#ff0000', S(" >>> Both ADF fields must be given to complete the operation.")))
+                        core.chat_send_player(name, core.colorize('#ff0000', S(" >>> Both ADF fields must be given to complete the operation.")))
                     end
                 end
             end
         else
-            minetest.chat_send_player(name, core.colorize('#ff0000', S(" >>> There is something wrong on ADF saving...")))
+            core.chat_send_player(name, core.colorize('#ff0000', S(" >>> There is something wrong on ADF saving...")))
         end
-        minetest.close_formspec(name, "lib_planes:adf_main")
+        core.close_formspec(name, "lib_planes:adf_main")
 	end
 	if formname == "lib_planes:passenger_main" then
         local name = player:get_player_name()
         local plane_obj = airutils.getPlaneFromPlayer(player)
         if plane_obj == nil then
-            minetest.close_formspec(name, "lib_planes:passenger_main")
+            core.close_formspec(name, "lib_planes:passenger_main")
             return
         end
         local ent = plane_obj:get_luaentity()
@@ -286,7 +286,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 end
 		    end
         end
-        minetest.close_formspec(name, "lib_planes:passenger_main")
+        core.close_formspec(name, "lib_planes:passenger_main")
 	end
 	if formname == "lib_planes:pilot_main" then
         local name = player:get_player_name()
@@ -308,21 +308,21 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 -----////
                 local pos = plane_obj:get_pos()
                 pos.y = pos.y + touch_point
-                local node_below = minetest.get_node(pos).name
-                local nodedef = minetest.registered_nodes[node_below]
+                local node_below = core.get_node(pos).name
+                local nodedef = core.registered_nodes[node_below]
                 local is_on_ground = not nodedef or nodedef.walkable or false -- unknown nodes are solid
 
                 if ent.driver_name == name and ent.owner == ent.driver_name then --just the owner can do this
-                    --minetest.chat_send_all(dump(noded))
+                    --core.chat_send_all(dump(noded))
                     if is_on_ground then --or clicker:get_player_control().sneak then
-                        --minetest.chat_send_all(dump("is on ground"))
+                        --core.chat_send_all(dump("is on ground"))
                         --remove the passengers first
                         local max_seats = table.getn(ent._seats)
                         for i = max_seats,1,-1
                         do
-                            --minetest.chat_send_all("index: "..i.." - "..dump(ent._passengers[i]))
+                            --core.chat_send_all("index: "..i.." - "..dump(ent._passengers[i]))
                             if ent._passengers[i] then
-                                local passenger = minetest.get_player_by_name(ent._passengers[i])
+                                local passenger = core.get_player_by_name(ent._passengers[i])
                                 if passenger then airutils.dettach_pax(ent, passenger) end
                             end
                         end
@@ -351,7 +351,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 else
                     ent._flap = false
                 end
-                minetest.sound_play("airutils_collision", {
+                core.sound_play("airutils_collision", {
                     object = ent.object,
                     max_hear_distance = 15,
                     gain = 1.0,
@@ -394,13 +394,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 end
             end
         end
-        minetest.close_formspec(name, "lib_planes:pilot_main")
+        core.close_formspec(name, "lib_planes:pilot_main")
     end
     if formname == "lib_planes:manage_copilot" then
         local name = player:get_player_name()
         local plane_obj = airutils.getPlaneFromPlayer(player)
         if plane_obj == nil then
-            minetest.close_formspec(name, "lib_planes:manage_copilot")
+            core.close_formspec(name, "lib_planes:manage_copilot")
             return
         end
         local ent = plane_obj:get_luaentity()
@@ -417,7 +417,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
             --then move the current copilot to a free seat
             if ent.co_pilot and is_there_a_free_seat then
-                local copilot_player_obj = minetest.get_player_by_name(ent.co_pilot)
+                local copilot_player_obj = core.get_player_by_name(ent.co_pilot)
                 if copilot_player_obj then
                     airutils.dettach_pax(ent, copilot_player_obj)
                     airutils.attach_pax(ent, copilot_player_obj)
@@ -427,7 +427,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
             --so bring the new copilot
             if ent.co_pilot == nil then
-                local new_copilot_player_obj = minetest.get_player_by_name(fields.copilot)
+                local new_copilot_player_obj = core.get_player_by_name(fields.copilot)
                 if new_copilot_player_obj then
                     airutils.dettach_pax(ent, new_copilot_player_obj)
                     airutils.attach_pax(ent, new_copilot_player_obj, true)
@@ -443,7 +443,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			    airutils.transfer_control(ent, true)
             end
 	    end
-        minetest.close_formspec(name, "lib_planes:manage_copilot")
+        core.close_formspec(name, "lib_planes:manage_copilot")
     end
 
 
