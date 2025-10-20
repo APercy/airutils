@@ -2,7 +2,7 @@
 airutils.elevator_limit = 40]]--
 local S = airutils.S
 
-dofile(minetest.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "utilities.lua")
+dofile(core.get_modpath("airutils") .. DIR_DELIM .. "lib_planes" .. DIR_DELIM .. "utilities.lua")
 
 local function set_yaw_by_mouse(self, dir)
     local rotation = self.object:get_rotation()
@@ -19,7 +19,7 @@ local function set_yaw_by_mouse(self, dir)
     local command = (rot_y - dir) * intensity
     if command < -90 then command = -90
     elseif command > 90 then command = 90 end
-    --minetest.chat_send_all("rotation y: "..rot_y.." - dir: "..dir.." - command: "..command)
+    --core.chat_send_all("rotation y: "..rot_y.." - dir: "..dir.." - command: "..command)
 
 	self._rudder_angle = (-command * self._rudder_limit)/90
 end
@@ -152,10 +152,10 @@ function airutils.heli_control(self, dtime, hull_direction, longit_speed, longit
             self._last_time_command = 0
             local name = player:get_player_name()
             if self._yaw_by_mouse == true then
-                minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control disabled.")))
+                core.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control disabled.")))
                 self._yaw_by_mouse = false
             else
-                minetest.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control enabled.")))
+                core.chat_send_player(name, core.colorize('#0000ff', S(" >>> Mouse control enabled.")))
                 self._yaw_by_mouse = true
             end
         end
