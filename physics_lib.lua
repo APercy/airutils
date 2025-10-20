@@ -16,7 +16,7 @@ local sign = function(x)
 end
 
 function airutils.rot_to_dir(rot) -- keep rot within <-pi/2,pi/2>
-	local dir = minetest.yaw_to_dir(rot.y)
+	local dir = core.yaw_to_dir(rot.y)
 	dir.y = dir.y+tan(rot.x)*vector.length(dir)
 	return vector.normalize(dir)
 end
@@ -24,7 +24,7 @@ end
 function airutils.dir_to_rot(v,rot)
 	rot = rot or {x=0,y=0,z=0}
 	return {x = (v.x==0 and v.y==0 and v.z==0) and rot.x or math.atan2(v.y,vector.length({x=v.x,y=0,z=v.z})),
-			y = (v.x==0 and v.z==0) and rot.y or minetest.dir_to_yaw(v),
+			y = (v.x==0 and v.z==0) and rot.y or core.dir_to_yaw(v),
 			z=rot.z}
 end
 
@@ -64,8 +64,8 @@ end
 
 function airutils.nodeatpos(pos)
     if pos == nil then return end
-	local node = minetest.get_node_or_nil(pos)
-	if node then return minetest.registered_nodes[node.name] end
+	local node = core.get_node_or_nil(pos)
+	if node then return core.registered_nodes[node.name] end
 end
 
 function airutils.minmax(v,m)
@@ -96,7 +96,7 @@ function airutils.actfunc(self, staticdata, dtime_s)
 	self.time_total = 0
 	self.water_drag = self.water_drag or 1
 
-	local sdata = minetest.deserialize(staticdata)
+	local sdata = core.deserialize(staticdata)
 	if sdata then
 		for k,v in pairs(sdata) do
 			self[k] = v
