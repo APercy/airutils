@@ -7,10 +7,10 @@ function airutils.get_xz_from_hipotenuse(orig_x, orig_z, yaw, distance)
     return x, z
 end
 
-minetest.register_node("airutils:light", {
+core.register_node("airutils:light", {
 	drawtype = "airlike",
 	--tile_images = {"airutils_light.png"},
-	inventory_image = minetest.inventorycube("airutils_light.png"),
+	inventory_image = core.inventorycube("airutils_light.png"),
 	paramtype = "light",
 	walkable = false,
 	is_ground_content = true,
@@ -26,7 +26,7 @@ minetest.register_node("airutils:light", {
 function airutils.remove_light(self)
     if self._light_old_pos then
         --force the remotion of the last light
-        minetest.add_node(self._light_old_pos, {name="air"})
+        core.add_node(self._light_old_pos, {name="air"})
         self._light_old_pos = nil
     end
 end
@@ -37,7 +37,7 @@ function airutils.swap_node(self, pos)
     local node = nil
     local count = 0
     while have_air == false and count <= 3 do
-        node = minetest.get_node(target_pos)
+        node = core.get_node(target_pos)
         if node.name == "air" then
             have_air = true
             break
@@ -47,7 +47,7 @@ function airutils.swap_node(self, pos)
     end
 
     if have_air then
-        minetest.set_node(target_pos, {name='airutils:light'})
+        core.set_node(target_pos, {name='airutils:light'})
         airutils.remove_light(self)
         self._light_old_pos = target_pos
         return true
@@ -62,7 +62,7 @@ function airutils.put_light(self)
     local lx, lz = airutils.get_xz_from_hipotenuse(pos.x, pos.z, yaw, 10)
     local light_pos = {x=lx, y=pos.y, z=lz}
 
-	local cast = minetest.raycast(pos, light_pos, false, false)
+	local cast = core.raycast(pos, light_pos, false, false)
 	local thing = cast:next()
     local was_set = false
 	while thing do
@@ -75,7 +75,7 @@ function airutils.put_light(self)
         thing = cast:next()
     end
     if was_set == false then
-        local n = minetest.get_node_or_nil(light_pos)
+        local n = core.get_node_or_nil(light_pos)
         if n and n.name == 'air' then
             airutils.swap_node(self, light_pos)
         end
