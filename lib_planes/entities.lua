@@ -677,7 +677,9 @@ function airutils.logic(self)
     if player and self._use_camera_relocation then
         --core.chat_send_all(dump(newroll))
         local new_eye_offset = airutils.camera_reposition(player, newpitch, newroll)
-        player:set_eye_offset(new_eye_offset, {x = 0, y = 1, z = -30})
+        if new_eye_offset then
+            player:set_eye_offset(new_eye_offset, {x = 0, y = 1, z = -30})
+        end
     end
 
     --apply rotations
