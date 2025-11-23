@@ -790,7 +790,7 @@ end
 
 local function _paint(self, l_textures, colstr, paint_list, mask_associations)
     paint_list = paint_list or self._painting_texture
-    mask_associations = mask_associations or self._mask_painting_associations
+    mask_associations = mask_associations or self._mask_painting_associations or {}
 
     for _, texture in ipairs(l_textures) do
         for i, texture_name in ipairs(paint_list) do --textures list
