@@ -683,6 +683,9 @@ function airutils.logic(self)
     end
 
     --apply rotations
+    if newroll ~= newroll then newroll = 0 end
+    if newyaw ~= newyaw then newyaw = 0 end
+    if newpitch ~= newpitch then newpitch = 0 end
     self.object:set_rotation({x=newpitch,y=newyaw,z=newroll})
     --end
 
