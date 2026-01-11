@@ -917,6 +917,8 @@ function airutils.on_rightclick(self, clicker)
         if plane == self.object then is_attached = true end
     end
 
+    if self.driver_name == "" then self.driver_name = nil end
+
     if name == self.driver_name then
         if is_attached then
             local itmstck=clicker:get_wielded_item()
