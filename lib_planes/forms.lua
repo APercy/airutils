@@ -125,7 +125,7 @@ function airutils.manage_copilot_formspec(name)
 
     local pass_list = ""
     for k, v in pairs(ent._passengers) do
-        if v ~= ent.driver_name then
+        if v ~= ent._passengers[1] and v ~= ent.co_pilot then
             pass_list = pass_list .. v .. ","
         end
     end
@@ -408,20 +408,17 @@ core.register_on_player_receive_fields(function(player, formname, fields)
         local ent = plane_obj:get_luaentity()
 
         if fields.copilot then
-            --look for a free seat first
-            local is_there_a_free_seat = false
-            for i = 2,1,-1
-            do
-                if ent._passengers[i] == nil then
-                    is_there_a_free_seat = true
-                    break
-                end
-            end
-            --then move the current copilot to a free seat
-            if ent.co_pilot and is_there_a_free_seat then
+            if ent.co_pilot then --and is_there_a_free_seat then
                 local copilot_player_obj = core.get_player_by_name(ent.co_pilot)
                 if copilot_player_obj then
                     airutils.dettach_pax(ent, copilot_player_obj)
+
+                    local new_copilot_player_obj = core.get_player_by_name(fields.copilot)
+                    if new_copilot_player_obj then
+                        airutils.dettach_pax(ent, new_copilot_player_obj)
+                        airutils.attach_pax(ent, new_copilot_player_obj, true)
+                    end
+
                     airutils.attach_pax(ent, copilot_player_obj)
                 else
                     ent.co_pilot = nil
