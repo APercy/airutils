@@ -125,7 +125,9 @@ function airutils.manage_copilot_formspec(name)
 
     local pass_list = ""
     for k, v in pairs(ent._passengers) do
-        pass_list = pass_list .. v .. ","
+        if v ~= ent.driver_name then
+            pass_list = pass_list .. v .. ","
+        end
     end
 
     local basic_form = table.concat({
