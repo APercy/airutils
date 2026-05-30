@@ -56,6 +56,21 @@ local function sit_player(player, name)
     end)
 end
 
+function airutils.stand(player)
+    local name = player:get_player_name()
+    if nautilus.is_minetest then
+        if player_api.player_attached[name] then
+            player_api.player_attached[name] = nil
+        end
+        player_api.set_animation(player, "stand")
+    elseif nautilus.is_mcl then
+        if mcl_player.player_attached[name] then
+            mcl_player.player_attached[name] = nil
+        end
+        mcl_player.player_set_animation(player, "stand")
+    end
+end
+
 -- attach player
 function airutils.attach(self, player, instructor_mode)
     if not player then return end
@@ -145,17 +160,7 @@ function airutils.dettachPlayer(self, player)
     if player then
         player:set_detach()
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
-        if airutils.is_minetest then
-            if player_api.player_attached[name] then
-                player_api.player_attached[name] = nil
-            end
-            player_api.set_animation(player, "stand")
-        elseif airutils.is_mcl then
-            if mcl_player.player_attached[name] then
-                mcl_player.player_attached[name] = nil
-            end
-            mcl_player.player_set_animation(player, "stand")
-        end
+        airutils.stand(player)
     end
     self.driver = nil
     --remove_physics_override(player, {speed=1,gravity=1,jump=1})
@@ -293,13 +298,7 @@ function airutils.dettach_pax(self, player, is_flying)
             player:set_pos(pos)
         end
 
-        if airutils.is_minetest then
-            player_api.player_attached[name] = nil
-            player_api.set_animation(player, "stand")
-        elseif airutils.is_mcl then
-            mcl_player.player_attached[name] = nil
-            mcl_player.player_set_animation(player, "stand")
-        end
+        airutils.stand(player)
 
         player:set_eye_offset({x=0,y=0,z=0},{x=0,y=0,z=0})
         --remove_physics_override(player, {speed=1,gravity=1,jump=1})
