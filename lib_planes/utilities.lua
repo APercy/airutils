@@ -58,12 +58,12 @@ end
 
 function airutils.stand(player)
     local name = player:get_player_name()
-    if nautilus.is_minetest then
+    if airutils.is_minetest then
         if player_api.player_attached[name] then
             player_api.player_attached[name] = nil
         end
         player_api.set_animation(player, "stand")
-    elseif nautilus.is_mcl then
+    elseif airutils.is_mcl then
         if mcl_player.player_attached[name] then
             mcl_player.player_attached[name] = nil
         end
