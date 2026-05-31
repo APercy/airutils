@@ -761,12 +761,8 @@ function airutils.set_param_paint(self, puncher, itmstck, mode)
         if split[1] then _,indx = split[1]:find('dye') end
         if indx then
             self._skin = ""
-            --[[for clr,_ in pairs(airutils.colors) do
-                local _,x = split[2]:find(clr)
-                if x then color = clr end
-            end]]--
             --lets paint!!!!
-            local color = (item_name:sub(indx+1)):gsub(":", "")
+            local color = split[2] --(item_name:sub(indx+1)):gsub(":", "")
 
             local colstr = self._color
             local colstr_2 = self._color_2

@@ -21,6 +21,11 @@ airutils.colors ={
     violet='#a437ff',
     white='#FFFFFF',
     yellow='#ffe400',
+    -- NEW: Mineclonia colors that were missing (thanks PsyMops)
+    light_blue = "#258ec9",    -- Light blue dye
+    lime = "#60ac19",          -- Lime dye (bright green)
+    purple = "#6821a0",        -- Purple dye (similar to violet)
+    silver = "#818177",        -- Silver/light grey dye
 }
 
 airutils.S = nil
