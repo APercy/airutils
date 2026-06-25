@@ -955,6 +955,7 @@ function airutils.add_destruction_effects(pos, radius, w_fire)
     w_fire = w_fire
     if w_fire == nil then w_fire = true end
     local node = airutils.nodeatpos(pos)
+    if not node then return end
     local is_liquid = false
     if (node.drawtype == 'liquid' or node.drawtype == 'flowingliquid') then is_liquid = true end
 
