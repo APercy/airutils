@@ -436,6 +436,7 @@ function airutils.destroy(self, by_name, by_automation)
 end
 
 function airutils.testImpact(self, velocity, position)
+    if not self.object then return end
     if self.hp_max < 0 then --if acumulated damage is greater than 50, adieu
         airutils.destroy(self)
     end
@@ -560,12 +561,16 @@ function airutils.testImpact(self, velocity, position)
                 damage = impact / 2 --if the plane was landing, the damage is mainly on landing gear, so lets reduce the damage
             end]]--
             --end check
-            if math.abs(math.deg(self.object:get_rotation().x)) < 20 and --nose angle between +20 and -20 degrees
-                self._longit_speed < (self._min_speed*2) then  --longit speed less than the double of min speed
-                damage = impact / 2 --if the plane was landing, the damage is mainly on landing gear, so lets reduce the damage
-                local new_vel = self.object:get_velocity()
-                new_vel.y = 0
-                self.object:set_velocity(new_vel) --TODO something is causing the plane to explode after a shaking, so I'm reseting the speed until I discover the bug
+            local obj_rot = self.object:get_rotation()
+            if obj_rot then
+                local pitch = obj_rot.x or 0
+                if math.abs(math.deg(pitch)) < 20 and --nose angle between +20 and -20 degrees
+                    self._longit_speed < (self._min_speed*2) then  --longit speed less than the double of min speed
+                    damage = impact / 2 --if the plane was landing, the damage is mainly on landing gear, so lets reduce the damage
+                    local new_vel = self.object:get_velocity()
+                    new_vel.y = 0
+                    self.object:set_velocity(new_vel) --TODO something is causing the plane to explode after a shaking, so I'm reseting the speed until I discover the bug
+                end
             end
         end
 
