@@ -113,8 +113,10 @@ function airutils.physics(self)
     end
 
     --if it's not NaN, add velocity
-    if new_velocity.x == new_velocity.x and new_velocity.y == new_velocity.y and new_velocity.z == new_velocity.z then
-        self.object:add_velocity(new_velocity)
-    end
+    new_velocity.x = new_velocity.x or 0
+    new_velocity.y = new_velocity.y or 0
+    new_velocity.z = new_velocity.z or 0
+    self.object:add_velocity(new_velocity)
+
 end
 
