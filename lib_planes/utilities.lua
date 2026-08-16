@@ -864,19 +864,20 @@ function airutils.param_paint(self, colstr, colstr_2)
         self._color = colstr
         self._color_2 = colstr_2
         local l_textures = self.initial_properties.textures
+        local paint_function = self._paint_function or _paint
 
         --to reduce cpu processing, put the prefix here
         l_textures = set_prefix(self, l_textures)
 
-        l_textures = _paint(self, l_textures, colstr) --paint the main plane
-        l_textures = _paint(self, l_textures, colstr_2, self._painting_texture_2) --paint the main plane
+        l_textures = paint_function(self, l_textures, colstr) --paint the main plane
+        l_textures = paint_function(self, l_textures, colstr_2, self._painting_texture_2) --paint the main plane
         self.object:set_properties({textures=l_textures})
 
         if self._paintable_parts then --paint individual parts
             for i, part_entity in ipairs(self._paintable_parts) do
                 local p_textures = part_entity.initial_properties.textures
-                p_textures = _paint(part_entity, p_textures, colstr, self._painting_texture, self._mask_painting_associations)
-                p_textures = _paint(part_entity, p_textures, colstr_2, self._painting_texture_2, self._mask_painting_associations)
+                p_textures = paint_function(part_entity, p_textures, colstr, self._painting_texture, self._mask_painting_associations)
+                p_textures = paint_function(part_entity, p_textures, colstr_2, self._painting_texture_2, self._mask_painting_associations)
                 part_entity.object:set_properties({textures=p_textures})
             end
         end
